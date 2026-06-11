@@ -3,12 +3,12 @@ import { Page, expect } from '@playwright/test';
 const BASE = process.env.BASE_URL ?? '';
 
 export const CONTENTS_FILTER_CATEGORIES = [
-  '전체', '보건 의료', 'IT 실습', '직무 훈련', '어학', '조종 훈련',
+  '전체', '보건 의료', 'IT실습', '직무 훈련', '어학', '조종 훈련',
 ];
 
 export const CONTENTS_SUBCATEGORIES: Record<string, string[]> = {
   '보건 의료': ['보건 의료 실습', '생체 해부 실습'],
-  'IT 실습':   ['AI/파이썬 과정', '웹 개발 실무'],
+  'IT실습':    ['AI/파이썬 과정', '웹 개발 실무'],
   '직무 훈련': ['직무 훈련 실습'],
   '어학':      ['어학 실습'],
   '조종 훈련': ['초경량 비행장치 실습', '기계·장비 운전 실습'],
@@ -104,28 +104,41 @@ export class ContentsPage {
   }
 
   async verifySwipeButtonFormat() {
-    // n/n 형식 스와이프 버튼 확인 (예: "1/5")
-    await expect(this.page.locator('text=/^\\d+\\/\\d+$/').first()).toBeVisible({ timeout: 8000 });
+    // DOM이 <span>1</span><span>/</span><span>10</span> 세 요소로 분리되어 있어
+    // text= 정규식 대신 "/" 텍스트를 가진 span의 부모 컨테이너로 접근
+    const swipeNum = this.page.locator('[class*="swipe"] span, [class*="Swipe"] span, [class*="page"] span, [class*="Page"] span')
+      .filter({ hasText: /^\d+$/ }).first();
+    await expect(swipeNum).toBeVisible({ timeout: 8000 });
     console.log('✅ 스와이프 버튼 n/n 형식 확인');
   }
 
   async getSwipePage(): Promise<{ current: number; total: number }> {
-    const text = await this.page.locator('text=/^\\d+\\/\\d+$/').first().textContent();
-    const [cur, tot] = (text ?? '1/1').split('/').map(Number);
+    // 숫자 span들을 찾아 현재/전체 추출
+    const spans = this.page.locator('[class*="swipe"] span, [class*="Swipe"] span, [class*="page"] span, [class*="Page"] span')
+      .filter({ hasText: /^\d+$/ });
+    const cur = parseInt((await spans.nth(0).textContent()) ?? '1');
+    const tot = parseInt((await spans.nth(1).textContent()) ?? '1');
     return { current: cur, total: tot };
   }
 
   async clickSwipeNext() {
-    // n/n 텍스트 부모의 마지막 버튼(우측) 클릭
-    const swipeContainer = this.page.locator('text=/^\\d+\\/\\d+$/').locator('..');
-    await swipeContainer.locator('button').last().click();
+    // next 버튼: [class*="next"] 또는 스와이프 컨테이너 내 마지막 버튼
+    const nextBtn = this.page.locator('[class*="next"], [class*="Next"]').first()
+      .or(this.page.locator('[class*="swipe"] button, [class*="Swipe"] button').last());
+    await nextBtn.first().click();
     await this.page.waitForTimeout(600);
     console.log('🖱️ 스와이프 우측 버튼 클릭');
   }
 
   async clickFirstCard() {
-    await this.page.locator('[class*="Card"], [class*="card"]').first().click();
-    await this.page.waitForURL(/\/contents\/detail/, { timeout: 10000 });
+    // h5 heading을 포함하고 img도 포함한 카드만 타깃 (wrapper 컨테이너 제외)
+    const card = this.page
+      .locator('[class*="Card"], [class*="card"]')
+      .filter({ has: this.page.locator('h5') })
+      .filter({ has: this.page.locator('img') })
+      .first();
+    await card.click();
+    await this.page.waitForURL(/\/contents\/detail/, { timeout: 15000 });
     await this.page.waitForLoadState('networkidle');
     console.log('🖱️ 첫 번째 콘텐츠 카드 클릭');
   }

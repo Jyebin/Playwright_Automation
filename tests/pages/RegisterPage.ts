@@ -12,13 +12,13 @@ export class RegisterPage {
     await this.page.getByRole('link', { name: '회원가입' }).or(
       this.page.getByText('회원가입', { exact: true })
     ).first().click();
-    await this.page.waitForURL(/\/register|\/signup|\/join/, { timeout: 10000 });
+    await this.page.waitForURL(/\/regist(?:er)?|\/signup|\/join/, { timeout: 10000 });
     await this.page.waitForLoadState('networkidle');
   }
 
   async gotoDirectly() {
-    // 직접 URL 접근 시도 (register → join → signup 순)
-    for (const path of ['/register', '/join', '/signup']) {
+    // 직접 URL 접근 시도 (실제 경로 /regist 우선)
+    for (const path of ['/regist', '/register', '/join', '/signup']) {
       await this.page.goto(`${BASE}${path}`);
       await this.page.waitForLoadState('networkidle');
       const is404 = await this.page.getByText('404').isVisible().catch(() => false);

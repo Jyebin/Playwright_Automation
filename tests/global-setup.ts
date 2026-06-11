@@ -23,21 +23,15 @@ async function globalSetup() {
   await page.getByPlaceholder('아이디를 입력해 주세요.').fill(username);
   await page.getByPlaceholder('비밀번호를 입력해 주세요.').fill(password);
 
-  const [response] = await Promise.all([
-    page.waitForResponse(res =>
-      res.url().includes('login') &&
-      res.request().method() === 'POST' &&
-      (res.headers()['content-type'] || '').includes('application/json')
-    ),
-    page.getByRole('button', { name: '로그인' }).click(),
-  ]);
+  await page.getByRole('button', { name: '로그인' }).click();
 
-  const body = await response.json();
-  if (body.status_code !== 200) {
-    throw new Error(`Global setup 로그인 실패: ${body.msg}`);
+  // 로그인 후 /login 에서 벗어날 때까지 대기
+  await page.waitForURL(url => !url.href.includes('/login'), { timeout: 20000 });
+
+  // 여전히 로그인 페이지면 실패
+  if (page.url().includes('/login')) {
+    throw new Error('Global setup 로그인 실패: /login 페이지에서 벗어나지 못했습니다.');
   }
-
-  await page.waitForURL(`${baseURL}/`);
   await page.context().storageState({ path: '.auth/user.json' });
 
   console.log('✅ [Global Setup] 로그인 완료 — 세션 저장됨');
