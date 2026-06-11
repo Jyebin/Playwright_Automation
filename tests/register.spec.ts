@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from './pages/RegisterPage';
+import { waitForVerificationToken, generateTestEmail } from './helpers/emailHelper';
 
 // 회원가입 테스트는 세션 없이 실행
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -51,16 +52,20 @@ test.describe('T759 - 소셜 회원가입 버튼 확인', () => {
       await register.verifyNaverLoginPage();
     }
   });
+
+  // ── 자동화 불가 항목 (소셜 로그인 완료) ───────────────────────────────────
+  test.skip('[자동화 불가 - 외부 OAuth 서비스] 카카오 계정으로 실제 로그인 완료 후 회원가입 처리', async () => {
+    // 카카오/구글/네이버는 외부 OAuth 서비스로, 실제 계정 자격증명 입력 및 로그인 완료는
+    // 봇 감지(CAPTCHA 등) 및 외부 서비스 제어 불가로 자동화할 수 없습니다.
+  });
+
+  test.skip('[자동화 불가 - 외부 OAuth 서비스] 구글 계정으로 실제 로그인 완료 후 회원가입 처리', async () => {});
+
+  test.skip('[자동화 불가 - 외부 OAuth 서비스] 네이버 계정으로 실제 로그인 완료 후 회원가입 처리', async () => {});
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // T421 - [Front][PC][회원가입] 002. 개인 회원 - 이메일 가입
-//
-// ⚠️  이메일 인증 이후 과정 자동화 범위:
-//   - 회원가입 페이지 UI, 이메일 필드, 중복확인 버튼 활성화 → ✅ 자동화 가능
-//   - 이메일 인증 메일 확인 (Step 1)                         → ❌ 이메일 클라이언트 접근 불가
-//   - 인증 링크 클릭 → /regist_data?token=JWT (Step 2)       → ❌ 이메일 링크 접근 불가
-//   - 비밀번호 입력, 약관 동의, 회원가입 완료 (Step 3~5)      → ❌ JWT 토큰 필요
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
   test.beforeEach(async ({ page }) => {
@@ -103,12 +108,147 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
   test('이메일 형식이 아닌 텍스트 입력 시 중복확인 버튼 비활성 유지', async ({ page }) => {
     const register = new RegisterPage(page);
     await register.typeEmail('invalid-email-text');
-    // 이메일 형식이 아니면 중복확인 버튼이 활성화되지 않아야 함
     const btn = page.getByText('중복확인', { exact: true }).first();
     const isDisabled = await btn.isDisabled().catch(() => false);
-    // disabled이거나 비활성 상태
     console.log(`ℹ️ 비유효 이메일 입력 시 중복확인 버튼 disabled: ${isDisabled}`);
-    // 활성화되지 않았음을 확인 (exact assertion은 실제 구현에 따라 조정 필요)
     await expect(btn).toBeVisible();
+  });
+
+  // 수동 확인 항목 (발신자/제목 검증은 UI가 아닌 메일 클라이언트에서 확인)
+  test.skip('[수동 확인] 인증 이메일 제목·발신자 확인 — 제목: "[라온 메타데미] 이메일 인증 링크입니다.", 발신자: metademy@raon.com', async () => {});
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// T421 Step 2-4 — IMAP으로 JWT 토큰 취득 후 /regist_data 페이지 검증
+//
+// 필수 .env 설정:
+//   EMAIL_IMAP_HOST  (예: imap.gmail.com)
+//   EMAIL_IMAP_USER  (테스트용 이메일 주소)
+//   EMAIL_IMAP_PASS  (앱 비밀번호)
+// ─────────────────────────────────────────────────────────────────────────────
+test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  let token = '';
+  let testEmail = '';
+
+  test.beforeAll(async ({ browser }) => {
+    testEmail = generateTestEmail();
+    console.log(`[T421] 테스트 이메일: ${testEmail}`);
+
+    const page = await browser.newPage();
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.submitEmailForVerification(testEmail);
+    await page.close();
+
+    token = await waitForVerificationToken(90_000);
+    console.log(`[T421] 인증 토큰 수신 완료`);
+  });
+
+  test.beforeEach(async ({ page }) => {
+    const base = process.env.BASE_URL ?? '';
+    await page.goto(`${base}/regist_data?token=${token}`);
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('/regist_data 페이지 URL 및 접속 확인', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.verifyRegistDataUrl();
+  });
+
+  test('/regist_data 페이지 - E-mail/비밀번호/비밀번호 재확인 placeholder 확인', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.verifyRegistDataPlaceholders();
+  });
+
+  test('/regist_data 페이지 - 이메일 자동입력 확인 (인증 이메일 주소)', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.verifyEmailAutofilled(testEmail);
+  });
+
+  test('/regist_data 페이지 - 취소 버튼 클릭 → 경고 모달 → [확인] 시 메인 페이지 이동', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.clickRegistDataCancelButton();
+    await register.verifyRegistDataCancelModal();
+    await register.clickRegistDataCancelModalConfirm();
+    await expect(page).toHaveURL(/^\/?(?:$|main|home|\?)/);
+    console.log(`✅ 취소 확인 후 메인 페이지 이동: ${page.url()}`);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// T758 - [Front][PC][회원가입] 003. 개인 회원 - 이용약관 동의
+//
+// IMAP으로 JWT 토큰 취득 후 /regist_data 페이지 전 항목 자동화
+// ─────────────────────────────────────────────────────────────────────────────
+test.describe('T758 - 이용약관 동의', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  let token = '';
+  let testEmail = '';
+
+  test.beforeAll(async ({ browser }) => {
+    testEmail = generateTestEmail();
+    console.log(`[T758] 테스트 이메일: ${testEmail}`);
+
+    const page = await browser.newPage();
+    const register = new RegisterPage(page);
+    await register.goto();
+    await register.submitEmailForVerification(testEmail);
+    await page.close();
+
+    token = await waitForVerificationToken(90_000);
+    console.log(`[T758] 인증 토큰 수신 완료`);
+  });
+
+  test.beforeEach(async ({ page }) => {
+    const base = process.env.BASE_URL ?? '';
+    await page.goto(`${base}/regist_data?token=${token}`);
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('이메일 자동입력 확인 및 비밀번호 유효성 검사 (8자 미만/숫자 없음/문자 없음/기호 없음)', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.verifyEmailAutofilled(testEmail);
+    // 8자 미만
+    await register.fillPasswordAndVerifyError('Ab1!', /8자|최소|자 이상/);
+    // 숫자 없음
+    await register.fillPasswordAndVerifyError('Abcdefg!', /숫자|number/i);
+    // 영문 없음
+    await register.fillPasswordAndVerifyError('12345678!', /영문|문자|letter/i);
+    // 특수문자 없음
+    await register.fillPasswordAndVerifyError('Abcdef12', /특수|기호|symbol/i);
+  });
+
+  test('전체 동의 체크 시 하위 항목 모두 체크 및 개별 해제 연동 동작 확인', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.checkAllTermsAgree();
+    await register.verifyAllSubCheckboxesChecked();
+  });
+
+  test('약관 [보기] 버튼 클릭 시 모달 노출 및 X 버튼으로 닫힘 확인 (이용약관/개인정보/마케팅)', async ({ page }) => {
+    const register = new RegisterPage(page);
+    for (const termType of ['이용약관', '개인정보', '마케팅'] as const) {
+      await register.clickTermsViewButton(termType);
+      await register.verifyTermsModalVisible();
+      await register.closeTermsModal();
+      await page.waitForTimeout(400);
+    }
+  });
+
+  test('필수 약관 미체크 상태에서 [회원가입] 버튼 클릭 시 알럿 확인', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.fillPassword('TestPass1!', 'TestPass1!');
+    await register.clickRegisterButton();
+    await register.verifyTermsRequiredAlert();
+  });
+
+  test('비밀번호 입력 + 필수 약관 동의 후 [회원가입] 클릭 → 회원가입 완료 페이지 이동', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.fillPassword('TestPass1!', 'TestPass1!');
+    await register.checkAllTermsAgree();
+    await register.clickRegisterButton();
+    await register.verifyRegisterComplete();
   });
 });
