@@ -1,0 +1,17 @@
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# 인증 세션 (로그인 후 저장되는 토큰)
+.auth/
+
+# 환경변수 (API 키, 비밀번호 등 민감 정보)
+.env
+
+# Claude Code 로컬 설정
+.claude/
