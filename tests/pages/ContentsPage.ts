@@ -148,9 +148,16 @@ export class ContentsPage {
   }
 
   private async _clickCard(paidOnly: boolean) {
-    // 카드는 cursor:pointer div — h5에서 위로 올라가 첫 cursor:pointer 조상 클릭
-    // paidOnly=true: '원' 가격 포함 & '무료' 미포함 카드만 대상
-    await this.page.evaluate((paidOnly: boolean) => {
+    // 콘텐츠 목록은 비동기 API 응답 후 렌더링 — load 이후에도 빈 상태일 수 있음
+    // "검색 결과가 없습니다." 상태가 사라지고 실제 카드(h5)가 2개 이상 나타날 때까지 대기
+    await this.page.waitForFunction(
+      () => document.querySelectorAll('h5').length >= 2,
+      { timeout: 15000 }
+    ).catch(() => {});
+
+    // page.evaluate()의 el.click()은 React 이벤트 핸들러를 트리거하지 못할 수 있음
+    // → JS로 대상 요소를 찾아 data 속성 마킹 후 Playwright 네이티브 click() 사용
+    const found = await this.page.evaluate((paidOnly: boolean) => {
       const h5s = Array.from(document.querySelectorAll('h5'));
       for (const h5 of h5s) {
         let el: HTMLElement | null = h5.parentElement as HTMLElement;
@@ -160,14 +167,23 @@ export class ContentsPage {
               const text = el.textContent ?? '';
               if (!text.includes('원') || text.includes('무료')) { break; }
             }
-            el.click();
-            return;
+            el.setAttribute('data-pw-card', 'target');
+            return true;
           }
           el = el.parentElement as HTMLElement;
         }
       }
+      return false;
     }, paidOnly);
-    await this.page.waitForURL(/\/contents\/detail/, { timeout: 15000 });
+
+    if (!found) throw new Error(`콘텐츠 카드를 찾지 못했습니다 (paidOnly=${paidOnly})`);
+    await this.page.locator('[data-pw-card="target"]').click();
+
+    try {
+      await this.page.waitForURL(/\/contents\/detail/, { timeout: 15000 });
+    } catch {
+      throw new Error(`카드 클릭 후 상세 페이지 미이동. 현재 URL: ${this.page.url()}`);
+    }
     await this.page.waitForLoadState('load');
     console.log(`🖱️ 첫 번째 ${paidOnly ? '유료 ' : ''}콘텐츠 카드 클릭`);
   }

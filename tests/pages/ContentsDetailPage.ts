@@ -209,22 +209,49 @@ export class ContentsDetailPage {
   }
 
   async clickSubscriptionDropdown() {
-    // 구독권 드롭다운 클릭 (placeholder가 "옵션을 선택해 주세요."인 셀렉트박스)
-    await this.page.getByText('옵션을 선택해 주세요.').first().click();
-    await this.page.waitForTimeout(500);
-    console.log('🖱️ 구독권 드롭다운 클릭');
+    // 접근성 트리 상 첫 번째 "옵션을 선택해 주세요."는 현재 선택값 표시 영역,
+    // 두 번째(img 화살표 포함)가 실제 클릭 가능한 구독권 드롭다운 트리거
+    await this.page.getByText('옵션을 선택해 주세요.').nth(1).click();
+    await this.page.waitForTimeout(600);
+    // 디버그: 클릭 직후 DOM 캡처
+    await this.page.screenshot({ path: 'debug-dropdown.png' }).catch(() => {});
+    const domInfo = await this.page.evaluate(() => {
+      return Array.from(document.querySelectorAll('[class]'))
+        .filter(el => {
+          const s = window.getComputedStyle(el);
+          return (s.position === 'absolute' || s.position === 'fixed')
+            && s.display !== 'none' && s.visibility !== 'hidden' && s.opacity !== '0';
+        })
+        .slice(0, 8)
+        .map(el => ({
+          tag: el.tagName,
+          cls: el.className?.toString().substring(0, 80),
+          text: el.textContent?.trim().substring(0, 50),
+          z: window.getComputedStyle(el).zIndex,
+        }));
+    });
+    console.log('🔍 드롭다운 클릭 후 absolute/fixed elements:', JSON.stringify(domInfo));
+    console.log('🖱️ 구독권 드롭다운 클릭 (nth=1)');
   }
 
   async verifySubscriptionDropdownOpen() {
-    // 드롭다운 목록이 열렸는지 확인 (option 항목 또는 li)
-    const options = this.page.locator('[class*="dropdown"] li, [class*="option-list"] li, [class*="Option"]');
-    await expect(options.first()).toBeVisible({ timeout: 5000 });
+    // 드롭다운 열림 확인 - 다양한 패턴 커버
+    const options = this.page.locator(
+      '[role="option"], [role="listbox"] > *, [class*="option"], [class*="Option"], ' +
+      '[class*="list"] > li, ul[class] > li, [class*="item"][class*="select"], ' +
+      '[class*="select"] > *, [class*="Select"] > *'
+    );
+    await expect(options.first()).toBeVisible({ timeout: 8000 });
     console.log('✅ 구독권 드롭다운 열림 확인');
   }
 
   async selectFirstSubscriptionOption() {
     // 첫 번째 옵션 선택
-    const option = this.page.locator('[class*="dropdown"] li, [class*="option-list"] li, [class*="Option"]').first();
+    const option = this.page.locator(
+      '[role="option"], [role="listbox"] > *, [class*="option"], [class*="Option"], ' +
+      '[class*="list"] > li, ul[class] > li, [class*="item"][class*="select"], ' +
+      '[class*="select"] > *, [class*="Select"] > *'
+    ).first();
     await option.click();
     await this.page.waitForTimeout(500);
     console.log('🖱️ 첫 번째 구독권 옵션 선택');
