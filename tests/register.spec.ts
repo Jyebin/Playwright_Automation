@@ -115,13 +115,14 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await expect(btn).toBeVisible();
   });
 
-  test('유효한 이메일 입력 후 중복확인 클릭 시 "사용 가능한 이메일" 모달 노출', async ({ page }) => {
+  test('유효한 이메일 입력 후 중복확인 클릭 시 "사용 가능한 이메일" 모달 노출 → 확인 후 이메일 인증 버튼 클릭', async ({ page }) => {
     const register = new RegisterPage(page);
-    // @example.com은 서버에서 거부될 수 있음 → .env의 실제 이메일 사용
     const testEmail = process.env.EMAIL_IMAP_USER ?? `test_avail_${Date.now()}@gmail.com`;
     await register.typeEmail(testEmail);
     await register.clickDuplicateCheckButton();
     await register.verifyEmailAvailableModal();
+    await register.clickEmailAvailableModalConfirm();
+    await register.clickEmailVerificationButton();
   });
 
   test('이메일 형식 불일치 시 "필수 입력 정보입니다." 문구 노출', async ({ page }) => {

@@ -171,6 +171,27 @@ export class RegisterPage {
     console.log('✅ 모달 확인: "사용 가능한 이메일입니다. 다음 단계를 진행해 주세요."');
   }
 
+  async clickEmailAvailableModalConfirm() {
+    // 모달의 "확인" 버튼 클릭 (중복 확인/취소/이메일 인증과 구분되는 단독 "확인")
+    const confirmBtn = this.page.getByRole('button', { name: '확인', exact: true });
+    await expect(confirmBtn).toBeVisible({ timeout: 5000 });
+    await confirmBtn.click();
+    // 모달이 닫힐 때까지 대기
+    await expect(
+      this.page.getByText('사용 가능한 이메일입니다.', { exact: false })
+    ).not.toBeVisible({ timeout: 5000 });
+    console.log('🖱️ 모달 "확인" 클릭 → 모달 닫힘');
+  }
+
+  async clickEmailVerificationButton() {
+    const btn = this.page.getByRole('button', { name: '이메일 인증', exact: true })
+      .or(this.page.getByText('이메일 인증', { exact: true }))
+      .first();
+    await expect(btn).toBeVisible({ timeout: 5000 });
+    await btn.click();
+    console.log('🖱️ "이메일 인증" 버튼 클릭');
+  }
+
   async verifyDuplicateCheckButtonActive() {
     const btn = this.getDupCheckButton();
     await expect(btn).toBeVisible();
