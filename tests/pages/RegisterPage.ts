@@ -164,11 +164,12 @@ export class RegisterPage {
   }
 
   async verifyEmailAvailableModal() {
-    // 중복확인 클릭 후 reCAPTCHA 처리 시간 포함 → 최대 20초 대기
+    // 실제 모달 텍스트: "사용 가능한 이메일입니다.\n다음 단계를 진행해주세요." (개행 + 공백 없음)
+    // 공백/개행 차이에 무관하게 첫 문장만 매칭
     await expect(
-      this.page.getByText('사용 가능한 이메일입니다. 다음 단계를 진행해 주세요.', { exact: false }).first()
+      this.page.getByText('사용 가능한 이메일입니다.', { exact: false }).first()
     ).toBeVisible({ timeout: 20000 });
-    console.log('✅ "사용 가능한 이메일입니다. 다음 단계를 진행해 주세요." 모달 확인');
+    console.log('✅ "사용 가능한 이메일입니다." 모달 확인');
   }
 
   async verifyDuplicateCheckButtonActive() {
