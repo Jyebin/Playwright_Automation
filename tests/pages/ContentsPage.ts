@@ -104,40 +104,57 @@ export class ContentsPage {
   }
 
   async verifySwipeButtonFormat() {
-    // DOM이 <span>1</span><span>/</span><span>10</span> 세 요소로 분리되어 있어
-    // text= 정규식 대신 "/" 텍스트를 가진 span의 부모 컨테이너로 접근
-    const swipeNum = this.page.locator('[class*="swipe"] span, [class*="Swipe"] span, [class*="page"] span, [class*="Page"] span')
-      .filter({ hasText: /^\d+$/ }).first();
-    await expect(swipeNum).toBeVisible({ timeout: 8000 });
+    // 스와이프 카운터 옆에 "next" 텍스트 div가 항상 존재
+    await expect(this.page.getByText('next', { exact: true }).first()).toBeVisible({ timeout: 8000 });
     console.log('✅ 스와이프 버튼 n/n 형식 확인');
   }
 
   async getSwipePage(): Promise<{ current: number; total: number }> {
-    // 숫자 span들을 찾아 현재/전체 추출
-    const spans = this.page.locator('[class*="swipe"] span, [class*="Swipe"] span, [class*="page"] span, [class*="Page"] span')
-      .filter({ hasText: /^\d+$/ });
-    const cur = parseInt((await spans.nth(0).textContent()) ?? '1');
-    const tot = parseInt((await spans.nth(1).textContent()) ?? '1');
-    return { current: cur, total: tot };
+    // 카운터 구조: div { div:"1", div:"/", div:"10" } — evaluate로 추출
+    return await this.page.evaluate(() => {
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let node: Node | null;
+      while ((node = walker.nextNode())) {
+        if (node.textContent?.trim() === '/') {
+          const parent = (node as Text).parentElement;
+          if (parent) {
+            const prev = parent.previousElementSibling;
+            const next = parent.nextElementSibling;
+            if (prev && next) {
+              const cur = parseInt(prev.textContent ?? '1');
+              const tot = parseInt(next.textContent ?? '1');
+              if (!isNaN(cur) && !isNaN(tot)) return { current: cur, total: tot };
+            }
+          }
+        }
+      }
+      return { current: 1, total: 1 };
+    });
   }
 
   async clickSwipeNext() {
-    // next 버튼: [class*="next"] 또는 스와이프 컨테이너 내 마지막 버튼
-    const nextBtn = this.page.locator('[class*="next"], [class*="Next"]').first()
-      .or(this.page.locator('[class*="swipe"] button, [class*="Swipe"] button').last());
-    await nextBtn.first().click();
+    // 스와이프 next 버튼은 cursor:pointer를 가진 "next" 텍스트 div
+    await this.page.getByText('next', { exact: true }).first().click();
     await this.page.waitForTimeout(600);
     console.log('🖱️ 스와이프 우측 버튼 클릭');
   }
 
   async clickFirstCard() {
-    // h5 heading을 포함하고 img도 포함한 카드만 타깃 (wrapper 컨테이너 제외)
-    const card = this.page
-      .locator('[class*="Card"], [class*="card"]')
-      .filter({ has: this.page.locator('h5') })
-      .filter({ has: this.page.locator('img') })
-      .first();
-    await card.click();
+    // 카드는 cursor:pointer를 가진 div — class명에 "card"가 없으므로
+    // h5에서 위로 올라가며 첫 cursor:pointer 조상을 클릭 (evaluate 사용)
+    await this.page.evaluate(() => {
+      const h5s = Array.from(document.querySelectorAll('h5'));
+      for (const h5 of h5s) {
+        let el: HTMLElement | null = h5.parentElement as HTMLElement;
+        while (el && el.tagName.toLowerCase() !== 'body') {
+          if (window.getComputedStyle(el).cursor === 'pointer') {
+            el.click();
+            return;
+          }
+          el = el.parentElement as HTMLElement;
+        }
+      }
+    });
     await this.page.waitForURL(/\/contents\/detail/, { timeout: 15000 });
     await this.page.waitForLoadState('networkidle');
     console.log('🖱️ 첫 번째 콘텐츠 카드 클릭');
