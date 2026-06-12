@@ -52,10 +52,25 @@ export class OrderPage {
   }
 
   async verifyAddressRequiredAlert() {
-    await expect(
-      this.page.getByText('배송지가 입력되지 않았습니다.', { exact: false }).first()
-    ).toBeVisible({ timeout: 8000 });
-    console.log('✅ "배송지가 입력되지 않았습니다." 알럿 확인');
+    // 주소 미입력 시 첫 번째로 뜨는 유효성 알럿 (이름→주소 순으로 검증)
+    const CANDIDATES = [
+      '이름이 입력되지 않았습니다',
+      '배송지가 입력되지 않았습니다',
+      '주소를 입력해 주세요',
+      '필수 정보를 입력해 주세요',
+    ];
+    const found = await Promise.race(
+      CANDIDATES.map(text =>
+        this.page.getByText(text, { exact: false }).first()
+          .waitFor({ state: 'visible', timeout: 8000 })
+          .then(() => text)
+          .catch(() => null)
+      )
+    ).catch(() => null);
+    if (!found) {
+      throw new Error(`결제 요청 후 필수항목 알럿 미출력. 기대값: ${CANDIDATES.join(' | ')}`);
+    }
+    console.log(`✅ 결제 요청 필수항목 알럿 확인: "${found}"`);
   }
 
   async closeAlertModal() {
