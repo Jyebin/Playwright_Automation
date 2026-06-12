@@ -193,7 +193,16 @@ export class RegisterPage {
     console.log('🖱️ "이메일 인증" 버튼 클릭');
   }
 
+  async verifyDuplicateCheckRequiredMessage() {
+    // 중복확인 없이 이메일 인증 클릭 시 나타나는 안내
+    await expect(
+      this.page.getByText(/이메일 중복 확인이 필요합니다/).first()
+    ).toBeVisible({ timeout: 5000 });
+    console.log('✅ "이메일 중복 확인이 필요합니다." 메시지 확인');
+  }
+
   async verifyRecaptchaRequiredMessage() {
+    // 중복확인 완료 후 reCAPTCHA 미완료 상태에서 이메일 인증 클릭 시 나타나는 안내
     await expect(
       this.page.getByText(/보안 인증을 완료해 주세요/).first()
     ).toBeVisible({ timeout: 5000 });

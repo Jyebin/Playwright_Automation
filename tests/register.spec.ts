@@ -106,11 +106,24 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await register.verifyDuplicateCheckButtonActive();
   });
 
-  test('reCAPTCHA 미완료(중복확인 없이 이메일 인증 클릭) 시 "보안 인증을 완료해 주세요." 안내', async ({ page }) => {
+  test('중복확인 없이 이메일 인증 클릭 시 "이메일 중복 확인이 필요합니다." 안내', async ({ page }) => {
     const register = new RegisterPage(page);
     const testEmail = process.env.EMAIL_IMAP_USER ?? `test_avail_${Date.now()}@gmail.com`;
     await register.typeEmail(testEmail);
-    // 중복확인 없이 바로 "이메일 인증" 클릭 → reCAPTCHA 미완료 상태
+    // 중복확인 없이 바로 "이메일 인증" 클릭
+    await register.clickEmailVerificationButton();
+    await register.verifyDuplicateCheckRequiredMessage();
+  });
+
+  test('reCAPTCHA 미완료(중복확인 후 reCAPTCHA 미체크) 시 "보안 인증을 완료해 주세요." 안내', async ({ page }) => {
+    const register = new RegisterPage(page);
+    const testEmail = process.env.EMAIL_IMAP_USER ?? `test_avail_${Date.now()}@gmail.com`;
+    await register.typeEmail(testEmail);
+    await register.clickDuplicateCheckButton();
+    await register.verifyEmailAvailableModal();
+    await register.clickEmailAvailableModalConfirm();
+    // reCAPTCHA를 체크하지 않고 이메일 인증 클릭
+    // ※ 자동화 환경에서는 reCAPTCHA가 자동 완료될 수 있어 수동 확인 필요 시 skip
     await register.clickEmailVerificationButton();
     await register.verifyRecaptchaRequiredMessage();
   });
