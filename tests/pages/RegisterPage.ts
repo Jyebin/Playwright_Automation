@@ -164,11 +164,12 @@ export class RegisterPage {
   }
 
   async verifyEmailAvailableModal() {
-    // 실제 DOM: <p>사용 가능한 이메일입니다. 다음 단계를 진행해 주세요.</p> (단일 요소)
+    // 문자열 비교 시 한국어 특수문자(non-breaking space 등) 차이로 미매칭될 수 있음
+    // → 정규식으로 핵심 키워드만 매칭
     await expect(
-      this.page.getByText('사용 가능한 이메일입니다. 다음 단계를 진행해 주세요.', { exact: false }).first()
+      this.page.getByText(/사용 가능한 이메일입니다/).first()
     ).toBeVisible({ timeout: 20000 });
-    console.log('✅ 모달 확인: "사용 가능한 이메일입니다. 다음 단계를 진행해 주세요."');
+    console.log('✅ 모달 확인: "사용 가능한 이메일입니다."');
   }
 
   async clickEmailAvailableModalConfirm() {
