@@ -100,7 +100,7 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await register.verifyDuplicateCheckButtonInitiallyInactive();
   });
 
-  test('이메일 형식 입력 시 중복확인 버튼 활성화 (주황색 텍스트로 변경)', async ({ page }) => {
+  test('이메일 형식 입력 시 중복확인 버튼 활성화 (회색→검은색 텍스트로 변경)', async ({ page }) => {
     const register = new RegisterPage(page);
     await register.typeEmail('test@example.com');
     await register.verifyDuplicateCheckButtonActive();

@@ -225,7 +225,21 @@ export class RegisterPage {
     await expect(btn).toBeVisible();
     const isDisabled = await btn.isDisabled().catch(() => false);
     expect(isDisabled).toBe(false);
-    console.log('✅ 중복확인 버튼 활성화 확인');
+
+    // 실제 동작: 연한 회색 → 검은색 텍스트로 변경 (주황색 아님)
+    const color = await btn.evaluate((el: Element) => {
+      return window.getComputedStyle(el).color;
+    });
+    // 활성화 시 검은색 계열 (rgb 값이 모두 낮음) — 회색(밝음)이 아닌지 확인
+    console.log(`ℹ️ 중복확인 버튼 텍스트 색상: ${color}`);
+    // rgb(r,g,b)에서 r+g+b 합이 낮을수록 검은색에 가까움
+    const match = color.match(/\d+/g);
+    if (match) {
+      const [r, g, b] = match.map(Number);
+      const brightness = r + g + b;
+      expect(brightness).toBeLessThan(300); // 회색(밝음) 이면 300 초과
+      console.log(`✅ 중복확인 버튼 활성화 — 텍스트 어두워짐 확인 (brightness=${brightness})`);
+    }
   }
 
   async verifyEmailRequiredMessage() {
