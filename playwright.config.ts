@@ -40,7 +40,15 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // reCAPTCHA / 봇 감지 우회: AutomationControlled 플래그 제거
         launchOptions: {
-          args: ['--disable-blink-features=AutomationControlled'],
+          args: [
+            '--disable-blink-features=AutomationControlled',
+            '--disable-infobars',
+            '--no-first-run',
+            '--no-default-browser-check',
+            '--disable-extensions-except=',
+            '--enable-features=NetworkService,NetworkServiceInProcess',
+            '--disable-features=IsolateOrigins,site-per-process',
+          ],
         },
       },
     },

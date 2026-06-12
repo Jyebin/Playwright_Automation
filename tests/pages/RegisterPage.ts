@@ -6,10 +6,45 @@ export class RegisterPage {
   constructor(private page: Page) {}
 
   async goto() {
-    // navigator.webdriver 숨김 → reCAPTCHA 봇 감지 우회
+    // reCAPTCHA v3 봇 감지 우회 — 실제 Chrome처럼 보이도록 다수 지표 패치
     await this.page.addInitScript(() => {
+      // 1. webdriver 숨김
       Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-      (window as any).chrome = (window as any).chrome ?? { runtime: {} };
+
+      // 2. window.chrome 채우기 (headless에는 없음)
+      if (!(window as any).chrome) {
+        (window as any).chrome = {
+          runtime: {},
+          loadTimes: () => {},
+          csi: () => {},
+          app: {},
+        };
+      }
+
+      // 3. plugins — headless: 0개, 실제 Chrome: 여러 개
+      const fakePlugins: any = [
+        { name: 'PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+        { name: 'Chrome PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+        { name: 'Chromium PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+        { name: 'Microsoft Edge PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+        { name: 'WebKit built-in PDF', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+      ];
+      fakePlugins.item = (i: number) => fakePlugins[i];
+      fakePlugins.namedItem = (n: string) => fakePlugins.find((p: any) => p.name === n) ?? null;
+      fakePlugins.refresh = () => {};
+      Object.defineProperty(navigator, 'plugins', { get: () => fakePlugins });
+
+      // 4. languages
+      Object.defineProperty(navigator, 'languages', { get: () => ['ko-KR', 'ko', 'en-US', 'en'] });
+
+      // 5. permissions — notifications 쿼리 패치
+      const origQuery = window.navigator.permissions?.query?.bind(window.navigator.permissions);
+      if (origQuery) {
+        window.navigator.permissions.query = (p: any) =>
+          p.name === 'notifications'
+            ? Promise.resolve({ state: (Notification as any).permission ?? 'default' } as PermissionStatus)
+            : origQuery(p);
+      }
     });
     await this.page.goto(`${BASE}/`);
     await this.page.waitForLoadState('load');
