@@ -162,6 +162,20 @@ export class RegisterPage {
     console.log('✅ 중복확인 버튼 활성화 확인');
   }
 
+  async verifyEmailRequiredMessage() {
+    await expect(
+      this.page.getByText('필수 입력 정보입니다.').first()
+    ).toBeVisible({ timeout: 5000 });
+    console.log('✅ "필수 입력 정보입니다." 문구 노출 확인');
+  }
+
+  async verifyEmailRequiredMessageGone() {
+    await expect(
+      this.page.getByText('필수 입력 정보입니다.').first()
+    ).not.toBeVisible({ timeout: 5000 });
+    console.log('✅ "필수 입력 정보입니다." 문구 사라짐 확인');
+  }
+
   async verifyEmailInputPlaceholder() {
     const emailInput = this.page.locator('input[type="email"], input[placeholder*="이메일"]').first();
     const placeholder = await emailInput.getAttribute('placeholder');

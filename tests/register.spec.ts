@@ -115,6 +115,24 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await expect(btn).toBeVisible();
   });
 
+  test('이메일 형식 불일치 시 "필수 입력 정보입니다." 문구 노출', async ({ page }) => {
+    const register = new RegisterPage(page);
+    await register.typeEmail('invalid-email-text');
+    await page.keyboard.press('Tab'); // blur → 유효성 검사 트리거
+    await register.verifyEmailRequiredMessage();
+  });
+
+  test('유효한 이메일 입력 시 "필수 입력 정보입니다." 문구 사라짐', async ({ page }) => {
+    const register = new RegisterPage(page);
+    // 먼저 잘못된 이메일로 메시지 표시
+    await register.typeEmail('invalid-email-text');
+    await page.keyboard.press('Tab');
+    await register.verifyEmailRequiredMessage();
+    // 유효한 이메일 입력 시 메시지 사라짐
+    await register.typeEmail('valid@example.com');
+    await register.verifyEmailRequiredMessageGone();
+  });
+
   // 수동 확인 항목 (발신자/제목 검증은 UI가 아닌 메일 클라이언트에서 확인)
   test.skip('[수동 확인] 인증 이메일 제목·발신자 확인 — 제목: "[라온 메타데미] 이메일 인증 링크입니다.", 발신자: metademy@raon.com', async () => {});
 });
