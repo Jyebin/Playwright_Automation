@@ -305,7 +305,18 @@ export class RegisterPage {
     // 이메일 인증 버튼 클릭 → 발송 모달 대기 → 닫기
     console.log('📧 인증 메일 발송 버튼 클릭');
     await this.clickEmailVerificationButton();
-    await this.verifyEmailSentModal();
+
+    const sent = await this.page.getByText(/인증 이메일을 발송했습니다/)
+      .waitFor({ state: 'visible', timeout: 15000 }).then(() => true).catch(() => false);
+    if (!sent) {
+      const blocked = await this.page.getByText(/보안 인증을 완료해 주세요/)
+        .waitFor({ state: 'visible', timeout: 5000 }).then(() => true).catch(() => false);
+      throw new Error(
+        blocked
+          ? '[submitEmailForVerification] reCAPTCHA 봇 감지 — 이메일 발송 불가. --disable-blink-features=AutomationControlled 설정 확인 필요'
+          : '[submitEmailForVerification] 이메일 발송 모달 미표시 (15s 초과)'
+      );
+    }
     await this.clickEmailSentModalConfirm();
     console.log('✅ 인증 이메일 발송 완료');
   }
