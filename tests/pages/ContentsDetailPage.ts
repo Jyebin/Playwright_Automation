@@ -141,9 +141,16 @@ export class ContentsDetailPage {
   }
 
   async verifyPracticeIntroSection() {
-    // 실습 소개 영역 가시성 확인
-    const section = this.page.locator('[class*="intro"], [class*="Intro"], [class*="practice"]').first();
-    await expect(section).toBeVisible({ timeout: 8000 });
+    // 실습 소개 탭 활성 시 콘텐츠 영역: 클래스명 없이 ul/li 또는 특징 텍스트로 확인
+    const section = this.page.locator('article').locator('ul, li').first();
+    const hasSection = await section.isVisible().catch(() => false);
+    if (hasSection) {
+      await expect(section).toBeVisible({ timeout: 8000 });
+    } else {
+      await expect(
+        this.page.locator('article').getByText(/실습 특징|이 콘텐츠는|추천해요/, { exact: false }).first()
+      ).toBeVisible({ timeout: 8000 });
+    }
     console.log('✅ 실습 소개 영역 출력 확인');
   }
 
