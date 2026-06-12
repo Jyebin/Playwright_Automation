@@ -117,9 +117,9 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
 
   test('유효한 이메일 입력 후 중복확인 클릭 시 "사용 가능한 이메일" 모달 노출', async ({ page }) => {
     const register = new RegisterPage(page);
-    // 미등록 이메일 (타임스탬프 기반 → 중복 없음)
-    const unregisteredEmail = `test_avail_${Date.now()}@example.com`;
-    await register.typeEmail(unregisteredEmail);
+    // @example.com은 서버에서 거부될 수 있음 → .env의 실제 이메일 사용
+    const testEmail = process.env.EMAIL_IMAP_USER ?? `test_avail_${Date.now()}@gmail.com`;
+    await register.typeEmail(testEmail);
     await register.clickDuplicateCheckButton();
     await register.verifyEmailAvailableModal();
   });
