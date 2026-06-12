@@ -163,9 +163,10 @@ export class RegisterPage {
   }
 
   async verifyEmailAvailableModal() {
-    const msg = this.page.getByText(/사용 가능한 이메일/, { exact: false }).first();
-    await expect(msg).toBeVisible({ timeout: 8000 });
-    console.log('✅ "사용 가능한 이메일" 모달/메시지 확인');
+    await expect(
+      this.page.getByText('사용 가능한 이메일입니다. 다음 단계를 진행해 주세요.', { exact: false }).first()
+    ).toBeVisible({ timeout: 8000 });
+    console.log('✅ "사용 가능한 이메일입니다. 다음 단계를 진행해 주세요." 모달 확인');
   }
 
   async verifyDuplicateCheckButtonActive() {
