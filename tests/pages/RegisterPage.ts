@@ -147,7 +147,9 @@ export class RegisterPage {
 
   async typeEmail(email: string) {
     const emailInput = this.page.getByPlaceholder('이메일').or(
-      this.page.locator('input[type="email"], input[placeholder*="이메일"]')
+      this.page.getByPlaceholder('E-mail 주소를 입력해 주세요.')
+    ).or(
+      this.page.locator('input[type="email"], input[placeholder*="이메일"], input[placeholder*="mail"]')
     ).first();
     await emailInput.fill(email);
     await this.page.waitForTimeout(400);
@@ -158,14 +160,14 @@ export class RegisterPage {
     const btn = this.getDupCheckButton();
     await expect(btn).toBeVisible({ timeout: 5000 });
     await btn.click();
-    await this.page.waitForTimeout(1500);
     console.log('🖱️ 중복확인 버튼 클릭');
   }
 
   async verifyEmailAvailableModal() {
+    // 중복확인 클릭 후 reCAPTCHA 처리 시간 포함 → 최대 20초 대기
     await expect(
       this.page.getByText('사용 가능한 이메일입니다. 다음 단계를 진행해 주세요.', { exact: false }).first()
-    ).toBeVisible({ timeout: 8000 });
+    ).toBeVisible({ timeout: 20000 });
     console.log('✅ "사용 가능한 이메일입니다. 다음 단계를 진행해 주세요." 모달 확인');
   }
 
