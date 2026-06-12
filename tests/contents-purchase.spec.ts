@@ -147,7 +147,7 @@ test.describe('T402 - 주문 결제 정보 입력 확인', () => {
   test('"직접 입력" 선택 시 텍스트 입력 필드 노출', async ({ page }) => {
     const order = new OrderPage(page);
     await order.clickDeliveryRequestDropdown();
-    await order.selectDeliveryRequestOption('직접 입력');
+    await order.selectDeliveryRequestOption('직접입력');
     await order.verifyDirectInputFieldVisible();
   });
 
@@ -157,10 +157,22 @@ test.describe('T402 - 주문 결제 정보 입력 확인', () => {
     // 주소 입력 없이는 주소 알럿이 먼저 뜨므로, 약관 알럿은 주소 입력 후 테스트
     // 이 테스트에서는 주소 필드에 임의 텍스트를 강제 입력 후 진행
     await page.evaluate(() => {
-      const inputs = Array.from(document.querySelectorAll('input[placeholder*="주소"], input[placeholder*="상세"]'));
-      inputs.forEach((el: any) => {
-        el.value = '서울시 강남구 테헤란로 1';
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+      // React controlled input: native setter로 value 주입 (disabled 포함)
+      const nativeSet = (Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value') as any)?.set;
+      const fields: Array<{ kw: string; val: string }> = [
+        { kw: '우편번호', val: '06234' },
+        { kw: '기본 주소', val: '서울시 강남구 테헤란로 1' },
+        { kw: '상세 주소', val: '101호' },
+      ];
+      fields.forEach(({ kw, val }) => {
+        const el = document.querySelector<HTMLInputElement>(`input[placeholder*="${kw}"]`);
+        if (el) {
+          el.removeAttribute('disabled');
+          if (nativeSet) { nativeSet.call(el, val); }
+          else { el.value = val; }
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
       });
     });
     await order.clickPaymentRequest();

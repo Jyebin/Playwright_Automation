@@ -170,7 +170,11 @@ export class ContentsDetailPage {
   // ----- 구매 관련 -----
 
   async clickBuyButton() {
-    await this.page.getByText('구매하기', { exact: true }).first().click();
+    const btn = this.page.getByText('구매하기', { exact: true }).first();
+    await btn.scrollIntoViewIfNeeded();
+    await this.page.evaluate(() => window.scrollBy(0, -120));
+    await this.page.waitForTimeout(200);
+    await btn.click({ force: true });
     await this.page.waitForTimeout(500);
     console.log('🖱️ "구매하기" 버튼 클릭');
   }
@@ -210,71 +214,49 @@ export class ContentsDetailPage {
 
   async clickSubscriptionDropdown() {
     // 접근성 트리 상 첫 번째 "옵션을 선택해 주세요."는 현재 선택값 표시 영역,
-    // 두 번째(img 화살표 포함)가 실제 클릭 가능한 구독권 드롭다운 트리거
-    await this.page.getByText('옵션을 선택해 주세요.').nth(1).click();
+    // 두 번째(img 화살표 포함)가 실제 구독권 드롭다운 트리거
+    const trigger = this.page.getByText('옵션을 선택해 주세요.').nth(1);
+    // 고정 GNB가 요소를 가릴 수 있으므로 뷰포트 중앙으로 스크롤
+    await trigger.scrollIntoViewIfNeeded();
+    await this.page.evaluate(() => window.scrollBy(0, -120));
+    await this.page.waitForTimeout(300);
+    // <span class="border"> 또는 GNB가 인터셉트하는 경우를 force로 우회
+    await trigger.click({ force: true });
     await this.page.waitForTimeout(600);
-    // 디버그: 클릭 직후 DOM 캡처
-    await this.page.screenshot({ path: 'debug-dropdown.png' }).catch(() => {});
-    const domInfo = await this.page.evaluate(() => {
-      return Array.from(document.querySelectorAll('[class]'))
-        .filter(el => {
-          const s = window.getComputedStyle(el);
-          return (s.position === 'absolute' || s.position === 'fixed')
-            && s.display !== 'none' && s.visibility !== 'hidden' && s.opacity !== '0';
-        })
-        .slice(0, 8)
-        .map(el => ({
-          tag: el.tagName,
-          cls: el.className?.toString().substring(0, 80),
-          text: el.textContent?.trim().substring(0, 50),
-          z: window.getComputedStyle(el).zIndex,
-        }));
-    });
-    console.log('🔍 드롭다운 클릭 후 absolute/fixed elements:', JSON.stringify(domInfo));
-    console.log('🖱️ 구독권 드롭다운 클릭 (nth=1)');
+    console.log('🖱️ 구독권 드롭다운 클릭 (nth=1, force)');
   }
 
   async verifySubscriptionDropdownOpen() {
-    // 드롭다운 열림 확인 - 다양한 패턴 커버
-    const options = this.page.locator(
-      '[role="option"], [role="listbox"] > *, [class*="option"], [class*="Option"], ' +
-      '[class*="list"] > li, ul[class] > li, [class*="item"][class*="select"], ' +
-      '[class*="select"] > *, [class*="Select"] > *'
-    );
-    await expect(options.first()).toBeVisible({ timeout: 8000 });
+    // 드롭다운 열림 확인 — 실제 클래스: "dropdown-list show-bottom"
+    await expect(this.page.locator('[class*="dropdown-list"]').first()).toBeVisible({ timeout: 8000 });
     console.log('✅ 구독권 드롭다운 열림 확인');
   }
 
   async selectFirstSubscriptionOption() {
-    // 첫 번째 옵션 선택
-    const option = this.page.locator(
-      '[role="option"], [role="listbox"] > *, [class*="option"], [class*="Option"], ' +
-      '[class*="list"] > li, ul[class] > li, [class*="item"][class*="select"], ' +
-      '[class*="select"] > *, [class*="Select"] > *'
-    ).first();
-    await option.click();
+    // dropdown-list 컨테이너의 첫 번째 자식 클릭 (force=true: GNB/border span 인터셉트 우회)
+    const option = this.page.locator('[class*="dropdown-list"]').locator('> *').first();
+    await option.click({ force: true });
     await this.page.waitForTimeout(500);
     console.log('🖱️ 첫 번째 구독권 옵션 선택');
   }
 
   async verifySubscriptionSelected() {
-    // 선택 후 구독권 결제 정보 노출 확인 (가격 정보 표시)
-    await expect(this.page.getByText('옵션을 선택해 주세요.').first()).not.toBeVisible();
+    // 선택 후 h6(선택한 옵션명) 옆에 X 버튼(h6 ~ button)이 나타남
+    await expect(this.page.locator('h6 ~ button').first()).toBeVisible({ timeout: 8000 });
     console.log('✅ 구독권 선택 후 결제 정보 노출 확인');
   }
 
   async clickSubscriptionClearButton() {
-    // X 버튼으로 선택 해제
-    const clearBtn = this.page.locator('[class*="clear"], [class*="Close"], [class*="remove"]').first();
+    // 선택된 항목 h6 옆 X 버튼 클릭 (선택 취소)
+    const clearBtn = this.page.locator('h6 ~ button, h6 + button').first();
     await clearBtn.click({ force: true });
     await this.page.waitForTimeout(400);
     console.log('🖱️ 구독권 X 버튼 클릭 (선택 해제)');
   }
 
   async verifySubscriptionCleared() {
-    await expect(
-      this.page.getByText('옵션을 선택해 주세요.').first()
-    ).toBeVisible({ timeout: 5000 });
+    // X 버튼이 사라지면 선택 해제 완료
+    await expect(this.page.locator('h6 ~ button, h6 + button').first()).not.toBeVisible({ timeout: 5000 });
     console.log('✅ 구독권 선택 해제 및 드롭박스 초기화 확인');
   }
 
