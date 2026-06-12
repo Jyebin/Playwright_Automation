@@ -193,6 +193,23 @@ export class RegisterPage {
     console.log('🖱️ "이메일 인증" 버튼 클릭');
   }
 
+  async clickRecaptchaIfVisible() {
+    try {
+      const frame = this.page.frameLocator('iframe[src*="recaptcha"][src*="anchor"]');
+      const checkbox = frame.locator('.recaptcha-checkbox-border');
+      const isVisible = await checkbox.isVisible({ timeout: 3000 }).catch(() => false);
+      if (isVisible) {
+        await checkbox.click();
+        await this.page.waitForTimeout(1000);
+        console.log('🤖 reCAPTCHA v2 체크박스 클릭');
+      } else {
+        console.log('ℹ️ reCAPTCHA 체크박스 없음 (Invisible v3 자동 처리 중)');
+      }
+    } catch {
+      console.log('ℹ️ reCAPTCHA iframe 접근 불가 — v3 또는 자동 처리');
+    }
+  }
+
   async verifyDuplicateCheckRequiredMessage() {
     // 중복확인 없이 이메일 인증 클릭 시 나타나는 안내
     await expect(
