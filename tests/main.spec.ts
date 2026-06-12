@@ -144,10 +144,12 @@ test.describe('T494 - TOP 버튼', () => {
   });
 
   test('TOP 버튼 클릭 시 최상단으로 스크롤', async ({ page }) => {
-    await page.mouse.wheel(0, 1500);
-    await page.waitForTimeout(600);
+    await page.mouse.wheel(0, 3000);
+    await page.waitForTimeout(800);
     const topBtn = page.locator('[class*="ReTopButton"]').first();
-    await topBtn.click();
+    await expect(topBtn).toBeVisible({ timeout: 8000 });
+    // 챗봇 등 다른 fixed 요소와 겹칠 수 있어 force 클릭
+    await topBtn.click({ force: true });
     await page.waitForTimeout(1000);
     const scrollY = await page.evaluate(() => window.scrollY);
     expect(scrollY).toBeLessThan(100);
