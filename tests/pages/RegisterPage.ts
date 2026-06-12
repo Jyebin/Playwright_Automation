@@ -193,6 +193,13 @@ export class RegisterPage {
     console.log('🖱️ "이메일 인증" 버튼 클릭');
   }
 
+  async verifyRecaptchaRequiredMessage() {
+    await expect(
+      this.page.getByText(/보안 인증을 완료해 주세요/).first()
+    ).toBeVisible({ timeout: 5000 });
+    console.log('✅ "보안 인증을 완료해 주세요." 메시지 확인');
+  }
+
   async verifyEmailSentModal() {
     await expect(
       this.page.getByText(/인증 이메일을 발송했습니다/).first()

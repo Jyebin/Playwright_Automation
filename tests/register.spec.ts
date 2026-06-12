@@ -106,6 +106,15 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await register.verifyDuplicateCheckButtonActive();
   });
 
+  test('reCAPTCHA 미완료(중복확인 없이 이메일 인증 클릭) 시 "보안 인증을 완료해 주세요." 안내', async ({ page }) => {
+    const register = new RegisterPage(page);
+    const testEmail = process.env.EMAIL_IMAP_USER ?? `test_avail_${Date.now()}@gmail.com`;
+    await register.typeEmail(testEmail);
+    // 중복확인 없이 바로 "이메일 인증" 클릭 → reCAPTCHA 미완료 상태
+    await register.clickEmailVerificationButton();
+    await register.verifyRecaptchaRequiredMessage();
+  });
+
   test('이메일 형식이 아닌 텍스트 입력 시 중복확인 버튼 비활성 유지', async ({ page }) => {
     const register = new RegisterPage(page);
     await register.typeEmail('invalid-email-text');
