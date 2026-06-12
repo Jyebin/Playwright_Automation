@@ -127,8 +127,11 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await register.clickEmailVerificationButton();
     // v2 클릭 성공 or v3 자동 → 이메일 발송 모달
     // reCAPTCHA 미완료(봇 감지) → "보안 인증을 완료해 주세요." 중 하나
-    const sent = await page.getByText(/인증 이메일을 발송했습니다/).isVisible({ timeout: 8000 }).catch(() => false);
-    const blocked = await page.getByText(/보안 인증을 완료해 주세요/).isVisible({ timeout: 3000 }).catch(() => false);
+    // isVisible()은 즉시 반환 → waitFor()로 실제 대기
+    const sent = await page.getByText(/인증 이메일을 발송했습니다/)
+      .waitFor({ state: 'visible', timeout: 15000 }).then(() => true).catch(() => false);
+    const blocked = !sent && await page.getByText(/보안 인증을 완료해 주세요/)
+      .waitFor({ state: 'visible', timeout: 5000 }).then(() => true).catch(() => false);
     if (sent) {
       console.log('✅ reCAPTCHA 통과 → 이메일 발송 성공');
     } else if (blocked) {
