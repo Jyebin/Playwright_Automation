@@ -193,6 +193,26 @@ export class RegisterPage {
     console.log('🖱️ "이메일 인증" 버튼 클릭');
   }
 
+  async verifyEmailSentModal() {
+    await expect(
+      this.page.getByText(/인증 이메일을 발송했습니다/).first()
+    ).toBeVisible({ timeout: 15000 });
+    await expect(
+      this.page.getByText(/메일함을 확인해주세요/).first()
+    ).toBeVisible({ timeout: 3000 });
+    console.log('✅ "인증 이메일을 발송했습니다. 메일함을 확인해주세요." 모달 확인');
+  }
+
+  async clickEmailSentModalConfirm() {
+    const confirmBtn = this.page.getByRole('button', { name: '확인', exact: true });
+    await expect(confirmBtn).toBeVisible({ timeout: 5000 });
+    await confirmBtn.click();
+    await expect(
+      this.page.getByText(/인증 이메일을 발송했습니다/)
+    ).not.toBeVisible({ timeout: 5000 });
+    console.log('🖱️ 발송 완료 모달 "확인" 클릭 → 모달 닫힘');
+  }
+
   async verifyDuplicateCheckButtonActive() {
     const btn = this.getDupCheckButton();
     await expect(btn).toBeVisible();

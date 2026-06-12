@@ -117,6 +117,80 @@ export async function waitForVerificationToken(maxWaitMs = MAX_WAIT_MS): Promise
   );
 }
 
+export interface VerificationEmailInfo {
+  from: string;
+  subject: string;
+  token: string | null;
+}
+
+async function scanInboxForEmailInfo(since: Date): Promise<VerificationEmailInfo | null> {
+  const { host, port, secure, user, pass } = getImapConfig();
+
+  const client = new ImapFlow({
+    host, port, secure,
+    auth: { user, pass },
+    logger: false,
+    tls: { rejectUnauthorized: false },
+  });
+
+  await client.connect();
+  const lock = await client.getMailboxLock('INBOX');
+
+  try {
+    const uids = (await client.search({ since }, { uid: true })) as number[];
+    if (!uids.length) return null;
+
+    for (const uid of [...uids].reverse().slice(0, 20)) {
+      let source: Buffer | undefined;
+      try {
+        const msg = await client.fetchOne(`${uid}`, { source: true }, { uid: true });
+        if (!msg) continue;
+        source = (msg as any).source as Buffer | undefined;
+      } catch { continue; }
+      if (!source) continue;
+
+      const parsed = await simpleParser(source);
+      const subject = parsed.subject ?? '';
+      if (!subject.includes('라온 메타데미') && !subject.includes('이메일 인증')) continue;
+
+      const from = parsed.from?.text ?? '';
+      const body = (parsed.html as string) || (parsed.text as string) || '';
+      const match = body.match(TOKEN_REGEX);
+
+      return { from, subject, token: match ? match[1] : null };
+    }
+    return null;
+  } finally {
+    lock.release();
+    await client.logout();
+  }
+}
+
+/**
+ * IMAP으로 인증 메일의 발신자/제목/토큰을 함께 반환
+ */
+export async function waitForVerificationEmail(maxWaitMs = MAX_WAIT_MS): Promise<VerificationEmailInfo> {
+  const since = new Date(Date.now() - LOOK_BACK_MS);
+  const deadline = Date.now() + maxWaitMs;
+
+  console.log(`[emailHelper] 인증 메일 대기 중... (최대 ${maxWaitMs / 1000}초)`);
+
+  while (Date.now() < deadline) {
+    const info = await scanInboxForEmailInfo(since).catch((err) => {
+      console.warn(`[emailHelper] IMAP 연결 오류 (재시도): ${err.message}`);
+      return null;
+    });
+
+    if (info) return info;
+
+    const remaining = Math.ceil((deadline - Date.now()) / 1000);
+    console.log(`[emailHelper] 메일 미발견, ${remaining}초 남음. ${POLL_INTERVAL_MS / 1000}초 후 재시도...`);
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+  }
+
+  throw new Error(`[emailHelper] 인증 메일을 ${maxWaitMs / 1000}초 내에 찾지 못했습니다.`);
+}
+
 /**
  * Gmail plus addressing 방식으로 테스트용 고유 이메일 생성
  * 예) base = "test@gmail.com" → "test+1749600000000@gmail.com"

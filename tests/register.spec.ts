@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from './pages/RegisterPage';
-import { waitForVerificationToken, generateTestEmail } from './helpers/emailHelper';
+import { waitForVerificationToken, waitForVerificationEmail, generateTestEmail } from './helpers/emailHelper';
 
 // 회원가입 테스트는 세션 없이 실행
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -115,14 +115,16 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await expect(btn).toBeVisible();
   });
 
-  test('유효한 이메일 입력 후 중복확인 클릭 시 "사용 가능한 이메일" 모달 노출 → 확인 후 이메일 인증 버튼 클릭', async ({ page }) => {
+  test('중복확인 → 사용 가능 모달 → 이메일 인증 → 발송 완료 모달 확인', async ({ page }) => {
     const register = new RegisterPage(page);
     const testEmail = process.env.EMAIL_IMAP_USER ?? `test_avail_${Date.now()}@gmail.com`;
     await register.typeEmail(testEmail);
     await register.clickDuplicateCheckButton();
-    await register.verifyEmailAvailableModal();
-    await register.clickEmailAvailableModalConfirm();
-    await register.clickEmailVerificationButton();
+    await register.verifyEmailAvailableModal();          // "사용 가능한 이메일입니다." 모달 확인
+    await register.clickEmailAvailableModalConfirm();    // 모달 "확인" 클릭
+    await register.clickEmailVerificationButton();       // "이메일 인증" 버튼 클릭
+    await register.verifyEmailSentModal();               // "인증 이메일을 발송했습니다." 모달 확인
+    await register.clickEmailSentModalConfirm();         // 모달 "확인" 클릭
   });
 
   test('이메일 형식 불일치 시 "필수 입력 정보입니다." 문구 노출', async ({ page }) => {
@@ -166,6 +168,8 @@ test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () =>
 
   let token = '';
   let testEmail = '';
+  let emailFrom = '';
+  let emailSubject = '';
 
   test.beforeAll(async ({ browser }) => {
     if (!IMAP_READY) {
@@ -181,8 +185,11 @@ test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () =>
     await register.submitEmailForVerification(testEmail);
     await page.close();
 
-    token = await waitForVerificationToken(90_000);
-    console.log(`[T421] 인증 토큰 수신 완료`);
+    const info = await waitForVerificationEmail(90_000);
+    token = info.token ?? '';
+    emailFrom = info.from;
+    emailSubject = info.subject;
+    console.log(`[T421] 인증 메일 수신 완료 — 발신자: ${emailFrom}, 제목: ${emailSubject}`);
   });
 
   test.beforeEach(async ({ page }) => {
@@ -190,6 +197,16 @@ test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () =>
     const base = process.env.BASE_URL ?? '';
     await page.goto(`${base}/regist_data?token=${token}`);
     await page.waitForLoadState('load');
+  });
+
+  test('인증 이메일 발신자 확인 — 보낸사람: 라온메타데미', async () => {
+    expect(emailFrom).toMatch(/라온|metademy|raon/i);
+    console.log(`✅ 발신자 확인: ${emailFrom}`);
+  });
+
+  test('인증 이메일 제목 확인 — [라온 메타데미] 이메일 인증 링크입니다.', async () => {
+    expect(emailSubject).toContain('[라온 메타데미] 이메일 인증 링크입니다.');
+    console.log(`✅ 제목 확인: ${emailSubject}`);
   });
 
   test('/regist_data 페이지 URL 및 접속 확인', async ({ page }) => {
