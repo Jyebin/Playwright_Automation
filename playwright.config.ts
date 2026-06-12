@@ -36,7 +36,13 @@ export default defineConfig({
     // }
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // reCAPTCHA / 봇 감지 우회: AutomationControlled 플래그 제거
+        launchOptions: {
+          args: ['--disable-blink-features=AutomationControlled'],
+        },
+      },
     },
 
     // {

@@ -74,7 +74,8 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
   });
 
   test('회원가입 페이지 접속 및 URL 확인', async ({ page }) => {
-    await expect(page).toHaveURL(/\/register|\/signup|\/join/);
+    // 실제 URL: /regist (register 아님)
+    await expect(page).toHaveURL(/\/regist(?:er)?|\/signup|\/join/);
     console.log(`✅ 회원가입 페이지 URL 확인: ${page.url()}`);
   });
 
@@ -129,10 +130,20 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
 test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
+  // IMAP 설정 확인 (더미값이면 skip)
+  const IMAP_READY =
+    !!process.env.EMAIL_IMAP_HOST &&
+    !!process.env.EMAIL_IMAP_USER &&
+    !process.env.EMAIL_IMAP_USER?.includes('your_test_email');
+
   let token = '';
   let testEmail = '';
 
   test.beforeAll(async ({ browser }) => {
+    if (!IMAP_READY) {
+      console.log('[T421] IMAP 미설정 — .env의 EMAIL_IMAP_* 확인 후 실행하세요');
+      return;
+    }
     testEmail = generateTestEmail();
     console.log(`[T421] 테스트 이메일: ${testEmail}`);
 
@@ -147,6 +158,7 @@ test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () =>
   });
 
   test.beforeEach(async ({ page }) => {
+    test.skip(!IMAP_READY || !token, '⚠️ IMAP 미설정 또는 인증 토큰 미취득 — .env의 EMAIL_IMAP_* 입력 필요');
     const base = process.env.BASE_URL ?? '';
     await page.goto(`${base}/regist_data?token=${token}`);
     await page.waitForLoadState('load');
@@ -185,10 +197,19 @@ test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () =>
 test.describe('T758 - 이용약관 동의', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
+  const IMAP_READY =
+    !!process.env.EMAIL_IMAP_HOST &&
+    !!process.env.EMAIL_IMAP_USER &&
+    !process.env.EMAIL_IMAP_USER?.includes('your_test_email');
+
   let token = '';
   let testEmail = '';
 
   test.beforeAll(async ({ browser }) => {
+    if (!IMAP_READY) {
+      console.log('[T758] IMAP 미설정 — .env의 EMAIL_IMAP_* 확인 후 실행하세요');
+      return;
+    }
     testEmail = generateTestEmail();
     console.log(`[T758] 테스트 이메일: ${testEmail}`);
 
@@ -203,6 +224,7 @@ test.describe('T758 - 이용약관 동의', () => {
   });
 
   test.beforeEach(async ({ page }) => {
+    test.skip(!IMAP_READY || !token, '⚠️ IMAP 미설정 또는 인증 토큰 미취득 — .env의 EMAIL_IMAP_* 입력 필요');
     const base = process.env.BASE_URL ?? '';
     await page.goto(`${base}/regist_data?token=${token}`);
     await page.waitForLoadState('load');
