@@ -19,7 +19,7 @@ export class ContentsPage {
 
   async goto() {
     await this.page.goto(`${BASE}/contents`);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('load');
   }
 
   async verifyURL() {
@@ -140,23 +140,35 @@ export class ContentsPage {
   }
 
   async clickFirstCard() {
-    // 카드는 cursor:pointer를 가진 div — class명에 "card"가 없으므로
-    // h5에서 위로 올라가며 첫 cursor:pointer 조상을 클릭 (evaluate 사용)
-    await this.page.evaluate(() => {
+    await this._clickCard(false);
+  }
+
+  async clickFirstPaidCard() {
+    await this._clickCard(true);
+  }
+
+  private async _clickCard(paidOnly: boolean) {
+    // 카드는 cursor:pointer div — h5에서 위로 올라가 첫 cursor:pointer 조상 클릭
+    // paidOnly=true: '원' 가격 포함 & '무료' 미포함 카드만 대상
+    await this.page.evaluate((paidOnly: boolean) => {
       const h5s = Array.from(document.querySelectorAll('h5'));
       for (const h5 of h5s) {
         let el: HTMLElement | null = h5.parentElement as HTMLElement;
         while (el && el.tagName.toLowerCase() !== 'body') {
-          if (window.getComputedStyle(el).cursor === 'pointer') {
+          if (window.getComputedStyle(el).cursor === 'pointer' && el.querySelector('img')) {
+            if (paidOnly) {
+              const text = el.textContent ?? '';
+              if (!text.includes('원') || text.includes('무료')) { break; }
+            }
             el.click();
             return;
           }
           el = el.parentElement as HTMLElement;
         }
       }
-    });
+    }, paidOnly);
     await this.page.waitForURL(/\/contents\/detail/, { timeout: 15000 });
-    await this.page.waitForLoadState('networkidle');
-    console.log('🖱️ 첫 번째 콘텐츠 카드 클릭');
+    await this.page.waitForLoadState('load');
+    console.log(`🖱️ 첫 번째 ${paidOnly ? '유료 ' : ''}콘텐츠 카드 클릭`);
   }
 }

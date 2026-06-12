@@ -14,7 +14,7 @@ test.describe('T531 - HTML 특수문자 escape 처리 상태 확인', () => {
   // Step 0: 콘텐츠 목록에서 HTML 특수문자 확인
   test('콘텐츠 목록 카드 설명에 HTML entity 미출력 확인 (두경부 해부학)', async ({ page }) => {
     await page.goto(`${BASE}/contents`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
 
     // 보건 의료 카테고리로 필터링하여 두경부 해부학 콘텐츠 노출
     await page.getByText('보건 의료', { exact: true }).first().click();
@@ -56,17 +56,17 @@ test.describe('T531 - HTML 특수문자 escape 처리 상태 확인', () => {
   test('콘텐츠 상세 설명에 HTML entity 미출력 확인 (두경부 해부학 id=84)', async ({ page }) => {
     // 두경부 해부학 직접 URL 접근
     await page.goto(`${BASE}/contents/detail?id=84&memberType=false`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
 
     // 페이지가 정상 로드되었는지 확인
     const notFound = await page.getByText('페이지를 찾을 수 없습니다', { exact: false }).isVisible().catch(() => false);
     if (notFound) {
       console.log('⏭️ id=84 콘텐츠 없음 → 첫 번째 콘텐츠로 대체 검사');
       await page.goto(`${BASE}/contents`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
       await page.locator('[class*="Card"], [class*="card"]').first().click();
       await page.waitForURL(/\/contents\/detail/);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
     }
 
     // 콘텐츠 상세 설명 영역 전체 텍스트 검사
@@ -86,7 +86,7 @@ test.describe('T531 - HTML 특수문자 escape 처리 상태 확인', () => {
   // 추가: 여러 콘텐츠 카드 일괄 확인
   test('콘텐츠 목록 전체 카드에서 HTML entity 미출력 확인', async ({ page }) => {
     await page.goto(`${BASE}/contents`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
 
     const cards = page.locator('[class*="Card"], [class*="card"]');
     const count = await cards.count();

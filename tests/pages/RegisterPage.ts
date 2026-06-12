@@ -8,19 +8,19 @@ export class RegisterPage {
   async goto() {
     // 헤더 [회원가입] 클릭으로 이동
     await this.page.goto(`${BASE}/`);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('load');
     await this.page.getByRole('link', { name: '회원가입' }).or(
       this.page.getByText('회원가입', { exact: true })
     ).first().click();
     await this.page.waitForURL(/\/regist(?:er)?|\/signup|\/join/, { timeout: 10000 });
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('load');
   }
 
   async gotoDirectly() {
     // 직접 URL 접근 시도 (실제 경로 /regist 우선)
     for (const path of ['/regist', '/register', '/join', '/signup']) {
       await this.page.goto(`${BASE}${path}`);
-      await this.page.waitForLoadState('networkidle');
+      await this.page.waitForLoadState('load');
       const is404 = await this.page.getByText('404').isVisible().catch(() => false);
       if (!is404) {
         console.log(`✅ 회원가입 페이지 접근: ${BASE}${path}`);

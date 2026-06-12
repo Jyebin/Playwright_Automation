@@ -7,7 +7,7 @@ const BASE = process.env.BASE_URL ?? '';
 test.describe('T398 - 콘텐츠 페이지 확인', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${BASE}/contents`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
   });
 
   // Step 0: 콘텐츠 페이지 UI 확인

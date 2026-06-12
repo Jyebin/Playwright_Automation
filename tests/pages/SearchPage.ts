@@ -19,14 +19,14 @@ export class SearchPage {
     await this.searchInput.fill(keyword);
     await this.searchInput.press('Enter');
     await this.page.waitForURL(/\/contents/);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('load');
   }
 
   async searchByButton(keyword: string) {
     await this.searchInput.fill(keyword);
     await this.clickSearchIcon();
     await this.page.waitForURL(/\/contents/);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('load');
   }
 
   async searchEmpty() {

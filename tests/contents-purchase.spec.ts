@@ -12,7 +12,7 @@ test.describe('T401 - 비로그인 상태 구매', () => {
   test('비로그인 상태에서 구매하기 클릭 시 "로그인 후 이용해주세요." 알럿 확인', async ({ page }) => {
     // 콘텐츠 상세 페이지로 직접 이동 (storageState 없는 상태)
     await page.goto(`${BASE}/contents`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     const contents = new ContentsPage(page);
     await contents.clickFirstCard();
 
@@ -23,7 +23,7 @@ test.describe('T401 - 비로그인 상태 구매', () => {
 
   test('알럿 내 "로그인 하러가기" 클릭 시 로그인 페이지 이동', async ({ page }) => {
     await page.goto(`${BASE}/contents`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     const contents = new ContentsPage(page);
     await contents.clickFirstCard();
 
@@ -40,9 +40,9 @@ test.describe('T401 - 비로그인 상태 구매', () => {
 test.describe('T401 - 로그인 후 구매 플로우', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${BASE}/contents`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     const contents = new ContentsPage(page);
-    await contents.clickFirstCard();
+    await contents.clickFirstPaidCard();
   });
 
   test('옵션 미선택 상태에서 구매하기 클릭 시 "콘텐츠를 선택해주세요." 알럿', async ({ page }) => {
@@ -108,9 +108,9 @@ test.describe('T402 - 주문 결제 정보 입력 확인', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto(`${BASE}/contents`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     const contents = new ContentsPage(page);
-    await contents.clickFirstCard();
+    await contents.clickFirstPaidCard();
     detailUrl = page.url();
     const detail = new ContentsDetailPage(page);
     await detail.navigateToOrderPage();

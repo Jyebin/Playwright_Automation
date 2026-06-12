@@ -149,7 +149,7 @@ test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () =>
   test.beforeEach(async ({ page }) => {
     const base = process.env.BASE_URL ?? '';
     await page.goto(`${base}/regist_data?token=${token}`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
   });
 
   test('/regist_data 페이지 URL 및 접속 확인', async ({ page }) => {
@@ -205,7 +205,7 @@ test.describe('T758 - 이용약관 동의', () => {
   test.beforeEach(async ({ page }) => {
     const base = process.env.BASE_URL ?? '';
     await page.goto(`${base}/regist_data?token=${token}`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
   });
 
   test('이메일 자동입력 확인 및 비밀번호 유효성 검사 (8자 미만/숫자 없음/문자 없음/기호 없음)', async ({ page }) => {

@@ -9,9 +9,9 @@ test.describe('T399 - 콘텐츠 상세 확인', () => {
   // 각 테스트마다 /contents → 첫 번째 카드 클릭하여 상세 진입
   test.beforeEach(async ({ page }) => {
     await page.goto(`${BASE}/contents`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     const contents = new ContentsPage(page);
-    await contents.clickFirstCard();
+    await contents.clickFirstPaidCard();
   });
 
   // Step 0: 콘텐츠 클릭 → 상세 페이지 이동
