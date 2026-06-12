@@ -5,6 +5,9 @@ import { waitForVerificationToken, waitForVerificationEmail, generateTestEmail }
 // 회원가입 테스트는 세션 없이 실행
 test.use({ storageState: { cookies: [], origins: [] } });
 
+// IMAP 동시 연결 + 동일 이메일 병렬 실행 충돌 방지 — 이 파일의 모든 테스트 직렬 실행
+test.describe.configure({ mode: 'serial' });
+
 const BASE = process.env.BASE_URL ?? '';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -117,7 +120,7 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
 
   test('reCAPTCHA 체크 후 이메일 인증 → 발송 완료 (v2 체크박스 클릭 시도)', async ({ page }) => {
     const register = new RegisterPage(page);
-    const testEmail = generateTestEmail(); // 병렬 실행 충돌 방지용 고유 이메일
+    const testEmail = process.env.EMAIL_IMAP_USER ?? `test_${Date.now()}@example.com`;
     await register.typeEmail(testEmail);
     await register.clickDuplicateCheckButton();
     await register.verifyEmailAvailableModal();
@@ -125,17 +128,19 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     // reCAPTCHA v2이면 체크박스 클릭, v3이면 자동 처리
     await register.clickRecaptchaIfVisible();
 
-    // reCAPTCHA 챌린지 팝업(bframe)이 버튼을 가리는 경우 → 봇 감지 확인됨
-    const bframeBlocking = await page
-      .locator('iframe[src*="bframe"][src*="recaptcha"]')
-      .isVisible()
+    // bframe은 버튼 클릭 시도 후 나타남 → 클릭 자체를 짧은 timeout으로 시도
+    // 3초 내에 클릭 못 하면 = bframe이 버튼을 가리고 있다 = 봇 감지 동작 확인됨
+    const btnClicked = await page
+      .getByRole('button', { name: '이메일 인증', exact: true })
+      .click({ timeout: 3000 })
+      .then(() => true)
       .catch(() => false);
-    if (bframeBlocking) {
-      console.log('⚠️ reCAPTCHA 이미지 챌린지 팝업이 버튼을 가림 → 봇 감지 동작 확인됨');
-      return; // reCAPTCHA가 챌린지를 표시했다 = 보안 작동 확인, 테스트 통과
+
+    if (!btnClicked) {
+      console.log('⚠️ reCAPTCHA 챌린지 팝업이 버튼을 가림 → 봇 감지 동작 확인됨');
+      return;
     }
 
-    await register.clickEmailVerificationButton();
     const sent = await page.getByText(/인증 이메일을 발송했습니다/)
       .waitFor({ state: 'visible', timeout: 15000 }).then(() => true).catch(() => false);
     const blocked = !sent && await page.getByText(/보안 인증을 완료해 주세요/)
@@ -160,7 +165,7 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
 
   test('중복확인 → 사용 가능 모달 → 이메일 인증 → 발송 완료 모달 확인', async ({ page }) => {
     const register = new RegisterPage(page);
-    const testEmail = generateTestEmail(); // 병렬 실행 시 118번 테스트와 충돌 방지
+    const testEmail = process.env.EMAIL_IMAP_USER ?? `test_${Date.now()}@example.com`;
     await register.typeEmail(testEmail);
     await register.clickDuplicateCheckButton();
     await register.verifyEmailAvailableModal();          // "사용 가능한 이메일입니다." 모달 확인

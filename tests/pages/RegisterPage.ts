@@ -297,30 +297,17 @@ export class RegisterPage {
    */
   async submitEmailForVerification(email: string) {
     await this.typeEmail(email);
-
-    // 중복확인 버튼 클릭 (활성화 대기)
-    const dupBtn = this.getDupCheckButton();
-    await expect(dupBtn).toBeVisible({ timeout: 5000 });
-    await dupBtn.click();
-    await this.page.waitForTimeout(1500);
     console.log(`⌨️ 중복확인 클릭: ${email}`);
-
-    // 사용 가능 확인 메시지 또는 다음 버튼 대기
-    // (구현에 따라 "사용 가능한 이메일입니다" 메시지 또는 인증 메일 발송 버튼 노출)
-    const sendBtn = this.page
-      .getByRole('button', { name: /가입하기|인증 메일 발송|이메일 인증|이메일로 시작하기/i })
-      .or(this.page.getByText(/가입하기|인증 메일 발송|인증메일/, { exact: false }))
-      .first();
-
-    const isSendBtnVisible = await sendBtn.isVisible({ timeout: 5000 }).catch(() => false);
-    if (isSendBtnVisible) {
-      await sendBtn.click();
-      await this.page.waitForTimeout(2000);
-      console.log('📧 인증 메일 발송 버튼 클릭');
-    } else {
-      // 중복확인 후 자동으로 메일이 발송되는 경우 (일부 구현)
-      console.log('ℹ️ 별도 발송 버튼 없음 — 중복확인 클릭으로 메일 발송된 것으로 간주');
-    }
+    await this.clickDuplicateCheckButton();
+    // 사용 가능 모달 확인 후 닫기 (모달을 닫아야 이메일 인증 버튼 클릭 가능)
+    await this.verifyEmailAvailableModal();
+    await this.clickEmailAvailableModalConfirm();
+    // 이메일 인증 버튼 클릭 → 발송 모달 대기 → 닫기
+    console.log('📧 인증 메일 발송 버튼 클릭');
+    await this.clickEmailVerificationButton();
+    await this.verifyEmailSentModal();
+    await this.clickEmailSentModalConfirm();
+    console.log('✅ 인증 이메일 발송 완료');
   }
 
   // ─── /regist_data 페이지 (이메일 인증 후) ───────────────────────────────────
