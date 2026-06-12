@@ -337,6 +337,8 @@ export class RegisterPage {
     // 사용 가능 모달 확인 후 닫기 (모달을 닫아야 이메일 인증 버튼 클릭 가능)
     await this.verifyEmailAvailableModal();
     await this.clickEmailAvailableModalConfirm();
+    // v2 체크박스 노출 시 클릭 (이전 봇 감지로 인해 v2 표시될 수 있음)
+    await this.clickRecaptchaIfVisible();
     // 이메일 인증 버튼 클릭 → 발송 모달 대기 → 닫기
     console.log('📧 인증 메일 발송 버튼 클릭');
     await this.clickEmailVerificationButton();
@@ -345,7 +347,7 @@ export class RegisterPage {
       .waitFor({ state: 'visible', timeout: 15000 }).then(() => true).catch(() => false);
     if (!sent) {
       const blocked = await this.page.getByText(/보안 인증을 완료해 주세요/)
-        .waitFor({ state: 'visible', timeout: 5000 }).then(() => true).catch(() => false);
+        .waitFor({ state: 'visible', timeout: 15000 }).then(() => true).catch(() => false);
       throw new Error(
         blocked
           ? '[submitEmailForVerification] reCAPTCHA 봇 감지 — 이메일 발송 불가. --disable-blink-features=AutomationControlled 설정 확인 필요'
