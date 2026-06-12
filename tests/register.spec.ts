@@ -109,7 +109,8 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
   test('이메일 형식이 아닌 텍스트 입력 시 중복확인 버튼 비활성 유지', async ({ page }) => {
     const register = new RegisterPage(page);
     await register.typeEmail('invalid-email-text');
-    const btn = page.getByText('중복확인', { exact: true }).first();
+    // 실제 버튼 텍스트: "중복 확인" (공백 있음)
+    const btn = page.getByRole('button', { name: /중복.?확인/ }).first();
     const isDisabled = await btn.isDisabled().catch(() => false);
     console.log(`ℹ️ 비유효 이메일 입력 시 중복확인 버튼 disabled: ${isDisabled}`);
     await expect(btn).toBeVisible();
