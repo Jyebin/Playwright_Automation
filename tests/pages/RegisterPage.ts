@@ -164,12 +164,14 @@ export class RegisterPage {
   }
 
   async verifyEmailAvailableModal() {
-    // 실제 모달 텍스트: "사용 가능한 이메일입니다.\n다음 단계를 진행해주세요."
-    // Playwright는 \n → 공백으로 정규화하므로 아래 문자열로 매칭
+    // 두 문장이 별도 <p>로 분리될 수 있어 각각 검증
     await expect(
-      this.page.getByText('사용 가능한 이메일입니다. 다음 단계를 진행해주세요.', { exact: false }).first()
+      this.page.getByText('사용 가능한 이메일입니다.', { exact: false }).first()
     ).toBeVisible({ timeout: 20000 });
-    console.log('✅ "사용 가능한 이메일입니다. 다음 단계를 진행해주세요." 모달 확인');
+    await expect(
+      this.page.getByText('다음 단계를 진행해주세요.', { exact: false }).first()
+    ).toBeVisible({ timeout: 5000 });
+    console.log('✅ 모달 확인: "사용 가능한 이메일입니다. / 다음 단계를 진행해주세요."');
   }
 
   async verifyDuplicateCheckButtonActive() {
