@@ -115,6 +115,15 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await expect(btn).toBeVisible();
   });
 
+  test('유효한 이메일 입력 후 중복확인 클릭 시 "사용 가능한 이메일" 모달 노출', async ({ page }) => {
+    const register = new RegisterPage(page);
+    // 미등록 이메일 (타임스탬프 기반 → 중복 없음)
+    const unregisteredEmail = `test_avail_${Date.now()}@example.com`;
+    await register.typeEmail(unregisteredEmail);
+    await register.clickDuplicateCheckButton();
+    await register.verifyEmailAvailableModal();
+  });
+
   test('이메일 형식 불일치 시 "필수 입력 정보입니다." 문구 노출', async ({ page }) => {
     const register = new RegisterPage(page);
     await register.typeEmail('invalid-email-text');

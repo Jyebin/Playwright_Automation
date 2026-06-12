@@ -154,6 +154,20 @@ export class RegisterPage {
     console.log(`⌨️ 이메일 입력: ${email}`);
   }
 
+  async clickDuplicateCheckButton() {
+    const btn = this.getDupCheckButton();
+    await expect(btn).toBeVisible({ timeout: 5000 });
+    await btn.click();
+    await this.page.waitForTimeout(1500);
+    console.log('🖱️ 중복확인 버튼 클릭');
+  }
+
+  async verifyEmailAvailableModal() {
+    const msg = this.page.getByText(/사용 가능한 이메일/, { exact: false }).first();
+    await expect(msg).toBeVisible({ timeout: 8000 });
+    console.log('✅ "사용 가능한 이메일" 모달/메시지 확인');
+  }
+
   async verifyDuplicateCheckButtonActive() {
     const btn = this.getDupCheckButton();
     await expect(btn).toBeVisible();
