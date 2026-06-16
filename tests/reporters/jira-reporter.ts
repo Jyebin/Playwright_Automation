@@ -9,6 +9,9 @@ const JIRA_TOKEN     = process.env.JIRA_TOKEN       ?? '';
 const PROJECT_KEY    = process.env.JIRA_PROJECT_KEY ?? '';
 const FRONT_VERSION  = process.env.FRONT_VERSION    ?? '미지정';
 const CHROME_VERSION = process.env.CHROME_VERSION   ?? 'Chromium (Playwright)';
+// Sprint ID: Jira 보드 URL의 ?sprintId=XXX 또는 API로 확인
+// GET {JIRA_URL}/rest/agile/1.0/board/{boardId}/sprint?state=active
+const SPRINT_ID      = process.env.JIRA_SPRINT_ID   ? Number(process.env.JIRA_SPRINT_ID) : null;
 
 function authHeader() {
   return 'Basic ' + Buffer.from(`${JIRA_EMAIL}:${JIRA_TOKEN}`).toString('base64');
@@ -244,6 +247,8 @@ async function createIssue(test: TestCase, result: TestResult): Promise<string |
         summary:     buildSummary(test),
         description: buildDescription(test, result),
         issuetype:   { name: 'Bug' },
+        // Sprint 지정 (JIRA_SPRINT_ID 설정 시)
+        ...(SPRINT_ID ? { customfield_10020: SPRINT_ID } : {}),
       },
     }),
   });
