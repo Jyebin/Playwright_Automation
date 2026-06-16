@@ -19,12 +19,16 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['html'],
+    ['./tests/reporters/jira-reporter.ts'],
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL: process.env.BASE_URL,
     locale: 'ko-KR',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',   // 실패 시 자동 스크린샷 → Jira 첨부용
     storageState: '.auth/user.json',
   },
 
