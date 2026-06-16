@@ -13,6 +13,16 @@ const CHROME_VERSION = process.env.CHROME_VERSION   ?? 'Chromium (Playwright)';
 // GET {JIRA_URL}/rest/agile/1.0/board/{boardId}/sprint?state=active
 const SPRINT_ID      = process.env.JIRA_SPRINT_ID   ? Number(process.env.JIRA_SPRINT_ID) : null;
 
+// ─── 커스텀 필드 ID (METADEMY 프로젝트 고정) ─────────────────────────────────
+// 심각도: Critical=11780 / Major=11781 / Normal=11782 / Minor=11783 / Trivial=11784
+const SEVERITY_ID    = process.env.JIRA_SEVERITY_ID ?? '11782';   // 기본: Normal
+// 발생빈도: 항상=11785 / 높음=11786 / 낮음=11787 / 알수없음=11788
+const FREQUENCY_ID   = '11788';  // 알수없음
+// 발생범위: 전체=11789 / 일부=11790 / 특정대상=11791 / 알수없음=11792
+const SCOPE_ID       = '11792';  // 알수없음
+const REPORTER_ID    = '10026';  // QA
+const PRODUCT_ID     = '11640';  // Raon Metademy
+
 function authHeader() {
   return 'Basic ' + Buffer.from(`${JIRA_EMAIL}:${JIRA_TOKEN}`).toString('base64');
 }
@@ -246,8 +256,13 @@ async function createIssue(test: TestCase, result: TestResult): Promise<string |
         project:     { key: PROJECT_KEY },
         summary:     buildSummary(test),
         description: buildDescription(test, result),
-        issuetype:   { name: 'Bug' },
-        // Sprint 지정 (JIRA_SPRINT_ID 설정 시)
+        issuetype:          { name: '버그' },
+        customfield_10042:  { id: REPORTER_ID },   // 발의자: QA
+        customfield_10044:  [{ id: PRODUCT_ID }],  // 제품: Raon Metademy (배열)
+        customfield_10045:  FRONT_VERSION,          // 제품버전 (텍스트)
+        customfield_10047:  { id: SEVERITY_ID },   // 심각도: Normal
+        customfield_10048:  { id: FREQUENCY_ID },  // 발생빈도: 알수없음
+        customfield_10049:  { id: SCOPE_ID },      // 발생범위: 알수없음
         ...(SPRINT_ID ? { customfield_10020: SPRINT_ID } : {}),
       },
     }),
@@ -288,13 +303,22 @@ async function attachScreenshot(issueId: string, screenshotPath: string): Promis
 
 // ─── Reporter ────────────────────────────────────────────────────────────────
 class JiraReporter implements Reporter {
-  async onTestEnd(test: TestCase, result: TestResult): Promise<void> {
+  onTestEnd(test: TestCase, result: TestResult): void {
     if (result.status !== 'failed') return;
 
     if (!JIRA_URL || !JIRA_EMAIL || !JIRA_TOKEN || !PROJECT_KEY) {
+      console.log('[JiraReporter] ⚠️  환경변수 미설정 — 이슈 생성 건너뜀');
       return;
     }
 
+    // Playwright는 동기 onTestEnd를 선호하므로 비동기 작업은 분리 실행
+    this._run(test, result).catch(err =>
+      console.error('[JiraReporter] 오류:', err?.message ?? err)
+    );
+  }
+
+  private async _run(test: TestCase, result: TestResult): Promise<void> {
+    console.log(`[JiraReporter] 🔄 이슈 생성 중: ${test.title}`);
     const issueId = await createIssue(test, result);
     if (!issueId) return;
 
@@ -304,6 +328,11 @@ class JiraReporter implements Reporter {
     for (const s of screenshots) {
       await attachScreenshot(issueId, s.path!);
     }
+  }
+
+  async onEnd(): Promise<void> {
+    // 비동기 이슈 생성이 완료될 시간 확보
+    await new Promise(r => setTimeout(r, 3000));
   }
 }
 
