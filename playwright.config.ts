@@ -21,7 +21,7 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html'],
-    ['./tests/reporters/jira-reporter.ts'],
+    // ['./tests/reporters/jira-reporter.ts'],  // Jira 자동 이슈 생성 (활성화하려면 주석 해제)
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
