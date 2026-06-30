@@ -87,6 +87,7 @@ export class CsNoticePage {
 
   async verifyItemsPerPage() {
     const postRows = this.page.locator('tbody tr, [class*="notice-item"], [class*="noticeItem"]');
+    await postRows.first().waitFor({ state: 'visible', timeout: 10000 });
     const count = await postRows.count();
     expect(count).toBeGreaterThan(0);
     expect(count).toBeLessThanOrEqual(10);
@@ -304,9 +305,7 @@ export class CsNoticePage {
   }
 
   async clickBackToList() {
-    const backBtn = this.page.getByText('목록으로', { exact: false }).first().or(
-      this.page.getByRole('button', { name: '목록으로' }).first()
-    );
+    const backBtn = this.page.getByRole('button', { name: '목록으로' }).first();
     await backBtn.click({ force: true });
     await this.page.waitForURL(/\/cs(\/notice)?/, { timeout: 8000 });
     console.log('🖱️ "목록으로" 클릭 → 공지사항 목록 복귀');
