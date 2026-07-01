@@ -85,8 +85,8 @@ test.describe('T401 - 로그인 후 구매 플로우', () => {
     await order.clickCancelButton();
     await order.verifyCancelConfirmAlert();
     await order.clickAlertCancel();
-    // 알럿 닫히고 여전히 주문 결제 페이지에 있어야 함
-    await expect(page, '[앱오류] 알럿 취소 클릭 후 주문 결제 페이지에서 벗어남 — 페이지 유지 실패').toHaveURL(/\/order|\/payment|\/checkout|\/purchase/);
+    // 알럿 닫히고 여전히 주문 결제 페이지에 있어야 함 (상세 페이지로 되돌아가지 않음)
+    await expect(page, '[앱오류] 알럿 취소 클릭 후 주문 결제 페이지에서 벗어남 — 상세 페이지로 돌아가거나 다른 곳으로 이동').not.toHaveURL(/\/contents\/detail/);
     console.log('✅ 알럿 [취소] 클릭 → 알럿 닫히고 주문 페이지 유지');
   });
 

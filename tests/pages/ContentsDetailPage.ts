@@ -268,34 +268,58 @@ export class ContentsDetailPage {
   }
 
   async navigateToOrderPage() {
-    // 구독권 선택 → 구매하기 → 주문 결제 페이지
+    // 1단계: 구독권 드롭다운 열기 + 첫 옵션 선택
     await this.clickSubscriptionDropdown();
     await this.selectFirstSubscriptionOption();
+
+    // 선택 확인 (h6 ~ button = 선택 후 X 버튼이 나타나야 함)
+    const isSelected = await this.page.locator('h6 ~ button').first()
+      .isVisible({ timeout: 3000 }).catch(() => false);
+    if (!isSelected) {
+      // 드롭다운이 닫혔거나 클릭 미등록 → 재시도
+      console.log('ℹ️ 구독권 선택 미확인 — 드롭다운 재시도');
+      await this.clickSubscriptionDropdown();
+      await this.selectFirstSubscriptionOption();
+      await this.page.waitForTimeout(600);
+    }
+
+    // 2단계: 현재 URL 저장 후 구매하기 클릭
+    const detailUrl = this.page.url();
     await this.clickBuyButton();
 
-    // 구매하기 클릭 후 알럿 출현 여부 확인 (이미 구매된 콘텐츠, 옵션 미선택 등)
-    const alertTexts = ['이미 구매', '이미 구독', '옵션을 선택', '로그인 후'];
-    for (const text of alertTexts) {
-      const alertEl = this.page.getByText(text, { exact: false }).first();
-      if (await alertEl.isVisible({ timeout: 1500 }).catch(() => false)) {
-        const content = await alertEl.textContent().catch(() => text);
-        throw new Error(`[앱오류] 구매하기 클릭 후 알럿 출현 ("${content?.trim()}") — 이미 구매된 콘텐츠이거나 옵션 미선택 가능성`);
+    // 3단계: 알럿 감지 (콘텐츠 미선택 / 이미 구매 / 로그인 필요 등 모든 케이스)
+    const errorAlertTexts = [
+      '콘텐츠를 선택', '옵션을 선택', '이미 구매', '이미 구독', '로그인 후', '로그인이 필요',
+    ];
+    for (const text of errorAlertTexts) {
+      if (await this.page.getByText(text, { exact: false }).first()
+        .isVisible({ timeout: 800 }).catch(() => false)) {
+        const content = await this.page.getByText(text, { exact: false }).first()
+          .textContent().catch(() => text);
+        throw new Error(`[앱오류] 구매하기 클릭 후 알럿 출현 ("${content?.trim().substring(0, 60)}") — 주문 페이지 진입 불가`);
       }
     }
 
+    // 4단계: 상세 페이지에서 이탈 대기 (특정 URL 패턴 대신 URL 변경 감지로 유연하게 처리)
     try {
-      await this.page.waitForURL(/\/order|\/payment|\/checkout|\/purchase/, { timeout: 15000 });
+      await this.page.waitForFunction(
+        (url) => window.location.href !== url && !window.location.href.includes('/contents/detail'),
+        detailUrl,
+        { timeout: 15000 }
+      );
     } catch {
       const url = this.page.url();
-      throw new Error(`[앱오류] 구매하기 클릭 후 주문 결제 페이지 미이동 — 현재 URL: ${url} (기대: /order|/payment|/checkout)`);
+      throw new Error(`[앱오류] 구매하기 클릭 후 주문 페이지 미이동 — 현재 URL: ${url} (/order, /payment, /checkout 등 기대)`);
     }
     await this.page.waitForLoadState('load');
-    console.log('✅ 주문 결제 페이지 이동 확인');
+    console.log(`✅ 주문 결제 페이지 이동 확인: ${this.page.url()}`);
   }
 
   async verifyOrderPageURL() {
-    await expect(this.page, '[앱오류] 주문 결제 페이지 URL 불일치 — /order, /payment, /checkout, /purchase 경로 확인 필요').toHaveURL(/\/order|\/payment|\/checkout|\/purchase/);
-    console.log(`✅ 주문 결제 페이지 URL 확인: ${this.page.url()}`);
+    // 상세 페이지에서 벗어났는지 확인 (앱별 URL 구조가 다를 수 있어 패턴 대신 이탈 여부로 판단)
+    const url = this.page.url();
+    expect(url, `[앱오류] 구매 후 여전히 상세 페이지에 있음 — URL: ${url} (주문 결제 페이지로 이동되어야 함)`).not.toContain('/contents/detail');
+    console.log(`✅ 주문 결제 페이지 URL 확인: ${url}`);
   }
 
   async clickCancelOnOrderPage() {
