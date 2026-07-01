@@ -23,13 +23,13 @@ export class CsInquiryPage {
   }
 
   async verifyUrl() {
-    await expect(this.page).toHaveURL(/\/cs\/inquiry/);
+    await expect(this.page, '[앱오류] 서비스 이용 문의 페이지 URL이 /cs/inquiry 와 일치하지 않음 — 라우팅 오류 가능성').toHaveURL(/\/cs\/inquiry/);
     console.log(`✅ 서비스 이용 문의 URL 확인: ${this.page.url()}`);
   }
 
   async verifyTabActiveStyle() {
     const tab = this.page.getByText('서비스 이용 문의', { exact: true }).first();
-    await expect(tab).toBeVisible({ timeout: 5000 });
+    await expect(tab, '[UI/셀렉터] "서비스 이용 문의" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 5000 });
     const isActive = await tab.evaluate(el => {
       const style = window.getComputedStyle(el);
       return (
@@ -45,52 +45,52 @@ export class CsInquiryPage {
 
   async verifyNamePlaceholder() {
     const field = this.page.locator('input[placeholder*="이름"]').first();
-    await expect(field).toBeVisible({ timeout: 8000 });
+    await expect(field, '[UI/셀렉터] 이름 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await field.getAttribute('placeholder') ?? '';
-    expect(ph).toMatch(/이름/);
+    expect(ph, '[앱오류] 이름 필드 placeholder 텍스트가 "이름" 포함하지 않음').toMatch(/이름/);
     console.log(`✅ 이름 placeholder: "${ph}"`);
   }
 
   async verifyAffiliationPlaceholder() {
     const field = this.page.locator('input[placeholder*="소속"]').first();
-    await expect(field).toBeVisible({ timeout: 8000 });
+    await expect(field, '[UI/셀렉터] 소속 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await field.getAttribute('placeholder') ?? '';
-    expect(ph).toMatch(/소속/);
+    expect(ph, '[앱오류] 소속 필드 placeholder 텍스트가 "소속" 포함하지 않음').toMatch(/소속/);
     console.log(`✅ 소속 placeholder: "${ph}"`);
   }
 
   async verifyInquiryTypeDropdownPlaceholder() {
     // "문의 내용을 선택해 주세요." 표시
     const placeholder = this.page.getByText('문의 내용을 선택해 주세요', { exact: false }).first();
-    await expect(placeholder).toBeVisible({ timeout: 8000 });
+    await expect(placeholder, '[UI/셀렉터] 문의 종류 드롭다운 placeholder를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     console.log('✅ 문의 종류 드롭다운 placeholder 확인');
   }
 
   async verifyEmailPlaceholder() {
     const field = this.page.locator('input[placeholder*="E-mail"], input[placeholder*="이메일"], input[type="email"]').first();
-    await expect(field).toBeVisible({ timeout: 8000 });
+    await expect(field, '[UI/셀렉터] 이메일 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await field.getAttribute('placeholder') ?? '';
     console.log(`✅ 이메일 placeholder: "${ph}"`);
   }
 
   async verifyPhonePlaceholder() {
     const field = this.page.locator('input[placeholder*="연락받으실"], input[placeholder*="번호"], input[type="tel"]').first();
-    await expect(field).toBeVisible({ timeout: 8000 });
+    await expect(field, '[UI/셀렉터] 휴대폰 번호 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await field.getAttribute('placeholder') ?? '';
     console.log(`✅ 휴대폰 placeholder: "${ph}"`);
   }
 
   async verifyTitlePlaceholder() {
     const field = this.page.locator('input[placeholder*="제목"]').first();
-    await expect(field).toBeVisible({ timeout: 8000 });
+    await expect(field, '[UI/셀렉터] 제목 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await field.getAttribute('placeholder') ?? '';
-    expect(ph).toMatch(/제목/);
+    expect(ph, '[앱오류] 제목 필드 placeholder 텍스트가 "제목" 포함하지 않음').toMatch(/제목/);
     console.log(`✅ 제목 placeholder: "${ph}"`);
   }
 
   async verifyContentPlaceholder() {
     const field = this.page.locator('textarea').first();
-    await expect(field).toBeVisible({ timeout: 8000 });
+    await expect(field, '[UI/셀렉터] 문의내용 textarea 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await field.getAttribute('placeholder') ?? '';
     console.log(`✅ 문의내용 placeholder: "${ph}"`);
   }
@@ -119,7 +119,7 @@ export class CsInquiryPage {
   async verifyInquiryTypeOptions() {
     await this.openInquiryTypeDropdown();
     for (const type of INQUIRY_TYPES) {
-      await expect(this.page.getByText(type, { exact: true }).first()).toBeVisible({ timeout: 5000 });
+      await expect(this.page.getByText(type, { exact: true }).first(), `[앱오류] 문의 종류 드롭다운에 "${type}" 항목 미노출`).toBeVisible({ timeout: 5000 });
       console.log(`✅ 문의 종류 항목 확인: "${type}"`);
     }
     await this.page.keyboard.press('Escape');
@@ -134,7 +134,7 @@ export class CsInquiryPage {
   }
 
   async verifyInquiryTypeSelected(typeName: string) {
-    await expect(this.page.getByText(typeName, { exact: false }).first()).toBeVisible({ timeout: 5000 });
+    await expect(this.page.getByText(typeName, { exact: false }).first(), `[앱오류] 문의 종류 선택 후 "${typeName}" 반영 안됨 — 드롭다운 선택 버그`).toBeVisible({ timeout: 5000 });
     console.log(`✅ 문의 종류 선택 반영 확인: "${typeName}"`);
   }
 
@@ -146,7 +146,7 @@ export class CsInquiryPage {
 
   async verifyEmailValidationError() {
     const errMsg = this.page.getByText(/이메일 형식을 다시 확인|이메일 형식/i).first();
-    await expect(errMsg).toBeVisible({ timeout: 5000 });
+    await expect(errMsg, '[앱오류] 잘못된 이메일 형식 입력 시 오류 메시지 미노출 — 유효성 검사 버그').toBeVisible({ timeout: 5000 });
     console.log('✅ 이메일 형식 오류 메시지 확인');
   }
 
@@ -158,7 +158,7 @@ export class CsInquiryPage {
 
   async verifyPhoneValidationError() {
     const errMsg = this.page.getByText(/전화번호를 올바르게/i).first();
-    await expect(errMsg).toBeVisible({ timeout: 5000 });
+    await expect(errMsg, '[앱오류] 잘못된 전화번호 형식 입력 시 오류 메시지 미노출 — 유효성 검사 버그').toBeVisible({ timeout: 5000 });
     console.log('✅ 전화번호 형식 오류 메시지 확인');
   }
 
@@ -206,7 +206,7 @@ export class CsInquiryPage {
 
   async verifyAlert(pattern: string | RegExp) {
     const alert = this.page.getByText(pattern, { exact: false }).first();
-    await expect(alert).toBeVisible({ timeout: 8000 });
+    await expect(alert, `[앱오류] 알럿 메시지 미노출 — 예상 텍스트: "${pattern}"`).toBeVisible({ timeout: 8000 });
     console.log(`✅ 알럿 확인: "${pattern}"`);
   }
 
@@ -246,13 +246,14 @@ export class CsInquiryPage {
 
   async verifyFileUploaded(fileName: string) {
     const fileNameEl = this.page.getByText(fileName, { exact: false }).first();
-    await expect(fileNameEl).toBeVisible({ timeout: 5000 });
+    await expect(fileNameEl, `[앱오류] 업로드된 파일명 "${fileName}" 미노출 — 파일 업로드 처리 버그`).toBeVisible({ timeout: 5000 });
     console.log(`✅ 파일 업로드 확인: "${fileName}"`);
   }
 
   async verifyMaxFileCountAlert() {
     await expect(
-      this.page.getByText(/최대.*1개|이미지 개수는 1개/i).first()
+      this.page.getByText(/최대.*1개|이미지 개수는 1개/i).first(),
+      '[앱오류] 파일 최대 개수(1개) 초과 시 알럿 미노출 — 파일 개수 제한 버그'
     ).toBeVisible({ timeout: 5000 });
     console.log('✅ 최대 파일 업로드 수(1개) 초과 알럿 확인');
   }
@@ -281,7 +282,8 @@ export class CsInquiryPage {
 
   async verifySubmitSuccessPage() {
     await expect(
-      this.page.getByText('서비스 이용 문의 접수가 완료되었습니다', { exact: false }).first()
+      this.page.getByText('서비스 이용 문의 접수가 완료되었습니다', { exact: false }).first(),
+      '[앱오류] 문의 접수 완료 메시지 미노출 — 제출 처리 실패 가능성'
     ).toBeVisible({ timeout: 15000 });
     console.log('✅ 문의 접수 완료 페이지 확인');
   }
@@ -290,7 +292,7 @@ export class CsInquiryPage {
     // 접수일시: YYYY-MM-DD HH:MM:SS 형식
     const pageText = await this.page.textContent('body') ?? '';
     const datetimeRegex = /20\d{2}-\d{2}-\d{2}/;
-    expect(datetimeRegex.test(pageText)).toBeTruthy();
+    expect(datetimeRegex.test(pageText), '[앱오류] 접수 완료 페이지에 접수일시(날짜) 미노출 — 완료 페이지 데이터 표시 버그').toBeTruthy();
     console.log('✅ 접수일시 날짜 형식 확인');
   }
 
@@ -309,7 +311,7 @@ export class CsInquiryPage {
     // 다른 탭 이동 후 복귀 시 입력 필드 초기화 확인
     const nameField = this.page.locator('input[placeholder*="이름"]').first();
     const val = await nameField.inputValue().catch(() => '');
-    expect(val).toBe('');
+    expect(val, '[앱오류] 탭 이동 후 복귀 시 이름 필드가 초기화되지 않음 — 상태 초기화 버그').toBe('');
     console.log(`✅ 서비스 이용 문의 필드 초기화 확인`);
   }
 

@@ -35,13 +35,14 @@ export class DownloadPage {
   }
 
   async verifyUrl() {
-    await expect(this.page).toHaveURL(/\/downloads/);
+    await expect(this.page, '[앱오류] 다운로드 페이지 URL이 /downloads 와 일치하지 않음 — 라우팅 오류 가능성').toHaveURL(/\/downloads/);
     console.log(`✅ 다운로드 페이지 URL 확인: ${this.page.url()}`);
   }
 
   async verifyPageTitle() {
     await expect(
-      this.page.getByText('메타데미 설치').first()
+      this.page.getByText('메타데미 설치').first(),
+      '[앱오류] 페이지 제목 "메타데미 설치" 미노출 — 제목 텍스트 변경 또는 페이지 로드 실패'
     ).toBeVisible({ timeout: 8000 });
     console.log('✅ 페이지 제목 "메타데미 설치" 확인');
   }
@@ -49,7 +50,8 @@ export class DownloadPage {
   async verifyStorageGuideText() {
     // "원활한 설치를 위해 PC의 여유 공간을 5GB 이상 확보해 주시기 바랍니다." 문구
     await expect(
-      this.page.getByText('5GB 이상', { exact: false }).first()
+      this.page.getByText('5GB 이상', { exact: false }).first(),
+      '[앱오류] "5GB 이상" 여유공간 안내 문구 미노출 — 안내 텍스트 변경 또는 삭제 가능성'
     ).toBeVisible({ timeout: 8000 });
     console.log('✅ 서브 문구 (5GB 이상 여유공간 안내) 확인');
   }
@@ -95,22 +97,22 @@ export class DownloadPage {
   }
 
   async verifySpecCardsShown() {
-    await expect(this.page.getByText('최저 사양', { exact: false }).first()).toBeVisible({ timeout: 8000 });
-    await expect(this.page.getByText('권장 사양', { exact: false }).first()).toBeVisible({ timeout: 8000 });
+    await expect(this.page.getByText('최저 사양', { exact: false }).first(), '[앱오류] "최저 사양" 카드 미노출 — 사양 정보 표시 버그').toBeVisible({ timeout: 8000 });
+    await expect(this.page.getByText('권장 사양', { exact: false }).first(), '[앱오류] "권장 사양" 카드 미노출 — 사양 정보 표시 버그').toBeVisible({ timeout: 8000 });
     console.log('✅ 최저 사양 / 권장 사양 카드 노출 확인');
   }
 
   async verifyMacSpecsShown() {
     // macOS 최저사양: 프로세서 M1 8Core, 운영체제 macOS 13 Ventura
-    await expect(this.page.getByText(/M1/i).first()).toBeVisible({ timeout: 8000 });
-    await expect(this.page.getByText(/Ventura/i).first()).toBeVisible({ timeout: 8000 });
+    await expect(this.page.getByText(/M1/i).first(), '[앱오류] MacOS 탭 선택 후 M1 프로세서 사양 미노출 — 탭 전환 또는 데이터 표시 버그').toBeVisible({ timeout: 8000 });
+    await expect(this.page.getByText(/Ventura/i).first(), '[앱오류] MacOS 탭 선택 후 Ventura 운영체제 사양 미노출 — 탭 전환 또는 데이터 표시 버그').toBeVisible({ timeout: 8000 });
     console.log('✅ MacOS 사양 변경 확인 (M1, Ventura)');
   }
 
   async verifyWindowsSpecsShown() {
     // Windows 최저사양: 인텔 코어i5 8세대, 운영체제 Windows 10 이상
-    await expect(this.page.getByText(/i5|인텔/i).first()).toBeVisible({ timeout: 8000 });
-    await expect(this.page.getByText(/Windows 1\d|Windows10/i).first()).toBeVisible({ timeout: 8000 });
+    await expect(this.page.getByText(/i5|인텔/i).first(), '[앱오류] Windows 탭 선택 후 인텔 i5 프로세서 사양 미노출 — 탭 전환 또는 데이터 표시 버그').toBeVisible({ timeout: 8000 });
+    await expect(this.page.getByText(/Windows 1\d|Windows10/i).first(), '[앱오류] Windows 탭 선택 후 Windows 10 이상 운영체제 사양 미노출 — 탭 전환 또는 데이터 표시 버그').toBeVisible({ timeout: 8000 });
     console.log('✅ Windows OS 사양 변경 확인 (i5, Windows 10+)');
   }
 
@@ -172,14 +174,14 @@ export class DownloadPage {
 
   async verifyDownloadFile(download: Download, expectedExtPattern?: RegExp) {
     const name = download.suggestedFilename();
-    expect(name.length).toBeGreaterThan(0);
+    expect(name.length, '[앱오류] 다운로드 파일명이 비어 있음 — 파일 다운로드 응답 오류').toBeGreaterThan(0);
     if (expectedExtPattern) {
-      expect(name).toMatch(expectedExtPattern);
+      expect(name, `[앱오류] 다운로드 파일명 "${name}" 이 예상 패턴과 일치하지 않음 — 파일 형식 오류`).toMatch(expectedExtPattern);
     }
     const savePath = path.join(os.tmpdir(), name);
     await download.saveAs(savePath);
     const stats = fs.statSync(savePath);
-    expect(stats.size).toBeGreaterThan(0);
+    expect(stats.size, `[앱오류] 다운로드된 파일 크기가 0 — 파일 내용 없음 (${name})`).toBeGreaterThan(0);
     console.log(`✅ 다운로드 파일 확인: ${name} (${(stats.size / 1024).toFixed(1)} KB)`);
     fs.unlinkSync(savePath);
   }

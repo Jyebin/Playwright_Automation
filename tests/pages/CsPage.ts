@@ -32,20 +32,20 @@ export class CsPage {
   }
 
   async verifyUrl() {
-    await expect(this.page).toHaveURL(/\/cs/);
+    await expect(this.page, '[앱오류] 고객센터 URL로 이동되지 않음').toHaveURL(/\/cs/);
     console.log(`✅ 고객센터 URL 확인: ${this.page.url()}`);
   }
 
   async verifyTabsExist() {
     for (const tab of CS_TABS) {
-      await expect(this.page.getByText(tab, { exact: true }).first()).toBeVisible({ timeout: 8000 });
+      await expect(this.page.getByText(tab, { exact: true }).first(), `[UI/셀렉터] "${tab}" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 8000 });
       console.log(`✅ 탭 존재 확인: "${tab}"`);
     }
   }
 
   async verifyDefaultTabIsNotice() {
     // 고객센터 진입 시 공지사항이 기본 선택 (검은색 강조 + 보라색 밑줄)
-    await expect(this.page.getByText('공지사항', { exact: true }).first()).toBeVisible({ timeout: 8000 });
+    await expect(this.page.getByText('공지사항', { exact: true }).first(), '[UI/셀렉터] "공지사항" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const isActive = await this.page.getByText('공지사항', { exact: true }).first().evaluate(el => {
       const style = window.getComputedStyle(el);
       return (
@@ -71,7 +71,7 @@ export class CsPage {
 
   async verifyTabActive(tabName: string) {
     const tab = this.page.getByText(tabName, { exact: true }).first();
-    await expect(tab).toBeVisible({ timeout: 5000 });
+    await expect(tab, `[UI/셀렉터] "${tabName}" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 5000 });
     const isActive = await tab.evaluate(el => {
       const style = window.getComputedStyle(el);
       return (
@@ -87,7 +87,7 @@ export class CsPage {
 
   async verifyTabUrl(tabName: CsTab) {
     const urlPattern = CS_TAB_URL_MAP[tabName];
-    await expect(this.page).toHaveURL(urlPattern);
+    await expect(this.page, `[앱오류] "${tabName}" 탭 클릭 후 URL이 예상 경로로 이동되지 않음`).toHaveURL(urlPattern);
     console.log(`✅ "${tabName}" URL 확인: ${this.page.url()}`);
   }
 }

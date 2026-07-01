@@ -7,7 +7,7 @@ export class MyPagePasswordPage {
     const fields = this.page.locator('input[type="password"]');
     await fields.first().waitFor({ state: 'visible', timeout: 8000 });
     const count = await fields.count();
-    expect(count).toBeGreaterThanOrEqual(3);
+    expect(count, '[앱오류] 비밀번호 변경 페이지에 password 필드가 3개 미만 — 화면 구성 오류').toBeGreaterThanOrEqual(3);
     console.log(`✅ 비밀번호 변경 페이지 확인 (password 필드 ${count}개)`);
   }
 
@@ -16,14 +16,14 @@ export class MyPagePasswordPage {
     const count = await fields.count();
     for (let i = 0; i < count; i++) {
       const ph = await fields.nth(i).getAttribute('placeholder') ?? '';
-      expect(ph).toMatch(/비밀번호를 입력해 주세요/);
+      expect(ph, `[앱오류] 비밀번호 필드[${i}] placeholder가 예상 문구와 다름`).toMatch(/비밀번호를 입력해 주세요/);
       console.log(`✅ 비밀번호 필드[${i}] placeholder: "${ph}"`);
     }
   }
 
   async verifyPasswordRuleText() {
     const ruleText = this.page.getByText(/영문.*숫자.*특수문자|8자 이상/i).first();
-    await expect(ruleText).toBeVisible({ timeout: 5000 });
+    await expect(ruleText, '[앱오류] 비밀번호 조건 안내 문구(영문·숫자·특수문자/8자 이상)가 표시되지 않음').toBeVisible({ timeout: 5000 });
     console.log('✅ 비밀번호 조건 안내 문구 확인');
   }
 
@@ -82,7 +82,7 @@ export class MyPagePasswordPage {
 
   async verifyAlert(pattern: string | RegExp) {
     const el = this.page.getByText(pattern, { exact: false }).first();
-    await expect(el).toBeVisible({ timeout: 8000 });
+    await expect(el, `[앱오류] 알럿 메시지 "${pattern}" 미노출`).toBeVisible({ timeout: 8000 });
     console.log(`✅ 알럿 확인: "${pattern}"`);
   }
 
@@ -99,7 +99,8 @@ export class MyPagePasswordPage {
 
   async verifyChangeConfirmAlert() {
     await expect(
-      this.page.getByText('비밀번호를 변경하시겠습니까', { exact: false }).first()
+      this.page.getByText('비밀번호를 변경하시겠습니까', { exact: false }).first(),
+      '[앱오류] "비밀번호를 변경하시겠습니까?" 확인 알럿이 표시되지 않음'
     ).toBeVisible({ timeout: 5000 });
     console.log('✅ "비밀번호를 변경하시겠습니까?" 확인 알럿 확인');
   }

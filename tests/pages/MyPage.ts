@@ -25,20 +25,20 @@ export class MyPage {
   }
 
   async verifyUrl() {
-    await expect(this.page).toHaveURL(/\/mypage/);
+    await expect(this.page, '[앱오류] 마이페이지 URL로 이동되지 않음').toHaveURL(/\/mypage/);
     console.log(`✅ 마이페이지 URL 확인: ${this.page.url()}`);
   }
 
   async verifyTabsExist() {
     for (const tab of MYPAGE_TABS) {
-      await expect(this.page.getByText(tab, { exact: true }).first()).toBeVisible({ timeout: 8000 });
+      await expect(this.page.getByText(tab, { exact: true }).first(), `[UI/셀렉터] "${tab}" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 8000 });
       console.log(`✅ 탭 확인: "${tab}"`);
     }
   }
 
   async verifyDefaultTabIsProfile() {
     const profileTab = this.page.getByText('프로필', { exact: true }).first();
-    await expect(profileTab).toBeVisible({ timeout: 8000 });
+    await expect(profileTab, '[UI/셀렉터] "프로필" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const isActive = await profileTab.evaluate(el => {
       const style = window.getComputedStyle(el);
       return (
@@ -63,7 +63,7 @@ export class MyPage {
 
   async verifyTabActive(tabName: string) {
     const tab = this.page.getByText(tabName, { exact: true }).first();
-    await expect(tab).toBeVisible({ timeout: 5000 });
+    await expect(tab, `[UI/셀렉터] "${tabName}" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 5000 });
     const isActive = await tab.evaluate(el => {
       const style = window.getComputedStyle(el);
       return (
@@ -82,7 +82,7 @@ export class MyPage {
     const fields = ['계정', '이름', '휴대폰', 'E-mail', '마케팅'];
     for (const field of fields) {
       const el = this.page.getByText(field, { exact: false }).first();
-      await expect(el).toBeVisible({ timeout: 8000 });
+      await expect(el, `[UI/셀렉터] 프로필 필드 레이블 "${field}"을 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 8000 });
       console.log(`✅ 프로필 필드 레이블 확인: "${field}"`);
     }
   }
@@ -90,7 +90,7 @@ export class MyPage {
   async verifyAccountEmailDisplayed() {
     const email = process.env.TEST_USERNAME ?? '';
     if (email) {
-      await expect(this.page.getByText(email, { exact: false }).first()).toBeVisible({ timeout: 5000 });
+      await expect(this.page.getByText(email, { exact: false }).first(), '[앱오류] 계정 이메일이 프로필 화면에 표시되지 않음').toBeVisible({ timeout: 5000 });
       console.log(`✅ 계정 이메일 표시 확인: "${email}"`);
     } else {
       console.log('ℹ️  TEST_USERNAME 미설정 — 계정 이메일 확인 건너뜀');

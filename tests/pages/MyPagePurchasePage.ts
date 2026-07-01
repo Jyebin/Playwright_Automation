@@ -23,7 +23,8 @@ export class MyPagePurchasePage {
 
   async verifyEmptyState() {
     await expect(
-      this.page.getByText('구매 내역이 없습니다', { exact: false }).first()
+      this.page.getByText('구매 내역이 없습니다', { exact: false }).first(),
+      '[앱오류] "구매 내역이 없습니다" 안내 문구가 표시되지 않음'
     ).toBeVisible({ timeout: 8000 });
     console.log('✅ "구매 내역이 없습니다." 안내 문구 확인');
   }
@@ -72,7 +73,7 @@ export class MyPagePurchasePage {
     );
     await items.first().waitFor({ state: 'visible', timeout: 8000 });
     const count = await items.count();
-    expect(count).toBeLessThanOrEqual(5);
+    expect(count, '[앱오류] 페이지당 구매내역이 5개를 초과함 — 페이지네이션 미작동').toBeLessThanOrEqual(5);
     console.log(`✅ 페이지당 구매내역 ${count}개 (최대 5개) 확인`);
   }
 
@@ -80,7 +81,7 @@ export class MyPagePurchasePage {
     const pagination = this.page.locator('[class*="pagination"], [class*="Pagination"]').first();
     const hasPagination = await pagination.isVisible({ timeout: 3000 }).catch(() => false);
     if (hasPagination) {
-      await expect(pagination).toBeVisible();
+      await expect(pagination, '[UI/셀렉터] 페이지네이션 요소를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible();
       console.log('✅ 페이지네이션 확인');
     } else {
       console.log('ℹ️  페이지네이션 미노출 (구매내역 5개 이하)');
@@ -101,11 +102,11 @@ export class MyPagePurchasePage {
 
   async verifyOrderDetailModalContent() {
     const modal = this.page.locator('[class*="modal"], [role="dialog"]').first();
-    await expect(modal).toBeVisible({ timeout: 8000 });
+    await expect(modal, '[UI/셀렉터] 주문 상세 모달을 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const modalText = await modal.textContent() ?? '';
     // 주문번호(12자리 숫자) 형식 확인
     const hasOrderNum = /\d{12}/.test(modalText) || /주문/.test(modalText);
-    expect(hasOrderNum).toBeTruthy();
+    expect(hasOrderNum, '[앱오류] 주문 상세 모달에 주문번호가 표시되지 않음').toBeTruthy();
     console.log('✅ 주문 상세 모달 내용 확인');
   }
 

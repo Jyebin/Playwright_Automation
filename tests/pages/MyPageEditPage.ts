@@ -7,15 +7,15 @@ export class MyPageEditPage {
 
   async verifyPasswordConfirmPageVisible() {
     const field = this.page.locator('input[type="password"]').first();
-    await expect(field).toBeVisible({ timeout: 8000 });
+    await expect(field, '[UI/셀렉터] 비밀번호 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     console.log('✅ 비밀번호 확인 단계 진입 확인');
   }
 
   async verifyPasswordPlaceholder() {
     const field = this.page.locator('input[type="password"]').first();
-    await expect(field).toBeVisible({ timeout: 8000 });
+    await expect(field, '[UI/셀렉터] 비밀번호 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await field.getAttribute('placeholder') ?? '';
-    expect(ph).toMatch(/비밀번호를 입력해 주세요/);
+    expect(ph, '[앱오류] 비밀번호 placeholder 텍스트가 "비밀번호를 입력해 주세요"와 일치하지 않음').toMatch(/비밀번호를 입력해 주세요/);
     console.log(`✅ 비밀번호 placeholder: "${ph}"`);
   }
 
@@ -30,7 +30,7 @@ export class MyPageEditPage {
 
   async verifyAlert(pattern: string | RegExp) {
     const el = this.page.getByText(pattern, { exact: false }).first();
-    await expect(el).toBeVisible({ timeout: 8000 });
+    await expect(el, `[앱오류] 알럿 메시지 미노출 — 예상 텍스트: "${pattern}"`).toBeVisible({ timeout: 8000 });
     console.log(`✅ 알럿 확인: "${pattern}"`);
   }
 
@@ -101,9 +101,9 @@ export class MyPageEditPage {
     const emailField = this.page.locator(
       'input[type="email"], input[placeholder*="이메일"]'
     ).first();
-    await expect(emailField).toBeVisible({ timeout: 8000 });
+    await expect(emailField, '[UI/셀렉터] 이메일 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const isDisabled = await emailField.getAttribute('disabled');
-    expect(isDisabled).toBeNull();
+    expect(isDisabled, '[앱오류] 이메일 필드가 비활성화(disabled) 상태 — 편집 불가 버그').toBeNull();
     console.log('✅ 이메일 필드 편집 가능 확인');
   }
 
@@ -112,7 +112,7 @@ export class MyPageEditPage {
       'input[type="email"], input[placeholder*="이메일"]'
     ).first();
     const ph = await field.getAttribute('placeholder') ?? '';
-    expect(ph).toMatch(/이메일을 입력해 주세요/);
+    expect(ph, '[앱오류] 이메일 placeholder 텍스트가 "이메일을 입력해 주세요"와 일치하지 않음').toMatch(/이메일을 입력해 주세요/);
     console.log(`✅ 이메일 placeholder: "${ph}"`);
   }
 
@@ -142,13 +142,15 @@ export class MyPageEditPage {
 
   async verifySaveSuccess() {
     await expect(
-      this.page.getByText('프로필 수정이 완료되었습니다', { exact: false }).first()
+      this.page.getByText('프로필 수정이 완료되었습니다', { exact: false }).first(),
+      '[앱오류] "프로필 수정이 완료되었습니다" 알럿 미노출 — 저장 처리 실패 가능성'
     ).toBeVisible({ timeout: 8000 });
     console.log('✅ "프로필 수정이 완료되었습니다." 알럿 확인');
   }
 
   async verifyReturnedToMyPage() {
     await this.page.waitForURL(/\/mypage/, { timeout: 8000 });
+    await expect(this.page, '[앱오류] 마이페이지로 리다이렉트 안됨 — 저장 후 페이지 이동 실패').toHaveURL(/\/mypage/, { timeout: 8000 });
     console.log(`✅ 마이페이지 복귀 확인: ${this.page.url()}`);
   }
 

@@ -18,7 +18,7 @@ export class CsNoticePage {
   }
 
   async verifyUrl() {
-    await expect(this.page).toHaveURL(/\/cs(\/notice)?/);
+    await expect(this.page, '[앱오류] 공지사항 URL로 이동되지 않음').toHaveURL(/\/cs(\/notice)?/);
     console.log(`✅ 공지사항 URL 확인: ${this.page.url()}`);
   }
 
@@ -26,23 +26,23 @@ export class CsNoticePage {
 
   async verifyCategoriesExist() {
     for (const cat of NOTICE_CATEGORIES) {
-      await expect(this.page.getByText(cat, { exact: true }).first()).toBeVisible({ timeout: 8000 });
+      await expect(this.page.getByText(cat, { exact: true }).first(), `[UI/셀렉터] 카테고리 "${cat}"를 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 8000 });
       console.log(`✅ 카테고리 확인: "${cat}"`);
     }
   }
 
   async verifySearchPlaceholder() {
     const input = this.page.locator('input[placeholder*="공지사항을 검색"]').first();
-    await expect(input).toBeVisible({ timeout: 8000 });
+    await expect(input, '[UI/셀렉터] 공지사항 검색 입력창을 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await input.getAttribute('placeholder') ?? '';
-    expect(ph).toMatch(/공지사항/);
+    expect(ph, '[앱오류] 검색창 placeholder 문구가 "공지사항"을 포함하지 않음').toMatch(/공지사항/);
     console.log(`✅ 검색 placeholder 확인: "${ph}"`);
   }
 
   async verifyDefaultSortOption() {
     // 정렬 기본값: 최신순
     const sortEl = this.page.getByText('최신순', { exact: false }).first();
-    await expect(sortEl).toBeVisible({ timeout: 8000 });
+    await expect(sortEl, '[앱오류] 기본 정렬 "최신순"이 표시되지 않음').toBeVisible({ timeout: 8000 });
     console.log('✅ 기본 정렬 "최신순" 확인');
   }
 
@@ -56,7 +56,7 @@ export class CsNoticePage {
     await sortTrigger.click({ force: true });
     await this.page.waitForTimeout(400);
     for (const opt of NOTICE_SORT_OPTIONS) {
-      await expect(this.page.getByText(opt, { exact: true }).first()).toBeVisible({ timeout: 5000 });
+      await expect(this.page.getByText(opt, { exact: true }).first(), `[앱오류] 정렬 드롭다운에 "${opt}" 옵션이 표시되지 않음`).toBeVisible({ timeout: 5000 });
       console.log(`✅ 정렬 옵션 확인: "${opt}"`);
     }
     await this.page.keyboard.press('Escape');
@@ -78,10 +78,10 @@ export class CsNoticePage {
     // 게시물: No./제목/작성자/날짜(YYYY-MM-DD)/조회수 구성 확인
     const postRows = this.page.locator('tbody tr, [class*="notice-item"], [class*="noticeItem"]');
     const count = await postRows.count();
-    expect(count).toBeGreaterThan(0);
+    expect(count, '[앱오류] 공지사항 게시물이 목록에 표시되지 않음').toBeGreaterThan(0);
     // 날짜 형식 YYYY-MM-DD 확인
     const pageText = await this.page.textContent('body') ?? '';
-    expect(/\d{4}-\d{2}-\d{2}/.test(pageText)).toBeTruthy();
+    expect(/\d{4}-\d{2}-\d{2}/.test(pageText), '[앱오류] 게시물 목록에 YYYY-MM-DD 형식의 날짜가 없음').toBeTruthy();
     console.log(`✅ 게시물 목록 구성 확인 (${count}개, YYYY-MM-DD 날짜 형식 포함)`);
   }
 
@@ -89,8 +89,8 @@ export class CsNoticePage {
     const postRows = this.page.locator('tbody tr, [class*="notice-item"], [class*="noticeItem"]');
     await postRows.first().waitFor({ state: 'visible', timeout: 10000 });
     const count = await postRows.count();
-    expect(count).toBeGreaterThan(0);
-    expect(count).toBeLessThanOrEqual(10);
+    expect(count, '[앱오류] 공지사항 게시물이 목록에 표시되지 않음').toBeGreaterThan(0);
+    expect(count, '[앱오류] 페이지당 게시물이 10개를 초과함 — 페이지네이션 미작동').toBeLessThanOrEqual(10);
     console.log(`✅ 페이지당 게시물 ${count}개 (최대 10개) 확인`);
   }
 
@@ -98,7 +98,7 @@ export class CsNoticePage {
     const pagination = this.page.locator('[class*="pagination"], [class*="Pagination"], nav[role="navigation"]').first();
     const hasPagination = await pagination.isVisible({ timeout: 3000 }).catch(() => false);
     if (hasPagination) {
-      await expect(pagination).toBeVisible();
+      await expect(pagination, '[UI/셀렉터] 페이지네이션 요소를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible();
       console.log('✅ 페이지네이션 노출 확인');
     } else {
       console.log('ℹ️  페이지네이션 미노출 (게시물 10개 이하)');
@@ -130,7 +130,7 @@ export class CsNoticePage {
     // 검색 후 검색창에 키워드 유지
     const input = this.getSearchInput();
     const val = await input.inputValue();
-    expect(val).toContain(keyword);
+    expect(val, '[앱오류] 검색 후 검색창에 키워드가 유지되지 않음').toContain(keyword);
     console.log(`✅ 검색창 키워드 유지 확인: "${val}"`);
   }
 
@@ -145,7 +145,8 @@ export class CsNoticePage {
     }
     await this.page.waitForTimeout(500);
     await expect(
-      this.page.getByText(/검색어를 입력해 주세요/i).first()
+      this.page.getByText(/검색어를 입력해 주세요/i).first(),
+      '[앱오류] 빈 검색어 제출 시 "검색어를 입력해 주세요" 알럿이 표시되지 않음'
     ).toBeVisible({ timeout: 5000 });
     console.log('✅ 빈 검색어 알럿 "검색어를 입력해 주세요." 확인');
   }
@@ -162,7 +163,7 @@ export class CsNoticePage {
     await input.press('Enter');
     await this.page.waitForTimeout(800);
     const countAfterEnter = await this.page.locator('tbody tr, [class*="notice-item"]').count();
-    expect(countAfterButton).toBe(countAfterEnter);
+    expect(countAfterButton, '[앱오류] 버튼 검색과 Enter 검색의 결과 건수가 다름').toBe(countAfterEnter);
     console.log(`✅ 버튼/Enter 검색 결과 동일 확인 (${countAfterButton}건)`);
   }
 
@@ -175,7 +176,7 @@ export class CsNoticePage {
     });
     await this.searchByKeyword("<script>alert('xss')</script>");
     await this.page.waitForTimeout(2000);
-    expect(dialogFired).toBe(false);
+    expect(dialogFired, '[앱오류] XSS 스크립트가 실행됨 — XSS 방어 미작동').toBe(false);
     console.log('✅ XSS 방어 확인 (스크립트 미실행)');
   }
 
@@ -184,7 +185,7 @@ export class CsNoticePage {
     await this.searchByKeyword("' OR '1'='1");
     await this.page.waitForTimeout(800);
     // 페이지가 정상 상태(에러 없음)인지 확인
-    await expect(this.page).toHaveURL(/\/cs/);
+    await expect(this.page, '[앱오류] SQL Injection 입력 후 고객센터 페이지가 정상 유지되지 않음').toHaveURL(/\/cs/);
     console.log("✅ SQL Injection 방어 확인 (정상 페이지 유지)");
   }
 
@@ -214,13 +215,14 @@ export class CsNoticePage {
     // 카테고리 선택 후 결과 있음 확인
     const posts = this.page.locator('tbody tr, [class*="notice-item"], [class*="noticeItem"]');
     const count = await posts.count();
-    expect(count).toBeGreaterThan(0);
+    expect(count, '[앱오류] 카테고리 선택 후 게시물이 표시되지 않음').toBeGreaterThan(0);
     console.log(`✅ 카테고리 필터링 결과 확인 (${count}건)`);
   }
 
   async verifyNoResults() {
     await expect(
-      this.page.getByText(/검색 결과가 없습니다|등록된 게시글이 없습니다|없습니다/i).first()
+      this.page.getByText(/검색 결과가 없습니다|등록된 게시글이 없습니다|없습니다/i).first(),
+      '[앱오류] 검색/카테고리 결과 없음 안내 문구가 표시되지 않음'
     ).toBeVisible({ timeout: 8000 });
     console.log('✅ 검색/카테고리 결과 없음 안내 확인');
   }
@@ -248,7 +250,7 @@ export class CsNoticePage {
   async verifyDetailPageContent() {
     // 제목, 작성자, 날짜(YYYY-MM-DD), 본문 확인
     const pageText = await this.page.textContent('body') ?? '';
-    expect(/\d{4}-\d{2}-\d{2}/.test(pageText)).toBeTruthy();
+    expect(/\d{4}-\d{2}-\d{2}/.test(pageText), '[앱오류] 공지사항 상세 페이지에 YYYY-MM-DD 형식의 날짜가 없음').toBeTruthy();
     console.log('✅ 공지사항 상세: 날짜 형식(YYYY-MM-DD) 확인');
   }
 
@@ -256,7 +258,7 @@ export class CsNoticePage {
     const noAttach = this.page.getByText('첨부파일이 없습니다', { exact: false }).first();
     const isVisible = await noAttach.isVisible({ timeout: 3000 }).catch(() => false);
     if (isVisible) {
-      await expect(noAttach).toBeVisible();
+      await expect(noAttach, '[앱오류] "첨부파일이 없습니다" 안내 문구가 표시되지 않음').toBeVisible();
       console.log('✅ 첨부파일 없음 안내 문구 확인');
     } else {
       console.log('ℹ️  첨부파일 있거나 구현 방식 상이');
@@ -281,7 +283,7 @@ export class CsNoticePage {
     const savePath = path.join(os.tmpdir(), download.suggestedFilename());
     await download.saveAs(savePath);
     const stats = fs.statSync(savePath);
-    expect(stats.size).toBeGreaterThan(0);
+    expect(stats.size, '[앱오류] 첨부파일 다운로드 후 파일 크기가 0 — 빈 파일 다운로드').toBeGreaterThan(0);
     console.log(`✅ 첨부파일 다운로드 확인: ${download.suggestedFilename()} (${(stats.size / 1024).toFixed(1)} KB)`);
     fs.unlinkSync(savePath);
   }
@@ -292,7 +294,7 @@ export class CsNoticePage {
     const noNext = this.page.getByText('다음 게시글이 없습니다', { exact: false }).first();
     const hasPrev = await noPrev.isVisible({ timeout: 3000 }).catch(() => false);
     const hasNext = await noNext.isVisible({ timeout: 3000 }).catch(() => false);
-    expect(hasPrev || hasNext).toBeTruthy();
+    expect(hasPrev || hasNext, '[앱오류] 이전/다음 게시글 없음 안내 문구가 표시되지 않음').toBeTruthy();
     console.log(`✅ 이전/다음 게시글 없음 안내 확인 (prev: ${hasPrev}, next: ${hasNext})`);
   }
 
@@ -300,7 +302,7 @@ export class CsNoticePage {
     // [&] 등 HTML 특수문자가 unescape되어 정상 노출
     const pageText = await this.page.textContent('body') ?? '';
     const hasEscaped = pageText.includes('&amp;') || pageText.includes('&#');
-    expect(hasEscaped).toBe(false);
+    expect(hasEscaped, '[앱오류] HTML 특수문자(&amp; 등)가 escape된 채로 노출됨 — unescape 미처리').toBe(false);
     console.log('✅ HTML 특수문자 unescape 노출 확인 ([&] 정상 표시)');
   }
 
@@ -317,7 +319,7 @@ export class CsNoticePage {
     // 다른 탭 이동 후 공지사항 복귀 → 검색어/카테고리/정렬 초기화 확인
     const input = this.getSearchInput();
     const val = await input.inputValue().catch(() => '');
-    expect(val).toBe('');
+    expect(val, '[앱오류] 탭 이동 후 공지사항 복귀 시 검색창이 초기화되지 않음').toBe('');
     console.log(`✅ 탭 이동 후 복귀 시 검색어 초기화 확인: "${val}"`);
   }
 }

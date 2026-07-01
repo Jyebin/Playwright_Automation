@@ -15,13 +15,13 @@ export class CsFaqPage {
   }
 
   async verifyUrl() {
-    await expect(this.page).toHaveURL(/\/cs\/faq/);
+    await expect(this.page, '[앱오류] FAQ 페이지 URL이 /cs/faq 와 일치하지 않음 — 라우팅 오류 가능성').toHaveURL(/\/cs\/faq/);
     console.log(`✅ FAQ URL 확인: ${this.page.url()}`);
   }
 
   async verifyTabActiveStyle() {
     const tab = this.page.getByText('자주 묻는 질문', { exact: true }).first();
-    await expect(tab).toBeVisible({ timeout: 5000 });
+    await expect(tab, '[UI/셀렉터] "자주 묻는 질문" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 5000 });
     const isActive = await tab.evaluate(el => {
       const style = window.getComputedStyle(el);
       return (
@@ -38,7 +38,7 @@ export class CsFaqPage {
 
   async verifyCategoriesExist() {
     for (const cat of FAQ_CATEGORIES) {
-      await expect(this.page.getByText(cat, { exact: true }).first()).toBeVisible({ timeout: 8000 });
+      await expect(this.page.getByText(cat, { exact: true }).first(), `[UI/셀렉터] FAQ 카테고리 "${cat}" 를 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 8000 });
       console.log(`✅ FAQ 카테고리 확인: "${cat}"`);
     }
   }
@@ -57,13 +57,14 @@ export class CsFaqPage {
     const items = this.getFaqItems();
     await items.first().waitFor({ state: 'visible', timeout: 8000 });
     const count = await items.count();
-    expect(count).toBeGreaterThan(0);
+    expect(count, '[앱오류] FAQ 게시물이 0개 — 데이터 미노출 또는 API 오류 가능성').toBeGreaterThan(0);
     console.log(`✅ FAQ 게시물 노출 확인 (${count}개)`);
   }
 
   async verifyEmptyState() {
     await expect(
-      this.page.getByText(/등록된 게시글이 없습니다|검색 결과가 없습니다/i).first()
+      this.page.getByText(/등록된 게시글이 없습니다|검색 결과가 없습니다/i).first(),
+      '[앱오류] FAQ 없음 안내 문구 미노출 — 빈 목록 상태 메시지 처리 버그'
     ).toBeVisible({ timeout: 8000 });
     console.log('✅ FAQ 없음 안내 문구 확인');
   }
@@ -73,7 +74,7 @@ export class CsFaqPage {
     const items = this.getFaqItems();
     await items.first().waitFor({ state: 'visible', timeout: 8000 });
     const count = await items.count();
-    expect(count).toBeGreaterThan(0);
+    expect(count, '[앱오류] FAQ 게시물(구분/제목 구조)이 0개 — 데이터 미노출 또는 API 오류 가능성').toBeGreaterThan(0);
     console.log(`✅ FAQ 게시물 구성 확인 (${count}개 — 구분/제목 포함)`);
   }
 
@@ -85,9 +86,9 @@ export class CsFaqPage {
 
   async verifySearchPlaceholder() {
     const input = this.getSearchInput();
-    await expect(input).toBeVisible({ timeout: 8000 });
+    await expect(input, '[UI/셀렉터] FAQ 검색 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await input.getAttribute('placeholder') ?? '';
-    expect(ph).toMatch(/자주 묻는|질문/);
+    expect(ph, '[앱오류] FAQ 검색 placeholder 텍스트가 "자주 묻는" 또는 "질문" 포함하지 않음').toMatch(/자주 묻는|질문/);
     console.log(`✅ FAQ 검색 placeholder: "${ph}"`);
   }
 
@@ -117,7 +118,8 @@ export class CsFaqPage {
     }
     await this.page.waitForTimeout(500);
     await expect(
-      this.page.getByText(/검색어를 입력해 주세요/i).first()
+      this.page.getByText(/검색어를 입력해 주세요/i).first(),
+      '[앱오류] 빈 검색어 입력 시 알럿 메시지 미노출 — 유효성 검사 버그'
     ).toBeVisible({ timeout: 5000 });
     console.log('✅ 빈 검색어 알럿 확인');
   }
@@ -140,13 +142,14 @@ export class CsFaqPage {
     // 검색창에 키워드 유지 확인
     const input = this.getSearchInput();
     const val = await input.inputValue().catch(() => '');
-    expect(val).toContain(keyword);
+    expect(val, `[앱오류] 검색 후 검색창에 키워드 "${keyword}" 유지 안됨 — 검색창 초기화 버그`).toContain(keyword);
     console.log(`✅ FAQ 검색 결과 확인: "${keyword}" (${count}건, 검색창 유지)`);
   }
 
   async verifyNoSearchResults() {
     await expect(
-      this.page.getByText(/검색 결과가 없습니다|등록된 게시글이 없습니다/i).first()
+      this.page.getByText(/검색 결과가 없습니다|등록된 게시글이 없습니다/i).first(),
+      '[앱오류] 검색 결과 없음 안내 문구 미노출 — 빈 결과 상태 처리 버그'
     ).toBeVisible({ timeout: 8000 });
     console.log('✅ FAQ 검색 결과 없음 안내 확인');
   }
@@ -175,7 +178,7 @@ export class CsFaqPage {
     ).first();
     const isVisible = await answer.isVisible({ timeout: 3000 }).catch(() => false);
     if (isVisible) {
-      await expect(answer).toBeVisible();
+      await expect(answer, '[앱오류] FAQ 항목 클릭 후 답변 영역이 펼쳐지지 않음 — 아코디언 동작 버그').toBeVisible();
       console.log('✅ FAQ 답변 펼침 확인');
     } else {
       // 펼친 항목이 클래스로 구분될 수 있음
@@ -221,7 +224,7 @@ export class CsFaqPage {
   async verifyOnlyOneItemExpanded() {
     // 다른 항목 클릭 시 기존 항목 닫힘 (동시에 열린 항목이 1개 이하)
     const openItems = await this.page.locator('[class*="answer"][style*="display: block"], details[open], [aria-expanded="true"]').count();
-    expect(openItems).toBeLessThanOrEqual(1);
+    expect(openItems, '[앱오류] FAQ 아코디언 항목이 2개 이상 동시 열림 — 단일 확장 정책 위반').toBeLessThanOrEqual(1);
     console.log(`✅ 동시 열림 항목 수 확인: ${openItems}개`);
   }
 
@@ -231,7 +234,7 @@ export class CsFaqPage {
     const pagination = this.page.locator('[class*="pagination"], [class*="Pagination"]').first();
     const hasPagination = await pagination.isVisible({ timeout: 3000 }).catch(() => false);
     if (hasPagination) {
-      await expect(pagination).toBeVisible();
+      await expect(pagination, '[UI/셀렉터] 페이지네이션 컨테이너를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible();
       // 페이지 버튼 클릭 동작 확인
       const pageBtn = pagination.locator('button, a').nth(1);
       if (await pageBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -247,7 +250,7 @@ export class CsFaqPage {
   async verifyPageResetAfterTabSwitch() {
     const input = this.getSearchInput();
     const val = await input.inputValue().catch(() => '');
-    expect(val).toBe('');
+    expect(val, '[앱오류] 탭 이동 후 복귀 시 FAQ 검색어가 초기화되지 않음 — 상태 초기화 버그').toBe('');
     console.log(`✅ 탭 이동 후 복귀 시 FAQ 검색어 초기화 확인`);
   }
 }

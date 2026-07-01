@@ -37,7 +37,7 @@ export class GuidePage {
   }
 
   async verifyUrl() {
-    await expect(this.page).toHaveURL(/\/guide/);
+    await expect(this.page, '[앱오류] 이용가이드 페이지 URL이 /guide 와 일치하지 않음 — 라우팅 오류 가능성').toHaveURL(/\/guide/);
     console.log(`✅ 이용가이드 URL 확인: ${this.page.url()}`);
   }
 
@@ -53,8 +53,8 @@ export class GuidePage {
       { step: 'STEP 4', keyword: '학습 시작' },
     ];
     for (const { step, keyword } of steps) {
-      await expect(this.page.getByText(step, { exact: false }).first()).toBeVisible({ timeout: 8000 });
-      await expect(this.page.getByText(keyword, { exact: false }).first()).toBeVisible({ timeout: 8000 });
+      await expect(this.page.getByText(step, { exact: false }).first(), `[앱오류] ${step} 카드 텍스트 미노출`).toBeVisible({ timeout: 8000 });
+      await expect(this.page.getByText(keyword, { exact: false }).first(), `[앱오류] ${step} 카드의 "${keyword}" 내용 미노출`).toBeVisible({ timeout: 8000 });
       console.log(`✅ ${step} 카드 확인: "${keyword}"`);
     }
   }
@@ -65,7 +65,7 @@ export class GuidePage {
 
   async verifyManualTabsExist() {
     for (const tab of MANUAL_TABS) {
-      await expect(this.page.getByText(tab, { exact: true }).first()).toBeVisible({ timeout: 8000 });
+      await expect(this.page.getByText(tab, { exact: true }).first(), `[UI/셀렉터] 매뉴얼 탭 "${tab}" 를 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 8000 });
       console.log(`✅ 매뉴얼 탭 존재 확인: "${tab}"`);
     }
   }
@@ -73,7 +73,7 @@ export class GuidePage {
   async verifyDefaultTabSelected() {
     // "전체"가 기본 선택 — 볼드+보라색 밑줄 (클래스 또는 스타일로 판단)
     const allTab = this.page.getByText('전체', { exact: true }).first();
-    await expect(allTab).toBeVisible({ timeout: 5000 });
+    await expect(allTab, '[UI/셀렉터] "전체" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 5000 });
     const isActive = await allTab.evaluate(el => {
       const style = window.getComputedStyle(el);
       return (
@@ -109,7 +109,7 @@ export class GuidePage {
     ).filter({ hasText: tabName });
     const tabCount = await tabArea.count();
     const tab = tabCount > 0 ? tabArea.first() : this.page.getByText(tabName, { exact: false }).first();
-    await expect(tab).toBeVisible({ timeout: 5000 });
+    await expect(tab, `[UI/셀렉터] "${tabName}" 탭을 찾을 수 없음 — 셀렉터 변경 여부 확인`).toBeVisible({ timeout: 5000 });
     const isHighlighted = await tab.evaluate(el => {
       const style = window.getComputedStyle(el);
       const cls = (el as HTMLElement).className.toLowerCase();
@@ -136,9 +136,9 @@ export class GuidePage {
 
   async verifySearchPlaceholder() {
     const searchInput = this.getSearchInput();
-    await expect(searchInput).toBeVisible({ timeout: 8000 });
+    await expect(searchInput, '[UI/셀렉터] 매뉴얼 검색 입력 필드를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 8000 });
     const ph = await searchInput.getAttribute('placeholder') ?? '';
-    expect(ph).toMatch(/매뉴얼|검색/);
+    expect(ph, '[앱오류] 매뉴얼 검색 placeholder 텍스트가 "매뉴얼" 또는 "검색" 포함하지 않음').toMatch(/매뉴얼|검색/);
     console.log(`✅ 검색 placeholder 확인: "${ph}"`);
   }
 
@@ -181,7 +181,7 @@ export class GuidePage {
     const items = this.getManualItems();
     await items.first().waitFor({ state: 'visible', timeout: 10000 });
     const count = await items.count();
-    expect(count).toBeGreaterThan(0);
+    expect(count, '[앱오류] 전체 매뉴얼 목록이 0개 — 데이터 미노출 또는 API 오류 가능성').toBeGreaterThan(0);
     console.log(`✅ 전체 매뉴얼 목록 노출 확인 (${count}개)`);
   }
 
@@ -263,11 +263,11 @@ export class GuidePage {
       return;
     }
     const name = download.suggestedFilename();
-    expect(name.length).toBeGreaterThan(0);
+    expect(name.length, '[앱오류] 다운로드 파일명이 비어 있음 — 파일 다운로드 응답 오류').toBeGreaterThan(0);
     const savePath = path.join(os.tmpdir(), name);
     await download.saveAs(savePath);
     const stats = fs.statSync(savePath);
-    expect(stats.size).toBeGreaterThan(0);
+    expect(stats.size, `[앱오류] 다운로드된 매뉴얼 파일 크기가 0 — 파일 내용 없음 (${name})`).toBeGreaterThan(0);
     console.log(`✅ 매뉴얼 파일 다운로드 확인: ${name} (${(stats.size / 1024).toFixed(1)} KB)`);
     fs.unlinkSync(savePath);
   }
@@ -281,8 +281,8 @@ export class GuidePage {
     await items.first().waitFor({ state: 'visible', timeout: 10000 });
     const count = await items.count();
     // 마지막 페이지는 expected보다 적을 수 있으므로 ≤ expected 만 검증
-    expect(count).toBeGreaterThan(0);
-    expect(count).toBeLessThanOrEqual(expected);
+    expect(count, '[앱오류] 페이지당 매뉴얼 항목이 0개 — 데이터 미노출 또는 페이지네이션 버그').toBeGreaterThan(0);
+    expect(count, `[앱오류] 페이지당 매뉴얼 항목 수(${count}개)가 최대 허용치(${expected}개) 초과`).toBeLessThanOrEqual(expected);
     console.log(`✅ 페이지당 매뉴얼 항목 수 확인: ${count}개 (최대 ${expected}개)`);
   }
 
@@ -292,10 +292,10 @@ export class GuidePage {
     ).first();
     const hasPagination = await pagination.isVisible({ timeout: 3000 }).catch(() => false);
     if (hasPagination) {
-      await expect(pagination).toBeVisible();
+      await expect(pagination, '[UI/셀렉터] 페이지네이션 컨테이너를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible();
       // 이전/다음 버튼 존재 확인
       const prevBtn = pagination.locator('button, a').first();
-      await expect(prevBtn).toBeVisible({ timeout: 3000 });
+      await expect(prevBtn, '[UI/셀렉터] 페이지네이션 버튼을 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 3000 });
       console.log('✅ 페이지네이션 버튼 노출 확인');
     } else {
       console.log('ℹ️  페이지네이션 미노출 (총 항목이 30개 미만일 수 있음)');
