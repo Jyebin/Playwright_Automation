@@ -55,6 +55,7 @@ export class CsFaqPage {
 
   async verifyFaqItemsExist() {
     const items = this.getFaqItems();
+    await items.first().waitFor({ state: 'visible', timeout: 8000 });
     const count = await items.count();
     expect(count).toBeGreaterThan(0);
     console.log(`✅ FAQ 게시물 노출 확인 (${count}개)`);
@@ -70,6 +71,7 @@ export class CsFaqPage {
   async verifyPostStructure() {
     // 게시물 구성: 구분(카테고리), 제목
     const items = this.getFaqItems();
+    await items.first().waitFor({ state: 'visible', timeout: 8000 });
     const count = await items.count();
     expect(count).toBeGreaterThan(0);
     console.log(`✅ FAQ 게시물 구성 확인 (${count}개 — 구분/제목 포함)`);
@@ -123,7 +125,7 @@ export class CsFaqPage {
   async closeAlert() {
     const btn = this.page.getByRole('button', { name: '확인' }).first();
     if (await btn.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await btn.click();
+      await btn.click({ force: true });
     } else {
       await this.page.keyboard.press('Escape');
     }

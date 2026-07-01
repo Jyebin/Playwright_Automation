@@ -107,8 +107,8 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
   test('아무것도 입력하지 않은 상태에서 검색 시 전체 매뉴얼 노출', async ({ page }) => {
     const guidePage = new GuidePage(page);
     await guidePage.verifySearchPlaceholder();
-    // 아무것도 입력하지 않고 Enter
-    await page.locator('input[placeholder*="매뉴얼"], input[placeholder*="검색"]').first().press('Enter');
+    // 아무것도 입력하지 않고 Enter (매뉴얼 전용 검색창, 헤더 글로벌 검색 제외)
+    await page.locator('input[placeholder*="매뉴얼"]').first().press('Enter');
     await page.waitForTimeout(600);
     await guidePage.verifyAllManualsShown();
   });
@@ -121,7 +121,7 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
 
   test('검색 중 닫기 버튼 활성화 확인', async ({ page }) => {
     const guidePage = new GuidePage(page);
-    await page.locator('input[placeholder*="매뉴얼"], input[placeholder*="검색"]').first().fill('설치');
+    await page.locator('input[placeholder*="매뉴얼"]').first().fill('설치');
     await page.waitForTimeout(400);
     await guidePage.verifyClearButtonVisible();
   });
