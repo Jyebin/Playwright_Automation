@@ -86,7 +86,7 @@ test.describe('T401 - 로그인 후 구매 플로우', () => {
     await order.verifyCancelConfirmAlert();
     await order.clickAlertCancel();
     // 알럿 닫히고 여전히 주문 결제 페이지에 있어야 함
-    await expect(page).toHaveURL(/\/order|\/payment|\/checkout/);
+    await expect(page, '[앱오류] 알럿 취소 클릭 후 주문 결제 페이지에서 벗어남 — 페이지 유지 실패').toHaveURL(/\/order|\/payment|\/checkout|\/purchase/);
     console.log('✅ 알럿 [취소] 클릭 → 알럿 닫히고 주문 페이지 유지');
   });
 

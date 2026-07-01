@@ -53,14 +53,28 @@ export class CategoryPage {
 
   async verifyMainCategoriesVisible() {
     for (const category of MAIN_CATEGORIES) {
-      await expect(this.page.getByText(category).first()).toBeVisible();
+      // 드롭다운이 닫혔을 경우 재hover (마우스가 이동하면 CSS hover 드롭다운이 닫힐 수 있음)
+      const el = this.page.getByText(category, { exact: true }).first();
+      if (!await el.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await this.page.getByText('카테고리', { exact: true }).hover();
+        await this.page.waitForTimeout(300);
+      }
+      await expect(el, `[UI/셀렉터] 드롭다운에서 "${category}" 카테고리 항목 미노출 — 셀렉터 또는 드롭다운 구조 변경 확인`).toBeVisible({ timeout: 5000 });
       console.log(`✅ 카테고리 확인: ${category}`);
     }
   }
 
   async hoverSubCategory(categoryName: string) {
     this.activeSubCategory = categoryName;
-    await this.page.getByText(categoryName).first().hover();
+    // header/nav 영역으로 범위 제한 → 콘텐츠 카드의 카테고리 배지와 혼동 방지
+    const navArea = this.page.locator('header, nav');
+    const navItem = navArea.getByText(categoryName, { exact: true }).first();
+    if (await navItem.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await navItem.hover({ force: true });
+    } else {
+      // fallback: 전체 페이지에서 탐색, force: true로 캐러셀 애니메이션 안정성 이슈 우회
+      await this.page.getByText(categoryName, { exact: true }).first().hover({ force: true });
+    }
     await this.page.waitForTimeout(600);
     console.log(`🖱️ 서브 카테고리 hover: ${categoryName}`);
   }

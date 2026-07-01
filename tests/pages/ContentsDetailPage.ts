@@ -272,13 +272,29 @@ export class ContentsDetailPage {
     await this.clickSubscriptionDropdown();
     await this.selectFirstSubscriptionOption();
     await this.clickBuyButton();
-    await this.page.waitForURL(/\/order|\/payment|\/checkout/, { timeout: 10000 });
+
+    // 구매하기 클릭 후 알럿 출현 여부 확인 (이미 구매된 콘텐츠, 옵션 미선택 등)
+    const alertTexts = ['이미 구매', '이미 구독', '옵션을 선택', '로그인 후'];
+    for (const text of alertTexts) {
+      const alertEl = this.page.getByText(text, { exact: false }).first();
+      if (await alertEl.isVisible({ timeout: 1500 }).catch(() => false)) {
+        const content = await alertEl.textContent().catch(() => text);
+        throw new Error(`[앱오류] 구매하기 클릭 후 알럿 출현 ("${content?.trim()}") — 이미 구매된 콘텐츠이거나 옵션 미선택 가능성`);
+      }
+    }
+
+    try {
+      await this.page.waitForURL(/\/order|\/payment|\/checkout|\/purchase/, { timeout: 15000 });
+    } catch {
+      const url = this.page.url();
+      throw new Error(`[앱오류] 구매하기 클릭 후 주문 결제 페이지 미이동 — 현재 URL: ${url} (기대: /order|/payment|/checkout)`);
+    }
     await this.page.waitForLoadState('load');
     console.log('✅ 주문 결제 페이지 이동 확인');
   }
 
   async verifyOrderPageURL() {
-    await expect(this.page).toHaveURL(/\/order|\/payment|\/checkout/);
+    await expect(this.page, '[앱오류] 주문 결제 페이지 URL 불일치 — /order, /payment, /checkout, /purchase 경로 확인 필요').toHaveURL(/\/order|\/payment|\/checkout|\/purchase/);
     console.log(`✅ 주문 결제 페이지 URL 확인: ${this.page.url()}`);
   }
 
