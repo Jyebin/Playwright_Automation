@@ -759,34 +759,34 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('문의 접수 완료 — 접수일시 및 메인 이동', async ({ page }) => {
-    const inquiry = new CsInquiryPage(page);
-    await test.step('[셋업] 모든 필수 항목 입력 후 제출', async () => {
-      await inquiry.navigate();
-      await inquiry.fillAllRequiredFields({
-        name: '테스트 사용자',
-        affiliation: '테스트 회사',
-        inquiryType: '기타 문의',
-        email: 'test@example.com',
-        phone: '010-1234-5678',
-        title: '자동화 테스트 문의',
-        content: 'Playwright 자동화 테스트로 작성된 문의입니다.',
-      });
-      await inquiry.clickSubmitButton();
-      // 접수 확인 알럿이 나올 수 있음
-      const confirmAlert = page.getByRole('button', { name: '확인' }).first();
-      if (await confirmAlert.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await inquiry.clickAlertConfirm();
-      }
-    });
-    await test.step('[검증] 문의 접수 완료 페이지 확인', async () => {
-      await inquiry.verifySubmitSuccessPage();
-    });
-    await test.step('[검증] 접수 일시 노출 확인', async () => {
-      await inquiry.verifyReceiptDatetime();
-    });
-    await test.step('[셋업] 메인으로 이동 버튼 클릭', async () => {
-      await inquiry.clickGoToMain();
-    });
-  });
+  // 실제 등록이 발생하므로 주석처리 — textfield/유효성 테스트만 운영
+  // test('문의 접수 완료 — 접수일시 및 메인 이동', async ({ page }) => {
+  //   const inquiry = new CsInquiryPage(page);
+  //   await test.step('[셋업] 모든 필수 항목 입력 후 제출', async () => {
+  //     await inquiry.navigate();
+  //     await inquiry.fillAllRequiredFields({
+  //       name: '테스트 사용자',
+  //       affiliation: '테스트 회사',
+  //       inquiryType: '기타 문의',
+  //       email: 'test@example.com',
+  //       phone: '010-1234-5678',
+  //       title: '자동화 테스트 문의',
+  //       content: 'Playwright 자동화 테스트로 작성된 문의입니다.',
+  //     });
+  //     await inquiry.clickSubmitButton();
+  //     const confirmAlert = page.getByRole('button', { name: '확인' }).first();
+  //     if (await confirmAlert.isVisible({ timeout: 3000 }).catch(() => false)) {
+  //       await inquiry.clickAlertConfirm();
+  //     }
+  //   });
+  //   await test.step('[검증] 문의 접수 완료 페이지 확인', async () => {
+  //     await inquiry.verifySubmitSuccessPage();
+  //   });
+  //   await test.step('[검증] 접수 일시 노출 확인', async () => {
+  //     await inquiry.verifyReceiptDatetime();
+  //   });
+  //   await test.step('[셋업] 메인으로 이동 버튼 클릭', async () => {
+  //     await inquiry.clickGoToMain();
+  //   });
+  // });
 });
