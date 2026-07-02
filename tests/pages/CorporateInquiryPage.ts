@@ -22,9 +22,19 @@ export class CorporateInquiryPage {
   // ── Placeholder / 필드 존재 확인 ─────────────────────────────────────────
 
   private async scrollToForm() {
-    // 폼이 히어로 섹션 아래에 있으므로 스크롤 (navigate()에서도 호출하지만 개별 검증 시 재호출)
-    await this.page.evaluate(() => window.scrollTo(0, Math.max(800, document.body.scrollHeight / 3)));
-    await this.page.waitForTimeout(300);
+    // 페이지 최하단까지 스크롤
+    await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await this.page.waitForTimeout(600);
+    // 폼 입력 필드가 없으면 CTA 버튼 클릭 (모달 또는 페이지 이동으로 폼 노출 가능)
+    const hasInput = await this.page.locator('input[type="text"], input[type="email"], input[type="tel"], textarea').first().isVisible({ timeout: 1500 }).catch(() => false);
+    if (!hasInput) {
+      const cta = this.page.getByRole('button').filter({ hasText: /상담.*신청|신청하기|문의.*신청/ }).first();
+      if (await cta.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await cta.scrollIntoViewIfNeeded();
+        await cta.click({ force: true });
+        await this.page.waitForTimeout(800);
+      }
+    }
   }
 
   async verifyNameFieldVisible() {

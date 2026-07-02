@@ -3,12 +3,12 @@ import { Page, expect } from '@playwright/test';
 const BASE = process.env.BASE_URL ?? '';
 
 export const CONTENTS_FILTER_CATEGORIES = [
-  '전체', '보건 의료', 'IT 실습', '직무 훈련', '어학', '조종 훈련',
+  '전체', '보건 의료', 'AI · IT 실습', '직무 훈련', '어학', '조종 훈련',
 ];
 
 export const CONTENTS_SUBCATEGORIES: Record<string, string[]> = {
   '보건 의료': ['보건 의료 실습', '생체 해부 실습'],
-  'IT 실습':   ['AI/파이썬 과정', '웹 개발 실무'],
+  'AI · IT 실습': ['AI/파이썬 과정', '웹 개발 실무'],
   '직무 훈련': ['직무 훈련 실습'],
   '어학':      ['어학 실습'],
   '조종 훈련': ['초경량 비행장치 실습', '기계·장비 운전 실습'],

@@ -157,12 +157,9 @@ export class CsFaqPage {
   // ── FAQ 아코디언 ──────────────────────────────────────────────────────────
 
   private getFaqItems() {
-    return this.page.locator(
-      '[class*="faq-item"], [class*="faqItem"], [class*="FaqItem"], ' +
-      '[class*="faqList"] > *, [class*="FaqList"] > *, [class*="faq-list"] > li, ' +
-      '[class*="qna-item"], [class*="qnaItem"], [class*="QnaItem"], ' +
-      'details, [class*="accordion-item"], [class*="accordionItem"], [class*="AccordionItem"]'
-    );
+    // 각 FAQ 항목은 "Q." 로 시작하는 질문 텍스트를 포함하는 클릭 가능한 div
+    // ARIA 구조: div(FAQ 항목) > div > p "Q. ..." — 그러므로 p의 조부모가 FAQ 항목
+    return this.page.getByText(/^Q\./).locator('xpath=../..');
   }
 
   async clickFirstFaqItem() {

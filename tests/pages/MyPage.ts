@@ -24,12 +24,10 @@ export class MyPage {
     const password = process.env.TEST_PASSWORD ?? '';
     await this.page.goto(`${BASE}/login`);
     await this.page.waitForLoadState('load');
-    await this.page.locator(
-      'input[type="email"], input[placeholder*="이메일"], input[placeholder*="아이디"], input[name="email"]'
-    ).first().fill(username);
-    await this.page.locator('input[type="password"]').first().fill(password);
-    await this.page.locator('button[type="submit"]').first().click({ force: true });
-    await this.page.waitForTimeout(2000);
+    await this.page.getByPlaceholder('아이디를 입력해 주세요.').fill(username);
+    await this.page.getByPlaceholder('비밀번호를 입력해 주세요.').fill(password);
+    await this.page.getByRole('button', { name: '로그인' }).click();
+    await this.page.waitForURL(url => !url.href.includes('/login'), { timeout: 15000 }).catch(() => {});
     await this.page.goto(`${BASE}/mypage`);
     await this.page.waitForLoadState('load');
     console.log('✅ 재로그인 완료 → 마이페이지 재이동');
