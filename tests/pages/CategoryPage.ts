@@ -1,7 +1,7 @@
 import { Page, expect } from '@playwright/test';
 
 export const MAIN_CATEGORIES = [
-  '보건 의료', 'IT실습', '직무 훈련', '어학', '정비 훈련', '조종 훈련', '장애인 직업훈련',
+  '보건 의료', 'IT 실습', '직무 훈련', '어학', '정비 훈련', '조종 훈련', '장애인 직업훈련',
 ];
 
 export const SUB_ITEMS = {
@@ -9,7 +9,7 @@ export const SUB_ITEMS = {
     top: ['간호술기 (360VR)', '물리치료 (360VR)', '요양보호사'],
     bottom: ['두경부 해부학', 'SIMDEMY(동물 해부 실습)'],
   },
-  'IT실습': {
+  'IT 실습': {
     top: ['파이썬 마스터', '파이썬 심화', '속 시원한 프롬프트 엔지니어링'],
     bottom: ['임직원_파이썬과 AI로 끝내는 업무 자동화', '임직원_소프트웨어 개발 실무를 위한 IT 영어'],
   },

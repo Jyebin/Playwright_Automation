@@ -5,9 +5,38 @@ const BASE = process.env.BASE_URL ?? '';
 export class MyPagePurchasePage {
   constructor(private page: Page) {}
 
+  private async handleSessionExpiry(): Promise<boolean> {
+    const expired = await this.page.getByText('비정상적인 접근', { exact: false })
+      .first().isVisible({ timeout: 2000 }).catch(() => false);
+    if (!expired) return false;
+
+    console.log('⚠️ 세션 만료 감지 — 재로그인 시도');
+    const confirmBtn = this.page.getByRole('button', { name: '확인' }).first();
+    if (await confirmBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await confirmBtn.click({ force: true });
+      await this.page.waitForTimeout(500);
+    }
+
+    const username = process.env.TEST_USERNAME ?? '';
+    const password = process.env.TEST_PASSWORD ?? '';
+    await this.page.goto(`${BASE}/login`);
+    await this.page.waitForLoadState('load');
+    await this.page.locator(
+      'input[type="email"], input[placeholder*="이메일"], input[placeholder*="아이디"], input[name="email"]'
+    ).first().fill(username);
+    await this.page.locator('input[type="password"]').first().fill(password);
+    await this.page.locator('button[type="submit"]').first().click({ force: true });
+    await this.page.waitForTimeout(2000);
+    await this.page.goto(`${BASE}/mypage`);
+    await this.page.waitForLoadState('load');
+    console.log('✅ 재로그인 완료 → 마이페이지 재이동');
+    return true;
+  }
+
   async navigate() {
     await this.page.goto(`${BASE}/mypage`);
     await this.page.waitForLoadState('load');
+    await this.handleSessionExpiry();
     const tab = this.page.getByText('구매내역', { exact: true }).first();
     await tab.click({ force: true });
     await this.page.waitForTimeout(600);

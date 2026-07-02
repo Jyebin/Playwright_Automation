@@ -272,11 +272,12 @@ export class ContentsDetailPage {
     await this.clickSubscriptionDropdown();
     await this.selectFirstSubscriptionOption();
 
-    // 선택 확인 (h6 ~ button = 선택 후 X 버튼이 나타나야 함)
-    const isSelected = await this.page.locator('h6 ~ button').first()
-      .isVisible({ timeout: 3000 }).catch(() => false);
+    // 선택 확인 — 드롭다운 트리거(nth=1)가 "옵션을 선택해 주세요." 에서 변경됐는지 확인
+    // h6 ~ button은 선택 전에도 보이는 오탐(false positive)이므로 사용 안 함
+    const isSelected = !(await this.page.getByText('옵션을 선택해 주세요.')
+      .nth(1).isVisible({ timeout: 2000 }).catch(() => false));
     if (!isSelected) {
-      // 드롭다운이 닫혔거나 클릭 미등록 → 재시도
+      // 드롭다운 트리거가 여전히 기본값 → 재시도
       console.log('ℹ️ 구독권 선택 미확인 — 드롭다운 재시도');
       await this.clickSubscriptionDropdown();
       await this.selectFirstSubscriptionOption();

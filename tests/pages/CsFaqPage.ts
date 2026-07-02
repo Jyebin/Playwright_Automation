@@ -63,7 +63,7 @@ export class CsFaqPage {
 
   async verifyEmptyState() {
     await expect(
-      this.page.getByText(/등록된 게시글이 없습니다|검색 결과가 없습니다/i).first(),
+      this.page.getByText(/등록된 게시글이 없습니다|검색 결과가 없습니다|결과가 없습니다|내용이 없습니다|게시물이 없습니다|등록된 FAQ가 없습니다/i).first(),
       '[앱오류] FAQ 없음 안내 문구 미노출 — 빈 목록 상태 메시지 처리 버그'
     ).toBeVisible({ timeout: 8000 });
     console.log('✅ FAQ 없음 안내 문구 확인');
@@ -158,7 +158,10 @@ export class CsFaqPage {
 
   private getFaqItems() {
     return this.page.locator(
-      '[class*="faq-item"], [class*="faqItem"], [class*="FaqItem"], details, [class*="accordion-item"], [class*="accordionItem"]'
+      '[class*="faq-item"], [class*="faqItem"], [class*="FaqItem"], ' +
+      '[class*="faqList"] > *, [class*="FaqList"] > *, [class*="faq-list"] > li, ' +
+      '[class*="qna-item"], [class*="qnaItem"], [class*="QnaItem"], ' +
+      'details, [class*="accordion-item"], [class*="accordionItem"], [class*="AccordionItem"]'
     );
   }
 

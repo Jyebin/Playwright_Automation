@@ -27,15 +27,15 @@ test.describe('카테고리 드롭다운', () => {
     }
   });
 
-  test('IT실습 서브메뉴 확인 및 스크롤', async ({ page }) => {
+  test('IT 실습 서브메뉴 확인 및 스크롤', async ({ page }) => {
     const categoryPage = new CategoryPage(page);
     await categoryPage.hoverCategoryMenu();
-    await categoryPage.hoverSubCategory('IT실습');
+    await categoryPage.hoverSubCategory('IT 실습');
 
-    for (const item of SUB_ITEMS['IT실습'].top) {
+    for (const item of SUB_ITEMS['IT 실습'].top) {
       await categoryPage.verifySubItemVisible(item);
     }
-    for (const item of SUB_ITEMS['IT실습'].bottom) {
+    for (const item of SUB_ITEMS['IT 실습'].bottom) {
       await categoryPage.verifySubItemScrollable(item);
     }
   });
@@ -101,7 +101,7 @@ test.describe('카테고리 클릭 시 페이지 이동', () => {
 
   const CLICK_TESTS: { category: string; item: string }[] = [
     { category: '보건 의료', item: '간호술기 (360VR)' },
-    { category: 'IT실습',    item: '파이썬 마스터' },
+    { category: 'IT 실습',   item: '파이썬 마스터' },
     { category: '직무 훈련', item: '일반실험 - 토질역학 압밀시험' },
     { category: '어학',      item: 'TOPIK 쓰기 강의 + AI 선생님' },
     { category: '정비 훈련', item: 'EV 교육' },
