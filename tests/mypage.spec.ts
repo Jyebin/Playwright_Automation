@@ -3,6 +3,7 @@ import { MyPage, MYPAGE_TABS } from './pages/MyPage';
 import { MyPageEditPage } from './pages/MyPageEditPage';
 import { MyPagePasswordPage } from './pages/MyPagePasswordPage';
 import { MyPagePurchasePage } from './pages/MyPagePurchasePage';
+import { MyPageDashboardPage } from './pages/MyPageDashboardPage';
 
 const PASSWORD = process.env.TEST_PASSWORD ?? '';
 const WRONG_PASSWORD = 'WrongPass123!';
@@ -549,6 +550,128 @@ test.describe('T430 구매내역', () => {
       } else {
         console.log('ℹ️  구매내역 없는 계정 — 항목 문의하기 확인 건너뜀');
       }
+    });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// T1798 실습 내역
+// 전제조건: 실습 콘텐츠 실행 기록이 있는 계정으로 로그인
+// ─────────────────────────────────────────────────────────────────────────────
+test.describe('T1798 실습 내역', () => {
+  test('실습 대시보드 탭 이동 확인', async ({ page }) => {
+    const myPage = new MyPage(page);
+    const dashPage = new MyPageDashboardPage(page);
+    await test.step('[셋업] 마이페이지 이동 후 실습 대시보드 탭 클릭', async () => {
+      await myPage.navigate();
+      await myPage.clickTab('실습 대시보드');
+    });
+    await test.step('[검증] 실습 대시보드 노출 확인', async () => {
+      await dashPage.verifyDashboardVisible();
+    });
+  });
+
+  test('진행중 실습내역 — 아코디언 기본 접힘 상태 확인', async ({ page }) => {
+    const myPage = new MyPage(page);
+    const dashPage = new MyPageDashboardPage(page);
+    await test.step('[셋업] 실습 대시보드 이동', async () => {
+      await myPage.navigate();
+      await myPage.clickTab('실습 대시보드');
+    });
+    await test.step('[검증] 아코디언 기본 접힘 상태 확인', async () => {
+      const count = await dashPage.verifyPracticeHistoryExists();
+      if (count > 0) {
+        await dashPage.verifyAccordionDefaultCollapsed();
+      } else {
+        console.log('ℹ️  실습 이력 없는 계정 — 아코디언 상태 확인 건너뜀');
+      }
+    });
+  });
+
+  test('진행중 실습내역 — 아코디언 펼침/닫기 동작 확인', async ({ page }) => {
+    const myPage = new MyPage(page);
+    const dashPage = new MyPageDashboardPage(page);
+    await test.step('[셋업] 실습 대시보드 이동', async () => {
+      await myPage.navigate();
+      await myPage.clickTab('실습 대시보드');
+    });
+    await test.step('[검증] 아코디언 펼침 동작 확인', async () => {
+      const count = await dashPage.verifyPracticeHistoryExists();
+      if (count > 0) {
+        await dashPage.clickFirstAccordionExpandButton();
+        await dashPage.verifyAccordionExpanded();
+      } else {
+        console.log('ℹ️  실습 이력 없는 계정 — 아코디언 펼침 확인 건너뜀');
+      }
+    });
+    await test.step('[검증] 아코디언 닫기 동작 확인', async () => {
+      const count = await dashPage.verifyPracticeHistoryExists();
+      if (count > 0) {
+        await dashPage.verifyAccordionCollapsedAfterToggle();
+      }
+    });
+  });
+
+  test('진행중 실습내역 — 최근 실습일 YYYY-MM-DD 형식 노출 확인', async ({ page }) => {
+    const myPage = new MyPage(page);
+    const dashPage = new MyPageDashboardPage(page);
+    await test.step('[셋업] 실습 대시보드 이동', async () => {
+      await myPage.navigate();
+      await myPage.clickTab('실습 대시보드');
+    });
+    await test.step('[검증] 최근 실습일 날짜 형식 확인', async () => {
+      await dashPage.verifyRecentPracticeDateFormat();
+    });
+  });
+
+  test('진행중 실습내역 — 진행률 프로그래스바 및 퍼센트 노출 확인', async ({ page }) => {
+    const myPage = new MyPage(page);
+    const dashPage = new MyPageDashboardPage(page);
+    await test.step('[셋업] 실습 대시보드 이동', async () => {
+      await myPage.navigate();
+      await myPage.clickTab('실습 대시보드');
+    });
+    await test.step('[검증] 진행률 바 노출 확인', async () => {
+      await dashPage.verifyProgressBarVisible();
+    });
+    await test.step('[검증] 진행률 텍스트 노출 확인', async () => {
+      await dashPage.verifyProgressRateVisible();
+    });
+  });
+
+  test('진행중 실습내역 — 완료 콘텐츠가 진행중으로 표시되지 않는지 확인', async ({ page }) => {
+    const myPage = new MyPage(page);
+    const dashPage = new MyPageDashboardPage(page);
+    await test.step('[셋업] 실습 대시보드 이동', async () => {
+      await myPage.navigate();
+      await myPage.clickTab('실습 대시보드');
+    });
+    await test.step('[검증] 진행중 섹션에 완료 항목 미존재 확인', async () => {
+      await dashPage.verifyNoCompletedItemInProgress();
+    });
+  });
+
+  test('완료 실습내역 — 진행률 100% 노출 확인', async ({ page }) => {
+    const myPage = new MyPage(page);
+    const dashPage = new MyPageDashboardPage(page);
+    await test.step('[셋업] 실습 대시보드 이동', async () => {
+      await myPage.navigate();
+      await myPage.clickTab('실습 대시보드');
+    });
+    await test.step('[검증] 완료 항목 진행률 100% 확인', async () => {
+      await dashPage.verifyCompletedItemHas100Percent();
+    });
+  });
+
+  test('완료 실습내역 — 진행중 콘텐츠가 완료로 표시되지 않는지 확인', async ({ page }) => {
+    const myPage = new MyPage(page);
+    const dashPage = new MyPageDashboardPage(page);
+    await test.step('[셋업] 실습 대시보드 이동', async () => {
+      await myPage.navigate();
+      await myPage.clickTab('실습 대시보드');
+    });
+    await test.step('[검증] 완료 섹션에 진행중 항목 미존재 확인', async () => {
+      await dashPage.verifyNoInProgressItemInCompleted();
     });
   });
 });
