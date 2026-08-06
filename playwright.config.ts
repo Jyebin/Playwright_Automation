@@ -35,8 +35,9 @@ export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL,
     locale: 'ko-KR',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',   // 실패 시 자동 스크린샷 → Jira 첨부용
+    trace: 'retain-on-failure',       // 실패 시 trace 저장 (클릭/네트워크 재현)
+    screenshot: 'only-on-failure',   // 실패 시 스크린샷 자동 저장
+    video: 'retain-on-failure',      // 실패 시 영상 자동 저장
     storageState: '.auth/user.json',
   },
 
