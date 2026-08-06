@@ -35,7 +35,7 @@ test('아이디 최대 입력 글자 수 초과 시 254자로 제한', async ({ 
   const loginPage = new LoginPage(page);
 
   await loginPage.fillUsername('a'.repeat(255));
-  await loginPage.verifyFieldMaxLength('아이디를 입력해 주세요.', 254);
+  await loginPage.verifyFieldMaxLength('아이디 또는 이메일을 입력해 주세요.', 254);
 });
 
 test('비밀번호 최대 입력 글자 수 초과 시 20자로 제한', async ({ page }) => {
