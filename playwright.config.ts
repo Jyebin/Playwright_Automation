@@ -23,6 +23,14 @@ export default defineConfig({
     ['html'],
     // ['./tests/reporters/jira-reporter.ts'],  // Jira 자동 이슈 생성 (활성화하려면 주석 해제)
   ],
+  /* 시각적 회귀 테스트 기본 옵션 */
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.02,   // 2% 이하 픽셀 차이 허용 (폰트 렌더링 등 미세 차이)
+      animations: 'disabled',    // 애니메이션 정지 후 캡처
+    },
+  },
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL: process.env.BASE_URL,
