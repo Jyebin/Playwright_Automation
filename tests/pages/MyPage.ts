@@ -2,7 +2,7 @@ import { Page, expect } from '@playwright/test';
 
 const BASE = process.env.BASE_URL ?? '';
 
-export const MYPAGE_TABS = ['실습 대시보드', '디지털 배지', '프로필', '구매내역'] as const;
+export const MYPAGE_TABS = ['실습 대시보드', '디지털 배지', '프로필', '구매 및 결제 관리'] as const;
 export type MypageTab = (typeof MYPAGE_TABS)[number];
 
 export class MyPage {

@@ -16,11 +16,16 @@ async function globalSetup() {
 
   fs.mkdirSync('.auth', { recursive: true });
 
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    args: [
+      '--disable-blink-features=AutomationControlled',
+      '--disable-infobars',
+    ],
+  });
   const page = await browser.newPage();
 
   await page.goto(`${baseURL}/login`);
-  await page.getByPlaceholder('아이디를 입력해 주세요.').fill(username);
+  await page.getByPlaceholder('아이디 또는 이메일을 입력해 주세요.').fill(username);
   await page.getByPlaceholder('비밀번호를 입력해 주세요.').fill(password);
 
   await page.getByRole('button', { name: '로그인' }).click();

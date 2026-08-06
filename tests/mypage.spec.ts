@@ -33,7 +33,7 @@ test.describe('T425 마이페이지 프로필', () => {
     });
   });
 
-  test('마이페이지 탭 목록 4개 확인 (실습 대시보드/디지털 배지/프로필/구매내역)', async ({ page }) => {
+  test('마이페이지 탭 목록 4개 확인 (실습 대시보드/디지털 배지/프로필/구매 및 결제 관리)', async ({ page }) => {
     const myPage = new MyPage(page);
     await test.step('[셋업] 마이페이지 이동', async () => {
       await myPage.navigate();
@@ -454,10 +454,10 @@ test.describe('T430 구매내역', () => {
     const purchasePage = new MyPagePurchasePage(page);
     await test.step('[셋업] 마이페이지 이동 및 구매내역 탭 클릭', async () => {
       await myPage.navigate();
-      await myPage.clickTab('구매내역');
+      await myPage.clickTab('구매 및 결제 관리');
     });
-    await test.step('[검증] 구매내역 탭 활성화 확인', async () => {
-      await myPage.verifyTabActive('구매내역');
+    await test.step('[검증] 구매 및 결제 관리 탭 활성화 확인', async () => {
+      await myPage.verifyTabActive('구매 및 결제 관리');
     });
   });
 

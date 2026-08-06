@@ -14,8 +14,8 @@ const BASE = process.env.BASE_URL ?? '';
 // 기준 이미지 위치: tests/visual.spec.ts-snapshots/
 // ─────────────────────────────────────────────────────────────────────────────
 
-// 날짜/시간 텍스트 셀렉터 (매번 바뀌므로 마스킹)
-const DATE_MASK = 'text=/\\d{4}[.-]\\d{2}[.-]\\d{2}/, time, [class*="date"], [class*="Date"]';
+// 날짜/시간 영역 셀렉터 (매번 바뀌므로 마스킹) — CSS only
+const DATE_SEL = '[class*="date"], [class*="Date"], [class*="time"], [class*="Time"], time';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 공개 페이지
@@ -32,7 +32,7 @@ test.describe('Visual - 메인 페이지', () => {
       mask: [
         // 배너/슬라이더는 콘텐츠가 수시로 바뀌므로 마스킹
         page.locator('[class*="banner"], [class*="Banner"], [class*="slider"], [class*="Slider"], [class*="carousel"]'),
-        page.locator(DATE_MASK),
+        page.locator(DATE_SEL),
       ],
     });
   });
@@ -59,7 +59,7 @@ test.describe('Visual - 고객센터', () => {
     await page.waitForLoadState('networkidle');
     await expect(page).toHaveScreenshot('cs-notice.png', {
       fullPage: true,
-      mask: [page.locator(DATE_MASK)],
+      mask: [page.locator(DATE_SEL)],
     });
   });
 
@@ -68,7 +68,7 @@ test.describe('Visual - 고객센터', () => {
     await page.waitForLoadState('networkidle');
     await expect(page).toHaveScreenshot('cs-event.png', {
       fullPage: true,
-      mask: [page.locator(DATE_MASK)],
+      mask: [page.locator(DATE_SEL)],
     });
   });
 
@@ -94,7 +94,7 @@ test.describe('Visual - 콘텐츠', () => {
     await page.waitForLoadState('networkidle');
     await expect(page).toHaveScreenshot('contents-list.png', {
       fullPage: true,
-      mask: [page.locator(DATE_MASK)],
+      mask: [page.locator(DATE_SEL)],
     });
   });
 });
@@ -111,33 +111,39 @@ test.describe('Visual - 마이페이지', () => {
       mask: [
         // 개인정보(이메일, 이름, 전화번호) 마스킹
         page.locator('[class*="email"], [class*="Email"], [class*="phone"], [class*="Phone"], [class*="name"], [class*="Name"]'),
-        page.locator(DATE_MASK),
+        page.locator(DATE_SEL),
       ],
     });
   });
 
-  test('구매내역 탭', async ({ page }) => {
+  test('구매 및 결제 관리 탭', async ({ page }) => {
     await page.goto(`${BASE}/mypage`);
-    await page.waitForLoadState('networkidle');
-    const tab = page.getByText('구매내역', { exact: true }).first();
+    await page.waitForLoadState('load');
+    const tab = page.getByText('구매 및 결제 관리', { exact: true }).first();
+    await tab.scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, -120));
+    await page.waitForTimeout(300);
     await tab.click({ force: true });
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1000);
     await expect(page).toHaveScreenshot('mypage-purchase.png', {
       fullPage: true,
-      mask: [page.locator(DATE_MASK)],
+      mask: [page.locator(DATE_SEL)],
     });
   });
 
   test('실습 대시보드 탭', async ({ page }) => {
     await page.goto(`${BASE}/mypage`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     const tab = page.getByText('실습 대시보드', { exact: true }).first();
+    await tab.scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, -120));
+    await page.waitForTimeout(300);
     await tab.click({ force: true });
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1000);
     await expect(page).toHaveScreenshot('mypage-dashboard.png', {
       fullPage: true,
       mask: [
-        page.locator(DATE_MASK),
+        page.locator(DATE_SEL),
         page.locator('[class*="progress"], [class*="Progress"]'),
       ],
     });

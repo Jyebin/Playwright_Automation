@@ -21,7 +21,7 @@ export class MyPagePurchasePage {
     const password = process.env.TEST_PASSWORD ?? '';
     await this.page.goto(`${BASE}/login`);
     await this.page.waitForLoadState('load');
-    await this.page.getByPlaceholder('아이디를 입력해 주세요.').fill(username);
+    await this.page.getByPlaceholder('아이디 또는 이메일을 입력해 주세요.').fill(username);
     await this.page.getByPlaceholder('비밀번호를 입력해 주세요.').fill(password);
     await this.page.getByRole('button', { name: '로그인' }).click();
     await this.page.waitForURL(url => !url.href.includes('/login'), { timeout: 15000 }).catch(() => {});
@@ -35,10 +35,12 @@ export class MyPagePurchasePage {
     await this.page.goto(`${BASE}/mypage`);
     await this.page.waitForLoadState('load');
     await this.handleSessionExpiry();
-    const tab = this.page.getByText('구매내역', { exact: true }).first();
+    const tab = this.page.getByText('구매 및 결제 관리', { exact: true }).first();
+    await tab.scrollIntoViewIfNeeded();
+    await this.page.evaluate(() => window.scrollBy(0, -120));
     await tab.click({ force: true });
     await this.page.waitForTimeout(600);
-    console.log('✅ 마이페이지 > 구매내역 탭 이동');
+    console.log('✅ 마이페이지 > 구매 및 결제 관리 탭 이동');
   }
 
   async hasPurchaseHistory(): Promise<boolean> {
