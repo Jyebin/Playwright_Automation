@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project>
+    <projectId>10164</projectId>
+    <projectKey>TCMETA</projectKey>
+    <exportDate>2026-06-26 09:14:47 UTC</exportDate>
+    <folders>
+        <folder fullPath="Full TC/Front /PC/고객센터" index="4"/>
+    </folders>
+    <testCases>
+        <testCase id="233613202" key="TCMETA-T411">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-09 02:16:26 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/고객센터]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-790</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항, 자주 묻는 질문 > 카테고리 선택후 다시 공지사항, 자주 묻는 질문 탭 선택시 동작 없음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-831</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항 > 공지사항 상세 > 이전, 다음 게시글 없을 경우 안내문구 미출력됨]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-649</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항 > 검색어 미입력 후 검색시 팝업 미출력됨]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-651</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항 상세 > 이전글 다음글 Escape 처리되지 않음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-643</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항 상세 > 작성자 미출력]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-640</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항 > 날짜 포맷 기획서와 상이함]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-641</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항 > 작성자 미출력]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-631</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 카테고리 > 검색 후 다른 페이지 이동 후 돌아와도 이전 검색 결과가 유지됨]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-632</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항 > 카테고리 기능 동작 없음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-2370</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항 카테고리 선택 후 공지사항 탭 클릭시 카테고리 초기화 안됨]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-2329</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 검색어 미입력 시 Enter와 검색버튼 동작 불일치]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][고객센터] 002. 공지사항]]></name>
+            <objective><![CDATA[고객센터 - 공지사항 페이지를 검증한다.]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[공지사항 페이지 확인]</strong><br><br>1. 라온 메타데미 접속<br><br>2. 헤더 [고객센터] 선택<br><br>3. [공지사항] 탭 선택하여 공지사항 페이지 진입]]></description>
+                        <expectedResult><![CDATA[고객센터가 디폴트로 설정되어 있으며, 한번 더 [고객센터] 버튼을 클릭 했을 때 동작이 없다.<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fb393dd5-cfce-46b1-a1f7-8d8000049ced-1777362909987-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+165448.png" style="padding: 0px 1px; border: 0px; max-width: calc(100% - 10px); cursor: pointer; user-select: none; min-width: 10px; color: rgb(9, 30, 66); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: -0.07px; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; width: 270px;" data-pasted="true" class="fr-fic fr-dii fr-shadow"><br>]]></expectedResult>
+                        <testData><![CDATA[]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[공지사항 화면 구성확인]</strong><br><br>1. 공지사항 페이지 상단 구성 확인<br><br>2. 검색 탭 확인<br><br>3. 정렬 탭 확인<br><br>4. 게시물 구성 확인<br><br>5.페이지네이션 확인]]></description>
+                        <expectedResult><![CDATA[1. 카테고리, 검색바, 정렬(최신순 기본)<br><table style="width: 74%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>카테고리 목록</strong><br></td></tr><tr><td>공지</td></tr><tr><td>안내</td></tr><tr><td>장애</td></tr><tr><td>업데이트</td></tr></tbody></table><br>2. 검색탭<br><table style="width: 89%; margin: auto; border-width: 1px; border-style: solid; height: 76px;"><colgroup><col style="width: 44.4444%;"><col style="width: 55.5556%;"></colgroup><tbody><tr style="height: 37px;"><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>결과</strong></td></tr><tr style="height: 38px;"><td>placeholder</td><td>공지사항을 검색하세요</td></tr><tr><td>text field 클릭 시</td><td>커서가 깜빡이며, 밑줄이 보라색으로 변한다.</td></tr></tbody></table><br>3. 정렬 드롭박스<br><br><table style="width: 91%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 100%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>정렬 드롭박스 내용</strong></td></tr><tr><td>최신순 (기본)</td></tr><tr><td>과거순</td></tr><tr><td>조회순</td></tr></tbody></table><br><br><br>4. 게시물 구성<br><table style="width: 90%; margin: auto; border-width: 1px; border-style: solid; height: 212px;"><colgroup><col style="width: 49.6503%;"><col style="width: 50.3497%;"></colgroup><tbody><tr style="height: 31px;"><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>내</strong><strong>용</strong></td></tr><tr style="height: 54px;"><td>게시글 번호 (No.)</td><td>정수</td></tr><tr style="height: 31px;"><td>제목</td><td>게시글 제목</td></tr><tr style="height: 31px;"><td>작성자</td><td>게시글 작성자</td></tr><tr style="height: 31px;"><td>등록일시&nbsp;</td><td>YYYY-MM-DD</td></tr><tr style="height: 32px;"><td>조회수</td><td>정수</td></tr></tbody></table><br><br>5. 10건의 게시물 노출됨]]></expectedResult>
+                        <testData><![CDATA[]]></testData>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[공지사항 - 검색 필드 동작 확인]</strong><br><br>1. 검색어 입력 후 [돋보기] 버튼 클릭<br>2. 검색어 입력 후 Enter 입력]]></description>
+                        <expectedResult><![CDATA[돋보기 버튼을 통한 검색과 Enter를 통한 검색의 동작이 동일하다.<br><br>제목을 기준으로 일치하는 결과만 노출된다.]]></expectedResult>
+                        <testData><![CDATA[<table style="width: 50%; margin: auto; border-width: 1px; border-style: solid; height: 83px;"><thead><tr style="height: 30px;"><th>항목</th><th>데이터</th></tr></thead><colgroup><col style="width: 50.0000%;"><col style="width: 50.0000%;"></colgroup><tbody><tr style="height: 50px;"><td>검색어</td><td>보도자료</td></tr></tbody></table>]]></testData>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[카테고리 동작 확인]</strong><br><br>1. 게시물 있는 카테고리 클릭<br><br>3. 게시물 없는 카테고리 클릭 (장애)]]></description>
+                        <expectedResult><![CDATA[<strong>게시물 있는 카테고리</strong>: 선택한 카테고리에 해당하는 공지사항만 필터링되어 출력된다.<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fb393dd5-cfce-46b1-a1f7-8d8000049ced-1777362988006-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+165621.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br><strong>게시물 없는 카테고리</strong>: '검색 결과가 없습니다’ 안내문구가 출력된다.<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/7da22eba-c409-4987-abdd-d0ba89c1fee2-1744177746183-1744177746183.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>]]></expectedResult>
+                        <testData><![CDATA[]]></testData>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[<strong>[검색 동작 확인]<br></strong><br>1. 검색창에 아무것도 입력하지 않는 상태에서 검색 버튼 클릭<br><br>2. 확인 클릭<br><br>3. 검색창에 존재하는 키워드 입력 후 검색 버튼 클릭 또는 Enter 키 입력<br><br>4. 검색 결과 페이지에서 카테고리 클릭<br><br>5. 검색결과가 없는 카테고리 클릭<br><br>]]></description>
+                        <expectedResult><![CDATA[1. '검색어를 입력해 주세요.' 알럿 출력 확인<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fb393dd5-cfce-46b1-a1f7-8d8000049ced-1777363019555-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+165646.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><strong><span style="color: rgb(255, 86, 48);">https://raoncorp.atlassian.net/browse/METADEMY-2329 이슈 반영 필요</span></strong><br><br>2. 모달 닫힘<br><br>3. &nbsp;해당 키워드를 포함한 공지사항만 출력되는지 확인 &nbsp;(검색창에 입력한 키워드가 그대로 유지됨)<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/28e09892-3991-4067-8168-3d68575c7370-1777363432476-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+170337.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>4. 선택한 카테고리에 해당하는 공지사항만 필터링되어 출력되는지 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/28e09892-3991-4067-8168-3d68575c7370-1777363534792-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+170525.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>5. 선택한 카테고리의 게시물이 없을 경우 ‘검색 결과가 없습니다’ 안내 표시됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/28e09892-3991-4067-8168-3d68575c7370-1777363580124-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+170611.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[]]></testData>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[<strong>[검색 동작 확인]<br></strong><br>1. 검색창에&nbsp;<code data-pasted="true">&lt;script&gt;alert('xss')&lt;/script&gt;</code>&nbsp; 입력<br>2. 검색창에&nbsp;<code data-pasted="true">' OR '1'='1</code> 입력]]></description>
+                        <expectedResult><![CDATA[<strong>SQL Injection</strong>: 쿼리가 실행되지 않고 텍스트로 처리된다.<br><strong>XSS 취약점</strong>: 스크립트가 실행되지 않고 텍스트로 처리된다.]]></expectedResult>
+                        <testData><![CDATA[]]></testData>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[정렬 동작 확인]</strong><br><br>1. 정렬 드롭다운 클릭<br><br id="isPasted">2. 최신순, 과거순, 조회순 클릭]]></description>
+                        <expectedResult><![CDATA[1. 드롭다운 목록(최신순, 과거순, 조회순) 확인<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/28e09892-3991-4067-8168-3d68575c7370-1777363697644-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+170810.png" style="width: 166px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 리스트가 해당 기준대로 정렬된다.<br><div data-turn-id-container="request-WEB:826529ae-aa65-4e7b-964c-3da4ede5bd04-0" data-is-intersecting="true" data-pasted="true"><section dir="auto" data-turn-id="request-WEB:826529ae-aa65-4e7b-964c-3da4ede5bd04-0" data-turn-id-container="request-WEB:826529ae-aa65-4e7b-964c-3da4ede5bd04-0" data-testid="conversation-turn-2" data-scroll-anchor="false" data-turn="assistant"><div data-message-author-role="assistant" data-message-id="4de11bc9-9135-4607-8b46-226dc0fe905a" dir="auto" data-message-model-slug="gpt-5-5" data-turn-start-message="true" tabindex="0">정렬은 현재 페이지 기준이 아닌, 전체 데이터 기준으로 적용된다.</div></section></div><br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/28e09892-3991-4067-8168-3d68575c7370-1777363748318-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+170855.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="7">
+                        <customFields/>
+                        <description><![CDATA[<strong>[페이지네이션 동작 확인]</strong><br><br>1. 페이지네이션 동작을 확인한다.]]></description>
+                        <expectedResult><![CDATA[한 페이지당 목록은 10개씩 노출된다.<br><br>페이지 번호는 고정되어 있지 않으며, 전체 목록 수에 따라 동적으로 증가한다.<br><br>현재 선택된 페이지는 검은색 원으로 표시된다.]]></expectedResult>
+                    </step>
+                    <step index="8">
+                        <customFields/>
+                        <description><![CDATA[<strong>[공지사항 상세]</strong><br><br>1. 공지사항 목록에서 항목 클릭<br><br>2. 첨부파일이 없는 경우 안내 문구 출력 확인<br><br>3. 첨부파일이 있는 경우 다운로드 가능한지 확인<br><br>4. 다음 / 이전 게시글이 없을 경우 문구 출력 확인<br><br>5. [목록으로] 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[1. 제목, 작성자, 작성일시, 본문 내용, 첨부파일, 이전/다음 게시글 링크가 츨력됨<br><table style="width: 98%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 50.0000%;"><col style="width: 50.0000%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>내용</strong><br></td></tr><tr><td>제목</td><td>미리보기와 동일한지 확인</td></tr><tr><td>작성자</td><td>미리보기와 동일한지 확인</td></tr><tr><td>작성일자</td><td>YYYY-MM-DD</td></tr><tr><td>본문</td><td>본문 내용 노출</td></tr></tbody></table><br><br>2. 첨부파일이 없을 때 '첨부파일이 없습니다.' 안내 문구가 노출됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9531aafd-4a1a-4924-a71f-e3e57bc962cd-1744181707893-1744181707893.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. 첨부파일이 있는 경우 다운로드 가능<br><br>4.&nbsp;<span style="white-space:pre;" id="isPasted">&nbsp;</span>'다음 게시글이 없습니다.', '이전 게시글이 없습니다.' 안내 문구가 노출됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/d7ea511b-4d75-4fc4-9f4c-ba54f21db735-1778633815068-1778633815068.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>5. [목록으로] 버튼 클릭 시 공지사항 리스트로 이동<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/b8018dcd-6cf5-4647-b8ae-75339c245649-1777363989378-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+171301.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="9">
+                        <customFields/>
+                        <description><![CDATA[<strong>[페이지 초기화 확인]</strong><br><br>1. 검색어 입력, 카테고리 선택, 정렬 후 다른 탭(이벤트, 자주 묻는 질문, 서비스 이용 문의) 선택<br><br>2. 다시 공지사항 페이지로 돌아온 후 초기화되는지 확인]]></description>
+                        <expectedResult><![CDATA[1. 검색어 텍스트 입력, 정렬, 카테고리 선택 후 다른 탭 선택<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/b8018dcd-6cf5-4647-b8ae-75339c245649-1777364041466-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+171350.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 페이지 초기화 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/b8018dcd-6cf5-4647-b8ae-75339c245649-1777364064874-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+171417.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="10">
+                        <customFields/>
+                        <description><![CDATA[<strong>[다음 / 이전 게시글 HTML 특수문자 unescape 상태로 출력되는지 확인]</strong>]]></description>
+                        <expectedResult><![CDATA[[&amp;]정상노출 확인<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/b8018dcd-6cf5-4647-b8ae-75339c245649-1777364153815-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+171518.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[[이슈반영 METADEMY-761]]]></testData>
+                    </step>
+                    <step index="11">
+                        <customFields/>
+                        <description><![CDATA[<strong>[공지사항 카테고리 초기화 확인]</strong><br><br>1. 공지사항 내의 카테고리 선택 (공지,안내,장애,업데이트)<br><br>2. 공지사항 탭 클릭]]></description>
+                        <expectedResult><![CDATA[1. 카테고리가 선택되어 볼드처리되며 선택한 카테고리에 맞게 공지사항 리스트가 필터링 된다.<br><br>2. 카테고리 선택이 해제 되며 리스트가 초기화된다.]]></expectedResult>
+                    </step>
+                    <step index="12">
+                        <customFields/>
+                        <description><![CDATA[<strong>[이전, 다음 게시물이 없는 게시물 확인]</strong><br><br>1.이전, 다음 게시물이 없는 게시물의 하단을 확인한다.]]></description>
+                        <expectedResult><![CDATA[<span style='color: rgb(41, 42, 46); font-family: "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: pre-wrap; background-color: rgba(5, 21, 36, 0.008); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;' data-pasted="true">1. ‘이전 게시글이 없습니다.’, ‘다음 게시글이 없습니다.’ 문구가 노출되며 이전,다음게시물 이동 버튼이 없다.</span>]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="233613308" key="TCMETA-T412">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-09 02:18:10 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/고객센터]]></folder>
+            <issues/>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][고객센터] 003. 이벤트]]></name>
+            <objective><![CDATA[고객센터 - 이벤트 페이지를 검증한다.]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[이벤트 페이지 - 이동]</strong><br><br>1. 고객센터 &gt; 이벤트 탭을 클릭하여 이동]]></description>
+                        <expectedResult><![CDATA[https://metademy.raonsecure.co.kr:39090/cs/event로 이동한다.<br>이벤트 글씨가 검은색으로 강조되며, 보라색 밑줄이 생긴다.<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/a1a6698b-8b66-4cf7-be6e-b88b0e5c84c8-1779179238591-1779179238591.png" style="padding: 0px 1px; border: 0px; max-width: 100%; cursor: pointer; user-select: none; box-shadow: rgb(204, 204, 204) 10px 10px 5px 0px; text-align: left; color: rgb(9, 30, 66); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: -0.07px; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; width: 300px;" data-pasted="true" class="fr-fil fr-dib" data-fr-last-image-pasted="true">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[카테고리 동작 확인]</strong><br><br>1. 카테고리 목록 확인<br><br>2. 카테고리 클릭(예정,종료)]]></description>
+                        <expectedResult><![CDATA[1. 진행이 디플트로 선택되어 있으며, 굵은 글씨로 표시된다.<br><table style="width: 85%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>카테고리 종류</strong><br></td></tr><tr><td>진행</td></tr><tr><td>예정</td></tr><tr><td>종료</td></tr></tbody></table><br><br>2. 클릭한 카테고리가<strong>&nbsp;볼드</strong>처리되며 해당하는 이벤트 리스트 노출<br>진행중인 이벤트와 종료된 이벤트의 날짜 확인<br><br>]]></expectedResult>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[이벤트 상세]</strong><br><br>1. 이벤트 제목 노출 확인<br><br>2. 이벤트 이미지 노출 확인<br><br>3. 하단 이벤트 안내 문구 확인<br><br>4. 목록으로 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[1. 이벤트 제목이 표시됨<br><br>2. 이벤트 이미지가 정상노출 (엑스박스면 안됨)<br><br>3. 이벤트 안내 문구 노출 (이벤트 별 상이함)<br><br>4. 이벤트 목록으로 복귀]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[이벤트 상세 - empty case]</strong><br><br>1. 이벤트가 없는 경우<br>(26/05/19 기준 예정 탭 클릭 시)]]></description>
+                        <expectedResult><![CDATA[empty case 문구가 출력된다.<br>'예정 중인 이벤트가 없습니다.\n다음 이벤트를 기대해 주세요!'<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/08ae5ed0-5c4f-4224-945b-f5617e99b231-1779180740697-1779180740697.png" style="width: 153px;" class="fr-fic fr-fil fr-dib fr-shadow" data-fr-last-image-pasted="true">]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="233613327" key="TCMETA-T413">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-09 02:18:20 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/고객센터]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-790</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 공지사항, 자주 묻는 질문 > 카테고리 선택후 다시 공지사항, 자주 묻는 질문 탭 선택시 동작 없음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-792</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 자주 묻는 질문 > 없는 검색어로 검색 > Empty case 문구 미출력됨]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-631</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 카테고리 > 검색 후 다른 페이지 이동 후 돌아와도 이전 검색 결과가 유지됨]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][고객센터] 004. 자주 묻는 질문]]></name>
+            <objective><![CDATA[고객센터 - 자주 묻는 질문 페이지를 검증한다.]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[자주 묻는 질문 - 페이지 구성 확인]</strong><br><br>1. 고객센터 &gt; 자주 묻는 질문 탭 클릭]]></description>
+                        <expectedResult><![CDATA[https://metademy.raonsecure.co.kr:39090/cs/faq으로 이동한다.<br><br>자주 묻는 질문이 검은색으로 강조되며, 보라색 밑줄이 생긴다.<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/acfad387-51c2-45e7-aa1c-c56d90cad6c7-1779410884199-1779410884199.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow" data-fr-last-image-pasted="true">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[자주 묻는 질문 - 카테고리 확인]</strong><br><br>1. 카테고리 확인<br><br>2. 게시물이 존재하는 카테고리 클릭<br><br>3. 게시물이 없는 카테고리 클릭(일반)]]></description>
+                        <expectedResult><![CDATA[1.&nbsp;<table style="width: 90%; height: 100px; margin: auto; border-width: 1px; border-style: solid;" class="fr-selection-handle-hover"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>카테고리 목록</strong><br></td></tr><tr><td>일반</td></tr><tr><td>서비스/기능</td></tr><tr><td>거래&nbsp;</td></tr><tr><td>계정/가입</td></tr><tr><td>기타</td></tr></tbody></table><br><br>2. 선택한 카테고리에 해당하는 게시글만 필터링됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e41b1356-54dc-4c3f-8a6c-e1038430afc1-1777364633357-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+172340.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. ‘등록된 게시글이 없습니다’ 안내 표시됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e41b1356-54dc-4c3f-8a6c-e1038430afc1-1777364713413-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+172439.png" style="padding: 0px 1px; border: 0px; max-width: 100%; cursor: pointer; user-select: none; text-align: left; color: rgb(9, 30, 66); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: -0.07px; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; width: 300px;" id="isPasted" class="fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[게시물 구성]</strong><br><br>1. 게시물 구성을 확인한다.]]></description>
+                        <expectedResult><![CDATA[<table style="width: 69%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 29.493%;"><col style="width: 70.507%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>내용</strong><br></td></tr><tr><td>구분</td><td>분류 목록 (카테고리 참조)</td></tr><tr><td>제목</td><td>질문 제목</td></tr></tbody></table>]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[검색 동작 확인]<br></strong>1. 검색창 placeholder 확인<br><br>2. 검색창에 아무것도 입력하지 않는 상태에서 검색 버튼 클릭<br id="isPasted"><br>3. 검색창에 존재하는 키워드 입력 후 검색 버튼 클릭 또는 Enter 키 입력<br><br>4. 검색 결과 페이지에서 검색 결과가 있는 카테고리 클릭<br><br>5. 검색 결과가 없는 카테고리 클릭]]></description>
+                        <expectedResult><![CDATA[1.<br><table style="width: 84%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 35.2612%;"><col style="width: 64.7388%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>검색탭</strong></td><td style="background-color: rgb(204, 204, 204);"><strong>placeholder</strong></td></tr><tr><td>질문 검색 탭</td><td>자주 묻는 질문을 검색하세요</td></tr></tbody></table><br>2. ‘검색어를 입력해 주세요’ 알럿 출력<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e41b1356-54dc-4c3f-8a6c-e1038430afc1-1777364756705-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+165646.png" style="width: 300px;" class="fr-fic fr-dii fr-shadow"><br><br>3. 제목 또는 본문에 키워드가 포함된 게시글만 리스트에 표시됨&nbsp;<br id="isPasted">(검색창에 입력한 키워드가 그대로 유지됨)<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e41b1356-54dc-4c3f-8a6c-e1038430afc1-1777364814754-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+172645.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>4. 선택한 카테고리에 속하는 게시글만 표시됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e41b1356-54dc-4c3f-8a6c-e1038430afc1-1777364841473-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+172711.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>5. 선택한 카테고리의 게시글이 없는 경우 '검색 결과가 없습니다.' 안내 표시됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e41b1356-54dc-4c3f-8a6c-e1038430afc1-1777364873383-1777364873383.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[<strong>[페이지네이션 동작 확인]</strong>]]></description>
+                        <expectedResult><![CDATA[페이지네이션 클릭하여 동작하는지 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e7a8f7d4-5c3b-43db-a9ec-9fc46ebb7863-1777364922114-1777364922114.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[<strong>[자주 묻는 질문 상세]</strong><br><br>1. 게시글(질문) 클릭<br><br>2. 열린상태로 다시 같은 게시글 클릭&nbsp;<br><br>3. 게시글 열린 상태로 다른 게시글 클릭]]></description>
+                        <expectedResult><![CDATA[1. 게시글 클릭 시 해당 항목이 펼쳐지며 답변 내용이 화면에 표시됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e7a8f7d4-5c3b-43db-a9ec-9fc46ebb7863-1777364992364-1777364992364.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 같은 항목을 다시 클릭하면 접혀서 답변 영역이 사라짐<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e7a8f7d4-5c3b-43db-a9ec-9fc46ebb7863-1777365008760-1777365008760.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. 다른 항목 클릭 시 기존에 열려있던 항목이 닫힘<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e7a8f7d4-5c3b-43db-a9ec-9fc46ebb7863-1777365027858-1777365027858.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[페이지 초기화 확인]</strong><br><br>1. 검색어 입력, 카테고리 선택 후 다른 탭(공지사항, 이벤트, 서비스 이용 문의) 선택<br id="isPasted"><br>2. 다시 자주 묻는 질문 페이지로 복귀]]></description>
+                        <expectedResult><![CDATA[1. 검색어 텍스트 입력, 카테고리 선택, 게시글 클릭 후 다른 탭 선택<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e7a8f7d4-5c3b-43db-a9ec-9fc46ebb7863-1777365152518-1777365152518.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 페이지 초기화 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e7a8f7d4-5c3b-43db-a9ec-9fc46ebb7863-1777365169620-1777365169620.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="233613346" key="TCMETA-T414">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-09 02:18:32 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/고객센터]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-818</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 서비스 이용 문의 > 서비스 이용 문의 등록 안내 메일 발송 안됨]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-705</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 서비스 이용 문의 > 이용 문의 안내 문구 접수일시 오류]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-707</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 서비스 이용 문의 > 이메일, 연락처 validation 없음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-631</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 고객센터 > 카테고리 > 검색 후 다른 페이지 이동 후 돌아와도 이전 검색 결과가 유지됨]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][고객센터] 005. 서비스 이용 문의]]></name>
+            <objective><![CDATA[고객센터 - 서비스 이용 문의 페이지를 검증한다.]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - 페이지 구성 확인]</strong><br><br>1. 고객센터 페이지에서 서비스 이용 문의 탭 클릭]]></description>
+                        <expectedResult><![CDATA[https://metademy.raonsecure.co.kr:39090/cs/inquiry로 이동한다.<br><br>서비스 이용 문의 글자가 검은색으로 강조되며, 보라색 밑줄로 표시돼있다.]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - 입력 필드 초기화 확인]</strong><br><br>1. 임의의 텍스트 입력 후 다른 카테고리 탭(이벤트,공지사항등) 선택<br><br>2. 서비스 이용 문의 탭 복귀]]></description>
+                        <expectedResult><![CDATA[1. 텍스트 입력 후 다른 카테고리 탭 선택 (공지사항, 이벤트, 자주 묻는 질문)<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/22dfa9bd-fcc7-4723-900e-c6e257d25f90-1777365356977-1777365356977.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 서비스 이용 문의로 돌아온 후 입력했던 텍스트 초기화되는지 확인<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/22dfa9bd-fcc7-4723-900e-c6e257d25f90-1777365383477-1777365383477.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - validation 확인]</strong><br id="isPasted"><br>1. 이름, 소속 입력 필드의 placeholder 문구 확인<br><br>2. 이름을 입력하지 않고 [문의 접수하기] 버튼 클릭<br><br>3. 이름 입력 후 [문의 접수하기] 클릭<br><br>4. 소속 입력 후 [문의 접수하기] 클릭]]></description>
+                        <expectedResult><![CDATA[1. '이름을 입력해 주세요.', &nbsp;'소속을 입력해 주세요.' 가 출력됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/796e808e-a0c8-4202-97fa-e45fe5502ac5-1744245888001-1744245888001.png" style="padding: 0px 1px; border: 0px; max-width: 100%; cursor: pointer; user-select: none; text-align: left; color: rgb(9, 30, 66); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: -0.07px; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; width: 300px;" id="isPasted" class="fr-fil fr-dib fr-shadow"><br>2. '이름을 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e11b8aad-deb5-4eeb-bb87-d7d1294574b1-1777421134073-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-29+090518.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. '소속을 입력해 주세요.', 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/22dfa9bd-fcc7-4723-900e-c6e257d25f90-1777365451181-1777365451181.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>4. '문의 종류를 선택해 주세요.' 알럿 확인<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/22dfa9bd-fcc7-4723-900e-c6e257d25f90-1777365478515-1777365478515.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br><br data-pasted="true"><strong><span style="color: rgb(255, 86, 48);">https://raoncorp.atlassian.net/browse/METADEMY-2352<br>최대길이 반영 필요</span></strong>]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<div style="margin-left: 20px;"><br></div><strong>[서비스 이용 문의 - 문의 종류 및 필수값 확인]</strong><br><br>1. 문의 종류 드롭다운의 placeholder 문구 확인<br><br>2. 드롭다운 클릭&nbsp;<br><br>3. 문의 종류 선택 없이 [문의 접수하기] 클릭<br><br>4. 문의 종류 항목 중 하나 선택&nbsp;]]></description>
+                        <expectedResult><![CDATA[1. '문의 내용을 선택해 주세요.' 가 출력됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/872edf94-20bb-40ef-983a-a74aeb163d87-1744247383707-1744247383707.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 드롭다운에 선택 가능한 항목이 출력됨<br>- 서비스 신청<br>- 계정 문의<br>- 오류 문의<br>​- 제휴 문의<br>​- 교환 및 환불 문의<br>- 기타 문의<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/22dfa9bd-fcc7-4723-900e-c6e257d25f90-1777365509296-1777365509296.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. '문의 종류를 선택해 주세요.' 알럿 확인<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/22dfa9bd-fcc7-4723-900e-c6e257d25f90-1777365566712-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+173754.png" style="width: 300px;" class="fr-fil fr-dib fr-shadow"><br>4. 문의 항목 선택 시 드롭다운에 반영되는지 확인<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/22dfa9bd-fcc7-4723-900e-c6e257d25f90-1777365598385-1777365598385.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - 이메일 입력 확인]</strong><br id="isPasted"><br>1. 이메일 입력 필드의 placeholder 확인<br><br>2. 이메일 입력 없이 [문의 접수하기] 클릭<br><br>3. 잘못된 이메일 형식 입력 &gt; 필드 하단 메시지 출력 확인<br><br>4. 유효한 이메일 입력 후 [문의 접수하기]&nbsp;]]></description>
+                        <expectedResult><![CDATA[1. '답변을 수신 받을 E-mail 주소를 입력해 주세요.'가 출력됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb3dd192-31bc-4753-b4ee-7822bcee9cbc-1744247780564-1744247780564.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 'E-mail 주소를 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/22dfa9bd-fcc7-4723-900e-c6e257d25f90-1777365678147-1777365678147.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. '이메일 형식을 다시 확인해 주세요.' 가 필드 하단에 출력됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb3dd192-31bc-4753-b4ee-7822bcee9cbc-1744248023645-1744248023645.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>4. '전화번호를 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365726965-1777365726964.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br><br data-pasted="true"><strong><span style="color: rgb(255, 86, 48);">https://raoncorp.atlassian.net/browse/METADEMY-2352<br>최대길이 반영 필요</span></strong>]]></expectedResult>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - 휴대폰 입력 확인]</strong><br id="isPasted"><br>1. 휴대폰 번호 입력 필드의 placeholder 확인<br><br>2. 휴대폰 번호 입력 없이 [문의 접수하기] 선택<br><br>3. 잘못된 휴대폰 번호 형식 입력 &gt; 필드 하단 메시지 출력 확인<br><br>4. 유효한 휴대폰 번호 입력 후 [문의 접수하기]]]></description>
+                        <expectedResult><![CDATA[1. '연락받으실 번호를 입력해 주세요.'가 출력됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb3dd192-31bc-4753-b4ee-7822bcee9cbc-1744248259557-1744248259557.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '전화번호를 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365749774-1777365749774.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. '전화번호를 올바르게 입력해 주세요.'가 필드 하단에 출력됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/8a1764d0-2895-4b8c-a326-dc77a5a03cc2-1744248450619-1744248450619.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>4. '제목을 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365786552-1777365786552.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - 제목 / 문의내용 확인]</strong><br id="isPasted"><br>1. 제목, 문의내용의 placeholder 문구 확인<br><br>2. 제목을 입력하지 않고 [문의 접수하기] 클릭&nbsp;<br><br>3. 제목 입력 후 [문의 접수하기] 클릭<br><br>4. 문의내용 입력 후 [문의 접수하기 클릭]]]></description>
+                        <expectedResult><![CDATA[1. '제목을 50자 이내로 입력해 주세요.', '문의 내용을 자세하게 작성해주실수록 더욱 신속하게 답변 드릴 수 있습니다.'가 출력됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/8a1764d0-2895-4b8c-a326-dc77a5a03cc2-1744248637894-1744248637894.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '제목을 입력해 주세요.' 알럿 확인<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365853606-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-28+174304.png" style="width: 300px;" class="fr-fil fr-dib fr-shadow"><br>3. '이용 문의 내용이 작성되지 않았습니다.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365870173-1777365870173.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>4. '개인정보 수집 및 이용에 관한 동의를 하셔야 문의 접수가 가능합니다.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365894667-1777365894667.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br><br><br><strong><span style="color: rgb(255, 86, 48);">https://raoncorp.atlassian.net/browse/METADEMY-2352<br>최대길이 반영 필요</span></strong>]]></expectedResult>
+                    </step>
+                    <step index="7">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - 파일 업로드 확인]<br></strong><br>1. [파일 불러오기] 버튼 선택<br><br>2. 업로드 할 파일 선택<br><br>3. [파일 불러오기] 버튼 재선택 &gt; 한 번 더 업로드 할 파일 선택<br><br>4. 업로드 된 파일 삭제<br><br>5. [파일 불러오기] 버튼 선택 &gt; 업로드 할 파일 선택]]></description>
+                        <expectedResult><![CDATA[1. [파일 불러오기] 버튼 선택 시, PC 파일 선택 화면 출력<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365925870-1777365925870.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 파일 첨부 시 [파일 불러오기] 버튼 상단에 파일명 출력됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365950735-1777365950735.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. '업로드 가능한 최대 이미지 개수는 1개 입니다.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777365988810-1777365988810.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>4. 이전에 업로드 한 파일이 삭제되는지 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777366012501-1777366012501.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>5. 파일 업로드 되는지 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/62ae6463-4186-469a-af6e-60e6dd9e1343-1777366031427-1777366031427.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br><br><strong><span style="color: rgb(255, 86, 48);">업로드 가능한 파일 확장자 화인 후 추가 필요</span></strong>]]></expectedResult>
+                    </step>
+                    <step index="8">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - 허용되는 파일]<br></strong><br>1. .jpg 확장자 업로드]]></description>
+                        <expectedResult><![CDATA[<strong data-pasted="true"><span style="color: rgb(255, 86, 48);">업로드 가능한 파일 확장자 화인 후 추가 필요</span></strong>]]></expectedResult>
+                    </step>
+                    <step index="9">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 - 허용되지 않는 파일]<br></strong><br>1. .exe확장자 업로드]]></description>
+                        <expectedResult><![CDATA[<strong data-pasted="true"><span style="color: rgb(255, 86, 48);">업로드 가능한 파일 확장자 화인 후 추가 필요</span></strong>]]></expectedResult>
+                    </step>
+                    <step index="10">
+                        <customFields/>
+                        <description><![CDATA[<strong>[개인정보 수집 및 이용에 관한 동의 확인]</strong><br><br>1. 개인정보 수집 및 이용에 관한 동의 체크<br><br>2. [문의 접수하기] 선택<br><br>3. 알럿 취소 / 확인 클릭]]></description>
+                        <expectedResult><![CDATA[1. 체크됨<br><u><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/f53b3717-c28e-4d37-99e2-66711ca7722a-1777366259561-1777366259561.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"></u><br>2. 알럿 발생<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/f53b3717-c28e-4d37-99e2-66711ca7722a-1777366271289-1777366271289.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. [취소] 선택 &gt; 알럿 꺼짐<br>[확인] 선택 &gt; 문의하기 접수 완료 페이지로 이동]]></expectedResult>
+                    </step>
+                    <step index="11">
+                        <customFields/>
+                        <description><![CDATA[<strong>[서비스 이용 문의 접수 - 확인 클릭]</strong><br><br>1. 서비스 이용 문의 접수 alert에서 확인 클릭<br><br>2. 접수일시 확인<br><br>3. 서비스 이용 문의 등록 완료 안내 메일 수신 확인<br><br>4. [메인으로 이동] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. &nbsp;'서비스 이용 문의 접수가 완료되었습니다.' 페이지 출력<span class="fr-img-caption fr-fil fr-dib" style="width: 304px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/f53b3717-c28e-4d37-99e2-66711ca7722a-1777366330302-1777366330302.png" style="width: 302px;" class="fr-fic fr-shadow"><span class="fr-inner">메인으로 이동 버튼 색상 수정시 이미지 변경 필요</span></span></span><br>2. 서비스 접수일시 확인 (실제 접수한 날의 YYYY-MM-DD HH:MM:SS 형식으로 출력)<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/73a98e36-2d71-47e7-890d-1c7a1f64573c-1744250289978-1744250289978.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. 서비스 이용 문의 등록 안내 메일 수신 확인<br>보낸 사람 :&nbsp;<span title="라온메타데미 <metademy@raoncorp.com>" style='display: inline-block; overflow-wrap: normal; cursor: default; max-width: 300px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; color: rgb(161, 148, 73); font-family: "Noto Sans KR", "맑은 고딕", 돋움, "malgun gothic", dotum, AppleGothic, Helvetica, sans-serif; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: -0.5px; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;' data-pasted="true">라온메타데미 &lt;metademy@raon.com&gt;</span><br>메일 하단 이메일 : metademy@raon.com<br><br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/f53b3717-c28e-4d37-99e2-66711ca7722a-1777366463715-1777366463715.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>4. 메인 페이지로 이동됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/f53b3717-c28e-4d37-99e2-66711ca7722a-1777366543454-1777366543454.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="336681657" key="TCMETA-T1631">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>신경철</createdBy>
+            <createdOn>2026-05-12 02:29:23 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/고객센터]]></folder>
+            <issues/>
+            <labels/>
+            <name><![CDATA[[Front][PC][고객센터] 001. 고객센터]]></name>
+            <objective><![CDATA[고객센터 화면 구성을 검증한다]]></objective>
+            <owner>712020:14541b6b-662d-4d74-a029-2a418bc2198e</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[고객센터 페이지 이동]</strong><br><br data-pasted="true">1. 메타데미 접속<br><br>2. 헤더 [고객센터] 선택<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/d7ea511b-4d75-4fc4-9f4c-ba54f21db735-1778633672331-1778633672331.png" style="width: 120px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></description>
+                        <expectedResult><![CDATA[고객센터 버튼에 마우스를 올리면 검은색 -&gt; 회색으로 글자 색상이 변한다.<br><br>클릭 시 https://metademy.raonsecure.co.kr:39090/cs로 이동한다.<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/8195ba51-d21d-4125-a2f2-e9e6c20087a6-1778553075158-1778553075158.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[고객센터 카테고리 탭 구성 확인]</strong><br><br>1. 스크롤하여 카테고리 구성 확인]]></description>
+                        <expectedResult><![CDATA[고객센터 페이지 진입 시 디폴트로 '공지사항'이 선택되어 있다.<br><span style='color: rgb(23, 43, 77); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: -0.07px; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;' data-pasted="true">글자가 검은색으로 강조되어 있고 보라색 밑줄이 쳐져 있다.</span>&nbsp;<br><table style="width: 67%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>탭 목록</strong><br></td></tr><tr><td>공지사항</td></tr><tr><td>이벤트</td></tr><tr><td>자주 묻는 질문</td></tr><tr><td>서비스 이용 문의</td></tr></tbody></table>]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+    </testCases>
+</project>

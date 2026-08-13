@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project>
+    <projectId>10164</projectId>
+    <projectKey>TCMETA</projectKey>
+    <exportDate>2026-07-01 01:29:30 UTC</exportDate>
+    <folders>
+        <folder fullPath="Full TC/Front /PC/마이페이지" index="5"/>
+    </folders>
+    <testCases>
+        <testCase id="233965482" key="TCMETA-T425">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-11 08:58:58 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/마이페이지]]></folder>
+            <issues/>
+            <labels>
+                <label><![CDATA[텍스트반영완료]]></label>
+                <label><![CDATA[2.1.1.5]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][마이페이지] 001. 프로필]]></name>
+            <objective><![CDATA[마이페이지를 검증한다]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[마이페이지 - 마이페이지 이동]<br></strong><br>1. 라온 메타데미 진입<br><br>2. 소셜 로그인<br><br>3. 헤더 [마이페이지] 클릭<br><br>4. 마이페이지 페이지 이동]]></description>
+                        <expectedResult><![CDATA[<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9886acc1-3da8-49f6-878e-e107c0582daa-1778464871559-1778464871559.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br><br>​]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/<br><br><br>]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[마이페이지 탭 구성 확인]</strong><br><br>1.마이페이지 탭 구성을 확인한다.<br><br>2. 기본으로 프로필 탭이 선택되는지 확인한다.]]></description>
+                        <expectedResult><![CDATA[1.<table style="width: 83%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>탭 항목</strong><br></td></tr><tr><td>실습 대시보드</td></tr><tr><td>디지털 배지</td></tr><tr><td>프로필</td></tr><tr><td>구매내역</td></tr></tbody></table><br><br>2. 기본으로<strong data-pasted="true">[프로필]&nbsp;</strong>문자에 볼드처리 되어있고 보라색 밑줄이 하이라이트 되어있어야한다<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9886acc1-3da8-49f6-878e-e107c0582daa-1778464890717-1778464890717.png" style="width: 300px;" class="fr-fic fr-dii fr-shadow"><br>]]></expectedResult>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[마이페이지 기본정보 확인 - 소셜 로그인]</strong><br><br><br>1. 기본 정보(계정(ID/E-mail), 이름, 휴대폰 번호, E-mail, 마케팅 정보 수신 확인)을 확인한다.<br><br><br>]]></description>
+                        <expectedResult><![CDATA[<br>1. 기본 정보가 회원 가입 시 입력한 데이터와 동일한지 확인한다.<br><span style="color: rgb(151, 160, 175);">*소셜 로그인의 경우 따로 설정하지 않으면 이름, 휴대폰번호가 들어가 있지 않아 <strong>-</strong>로 표기되어 있음</span><br><table style="width: 97%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 51.8519%;"><col style="width: 48.1481%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>내용</strong><br></td></tr><tr><td>계정(ID/E-mail)<br></td><td>로그인한 계정&nbsp;<strong>E-mail</strong></td></tr><tr><td>이름</td><td>- 본인인증 / 계정주 이름</td></tr><tr><td>휴대폰 번호</td><td>- / 계정주 전화번호</td></tr><tr><td>E-mail</td><td>로그인한계정 E-mail</td></tr><tr><td>마케팅 정보 수신 확인</td><td>문자메시지, E-mail</td></tr></tbody></table><span style="color: rgb(151, 160, 175);"><br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/2f7b9d22-9045-428b-b23c-0736ebf6d564-1777421734401-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-29+091232.png" style="width: 281px;" class="fr-fic fr-fil fr-dib fr-shadow"></span>]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[마이페이지 기본정보 확인 - 소속 정보 있는 계정]</strong><br><br>1. 기본 정보(계정(ID/E-mail), 이름, 휴대폰 번호, E-mail, 마케팅 정보 수신 확인)을 확인한다.<br><br>2. 소속 정보 확인<br><br>]]></description>
+                        <expectedResult><![CDATA[1. 기본 정보가 회원 가입 시 입력한 데이터와 동일한지 확인한다.<br><table data-pasted="true"><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>내용</strong><br></td></tr><tr><td>계정(ID/E-mail)<br></td><td>로그인 한 계정 ID</td></tr><tr><td>이름</td><td>로그인 한 계정주 이름</td></tr><tr><td>휴대폰 번호</td><td>로그인 한 계정주 전화번호</td></tr><tr><td>E-mail</td><td>로그인한 계정주 이메일</td></tr><tr><td>마케팅 정보 수신 확인</td><td>문자메시지, E-mail</td></tr></tbody></table><br><span style="color: rgb(151, 160, 175);"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/2f7b9d22-9045-428b-b23c-0736ebf6d564-1777421734401-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-29+091232.png" style="width: 281px;" class="fr-fic fr-fil fr-dib fr-shadow"></span><br>2. 소속 정보가 노출된다.<br><table style="width: 90%; margin: auto; border-width: 1px; border-style: solid; height: 127px;"><colgroup><col style="width: 32.5619%;"><col style="width: 67.4381%;"></colgroup><tbody><tr style="height: 31px;"><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>내용</strong><br></td></tr><tr><td>소속</td><td>소속된 단체 이름 표기</td></tr><tr><td>학부/학과</td><td>소속된 학부/학과 표기</td></tr><tr><td>학번</td><td>계정주의 학번 표기</td></tr></tbody></table><br>]]></expectedResult>
+                        <testData><![CDATA[raontest6 / Raontest6! (!안되면 ^)]]></testData>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[<strong>[본인인증 버튼 확인]</strong><br><br><p data-start="307" data-end="355">B2B 계정 중 본인인증을 하지 않은 경우 → 본인인증 버튼이 노출됨</p><p data-start="307" data-end="355"><br>B2B 계정 중 본인인증을 완료한 경우 → 본인인증 버튼이 노출되지 않음<br><br>B2C 계정의 경우 → 본인인증 버튼이 항상 노출되지 않음</p><br>]]></description>
+                        <expectedResult><![CDATA[본인인증 안한 계정, 본인인증 버튼 노출<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/7eecb345-87ac-4021-9c9c-bf2c2ded3223-1777421853943-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-29+091640.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>본인인증 완료한 계정, 본인인증 버튼 노출 X&nbsp;<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/7eecb345-87ac-4021-9c9c-bf2c2ded3223-1777422174916-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-29+092205.png" style="width: 300px;" class="fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[<table data-start="78" data-end="284" id="isPasted"><thead data-start="78" data-end="113"><tr data-start="78" data-end="113"><th data-start="78" data-end="86">계정 유형</th><th data-start="86" data-end="96">본인인증 상태</th><th data-start="96" data-end="113">본인인증 버튼 노출 여부</th></tr></thead><tbody data-start="170" data-end="284"><tr data-start="170" data-end="205"><td data-start="170" data-end="181">B2B 계정</td><td data-start="181" data-end="196">미인증</td><td data-start="196" data-end="205">출력됨</td></tr><tr data-start="206" data-end="243"><td data-start="206" data-end="217">B2B 계정</td><td data-start="217" data-end="230">인증 완료</td><td data-start="230" data-end="243">출력되지 않음</td></tr><tr data-start="244" data-end="284"><td data-start="244" data-end="255">B2C 계정</td><td data-start="255" data-end="271">무관</td><td data-start="271" data-end="284">출력되지 않음</td></tr></tbody></table>]]></testData>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="233965736" key="TCMETA-T426">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-11 09:04:09 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/마이페이지]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-881</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 항목명, 체크박스 우측 텍스트 기획서와 상이함]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-870</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 비밀번호 변경하기, 프로필 수정 > 비밀번호 표시 버튼 동작 없음]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+                <label><![CDATA[텍스트반영완료]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][마이페이지] 002. 프로필 수정]]></name>
+            <objective><![CDATA[마이페이지 - 프로필 수정 기능을 검증한다]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[프로필 수정]</strong><br id="isPasted"><br>1. 라온 메타데미 접속<br><br>2. 로그인<br><br>3. 헤더 [마이페이지] 클릭<br><br>4. 마이페이지 페이지 이동<br><br>5. 하단 [프로필 수정] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9886acc1-3da8-49f6-878e-e107c0582daa-1778465003525-1778465003525.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력 필드 확인]</strong><br><br>1. 비밀번호 입력 필드 placeholder 확인<br><br>2. 입력 없이 [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호를 입력해 주세요.'&nbsp;<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744362992859-1744362992859.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '비밀번호가 입력되지 않았습니다.' 알럿 출력<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/ffb73b23-aaf1-4235-8e80-2fa85516e522-1777422274078-1777422274078.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[보이기/숨기기 버튼 동작 확인]</strong><br id="isPasted"><br>1. 비밀번호 입력<br><br>2. 비밀번호 보이기/숨기기 버튼 동작 확인]]></description>
+                        <expectedResult><![CDATA[1. 비밀번호 필드에 임의의 텍스트 입력<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363163371-1744363163371.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 아이콘(눈 모양) 클릭 시 비밀번호 입력 필드에 텍스트가 표시되며, 아이콘이 표시됨으로 변경됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363158490-1744363158490.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2-1. 아이콘(눈 모양) 재 클릭 시 비밀번호 입력 필드에 텍스트가 표시되지 않으며, 아이콘이 숨김으로 변경됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363176343-1744363176343.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력]</strong><br><br>1. 틀린 비밀번호 입력 &gt; [확인] 버튼 선택<br><br>2. 맞는 비밀번호 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호가 올바르지 않습니다. 입력하신 비밀번호를 다시 확인해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/ffb73b23-aaf1-4235-8e80-2fa85516e522-1777422488399-1777422488399.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 프로필 수정 페이지로 이동됨]]></expectedResult>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[<strong>[수정 가능한 항목 확인]</strong><strong><br></strong><br>1. 수정 가능한 항목 (휴대폰 번호, E-mail, 마케팅 정보 수신) 확인]]></description>
+                        <expectedResult><![CDATA[1. 수정 가능한 필드만 편집 가능하고, 나머지 항목은 비활성화 상태로 표시됨<table data-pasted="true" style="height: 218px; width: 100%;"><colgroup><col style="width: 41.2%;"><col style="width: 58.8%;"></colgroup><tbody><tr style="height: 31px;"><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>수정가능 여부&nbsp;</strong><br></td></tr><tr style="height: 31px;"><td>계정(ID/E-mail)<br></td><td><strong>불가능</strong></td></tr><tr style="height: 31px;"><td>이름</td><td><strong>불가능</strong>, 본인인증 가능<strong>​</strong></td></tr><tr style="height: 37px;"><td>휴대폰 번호</td><td><strong>불가능</strong></td></tr><tr style="height: 31px;"><td>E-mail</td><td>가능</td></tr><tr style="height: 32px;"><td>마케팅 정보 수신 확인</td><td>가능</td></tr></tbody></table>]]></expectedResult>
+                        <testData><![CDATA[휴대폰 번호 수정 가능한지 스펙 정의 필요]]></testData>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[<strong>[휴대폰 번호 수정]<br></strong><br>1. 휴대폰 번호 입력 필드 placeholder 확인<br><br>2. 휴대폰 번호 수정 &gt; [수정] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '휴대폰 번호를 입력해 주세요.'<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/20a4e55d-2c60-4cef-a03b-1831f4246518-1744364914474-1744364914474.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '프로필 수정이 완료되었습니다.' 알럿 확인 &gt; 마이페이지로 이동<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/ffb73b23-aaf1-4235-8e80-2fa85516e522-1777422601337-1777422601337.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. 변경한 정보 저장되었는지 확인]]></expectedResult>
+                        <testData><![CDATA[휴대폰 번호 수정 가능한지 스펙 정의 필요]]></testData>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[수정 버튼 색상 확인]</strong>]]></description>
+                        <expectedResult><![CDATA[<strong><span style="color: rgb(255, 86, 48);">주황색이면 안됨<br>https://raoncorp.atlassian.net/browse/METADEMY-2314</span></strong>]]></expectedResult>
+                    </step>
+                    <step index="7">
+                        <customFields/>
+                        <description><![CDATA[<strong>[E-mail 수정]</strong><br><br>1. E-mail 입력 필드 placeholder 확인<br>2. E-mail 수정 &gt; [수정] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '이메일을 입력해 주세요.'<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/20a4e55d-2c60-4cef-a03b-1831f4246518-1744365135634-1744365135634.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '프로필 수정이 완료되었습니다.' 알럿 확인 &gt; 마이페이지로 이동<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/ffb73b23-aaf1-4235-8e80-2fa85516e522-1777422613077-1777422613077.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. 변경한 정보 저장되었는지 확인]]></expectedResult>
+                    </step>
+                    <step index="8">
+                        <customFields/>
+                        <description><![CDATA[<strong>[마케팅 정보 수신 확인 기본값]</strong><br><br>1. 마케팅 정보 수신 확인 체크박스 디폴트 선택값 확인]]></description>
+                        <expectedResult><![CDATA[<span style="color: rgb(255, 86, 48);"><strong>기본으로 설정되어 있으면 안됨<br>https://raoncorp.atlassian.net/browse/METADEMY-2258 이슈 반영 필요</strong></span>]]></expectedResult>
+                        <testData><![CDATA[마이페이지를 수정한 적이 없는 계정으로 진행]]></testData>
+                    </step>
+                    <step index="9">
+                        <customFields/>
+                        <description><![CDATA[<strong>[마케팅 정보 수신 확인 수정]</strong><br><br>1. 마케팅 정보 수신 확인 체크박스 해제 / 체크 &gt; [수정] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 마케팅 정보 수신 확인 수정<br>문자 메시지, E-mail<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/f0c0b35e-2db9-4496-aaf7-9f612cc12f53-1744610339845-1744610339845.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '프로필 수정이 완료되었습니다.' 알럿 확인 &gt; 마이페이지로 이동<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/ffb73b23-aaf1-4235-8e80-2fa85516e522-1777422629920-1777422629920.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. 변경한 정보 저장되었는지 확인]]></expectedResult>
+                    </step>
+                    <step index="10">
+                        <customFields/>
+                        <description><![CDATA[<strong>[취소</strong><strong>]</strong><br><br>1. [취소] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. [취소] 버튼 선택 시 별도의 알림 없이 마이페이지 &gt; 프로필 페이지로 돌아감<br><br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/ffb73b23-aaf1-4235-8e80-2fa85516e522-1777422720210-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-29+093123.png" style="width: 300px;" class="fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="234097852" key="TCMETA-T428">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-14 06:04:23 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/마이페이지]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-870</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 비밀번호 변경하기, 프로필 수정 > 비밀번호 표시 버튼 동작 없음]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+                <label><![CDATA[텍스트반영완료]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][마이페이지] 003. 비밀번호 변경]]></name>
+            <objective><![CDATA[마이페이지 - 비밀번호 변경 기능을 검증한다.]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 변경 확인]</strong><br id="isPasted"><br>1. 라온 메타데미 접속<br><br>2. 로그인<br><br>3. 헤더 [마이페이지] 클릭<br><br>4. 마이페이지 페이지 이동<br><br>5. 하단 [비밀번호 변경] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777422921104-1777422921104.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[보이기/숨기기 버튼 동작 확인]</strong><br id="isPasted"><br>1. 비밀번호 입력<br><br>2. 비밀번호 보이기/숨기기 버튼 동작 확인]]></description>
+                        <expectedResult><![CDATA[1. 비밀번호 마스킹되어 표시<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777422955281-1777422955281.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. 아이콘(눈 모양) 클릭 시 비밀번호 입력 필드에 텍스트가 표시되며, 아이콘이 표시됨으로 변경됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777422995888-1777422995888.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2-1. 아이콘(눈 모양) 재 클릭 시 비밀번호 입력 필드에 텍스트가 표시되지 않으며, 아이콘이 숨김으로 변경됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777423014555-1777423014555.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력 placeholder 및 안내 문구 확인]</strong><br><br>1. 비밀번호 입력 필드 확인<br><br>2. 필드 하단 문구 확인<br><br id="isPasted">3. 필드 입력 없이 [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. placeholder 확인<br><table style="width: 71%; margin: auto; border-width: 1px; border-style: solid; height: 127px;" data-pasted="true"><colgroup><col style="width: 51.2585%;"><col style="width: 48.7415%;"></colgroup><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>필드명</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>placeholder</strong><br></td></tr><tr style="height: 31px;"><td>현재 비밀번호</td><td>비밀번호를 입력해 주세요.<br></td></tr><tr><td>새 비밀번호</td><td>비밀번호를 입력해 주세요.<br></td></tr><tr><td>새 비밀번호 확인</td><td>비밀번호를 입력해 주세요.<br></td></tr></tbody></table><br>2. 필드 하단 문구 확인<ul style='margin: 0px; padding: 1.5rem; box-sizing: border-box; border: 0px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-weight: 400; font-stretch: inherit; font-size: 0.75rem; line-height: inherit; font-family: SUIT, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; vertical-align: baseline; list-style: none; border-radius: 0.75rem; background: rgb(245, 245, 247); color: rgb(102, 102, 102); white-space: nowrap; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;' id="isPasted"><li style="margin: 0px; padding: 0px; box-sizing: border-box; border: 0px; font: inherit; vertical-align: baseline;">* 영문, 숫자, 특수문자 각 1자리 이상을 조합하여, 최소 8자리 이상을 입력해 주세요.</li><li style="margin: 0px; padding: 0px; box-sizing: border-box; border: 0px; font: inherit; vertical-align: baseline;">* 사용 가능 특수문자는 ~!@#$^&amp;* 입니다.</li></ul><br>3. '현재 사용 중인 비밀번호를 입력해 주세요.' 알럿 출력<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777423091159-1777423091159.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력]</strong><br><br>1. 현재 비밀번호 입력 &gt; [확인] 버튼 선택<br><br>2. 새 비밀번호 입력 &gt; [확인] 버튼 선택<br><br>3. <span style="color: rgb(255, 86, 48);"><strong>새 비밀번호 확인</strong></span>을<strong>&nbsp;<span style="color: rgb(255, 153, 31);">새 비밀번호</span></strong>와 다르게 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '새 비밀번호 입력칸에 새로 사용하실 비밀번호를 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777423113627-1777423113627.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '새 비밀번호 확인 입력칸에 새로 사용하실 비밀번호를 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777423140179-1777423140179.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. '새로운 비밀번호가 일치하지 않습니다. 다시 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777423158409-1777423158409.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[<strong>조건에 맞지 않는 비밀번호 입력</strong><br><br>1. 새 비밀번호, 새 비밀번호 확인을 조건에 맞지 않게 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '새로운 비밀번호가 조건에 맞지 않습니다. 영문, 숫자, 특수문자, 각 1자리 이상을 조합하여, 최소 8자 이상 입력해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bb9466a9-e3b2-4770-83cd-676f97fc6517-1777423190219-1777423190219.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[비밀번호 조건 :&nbsp;<br>- 영문, 숫자, 특수문자 각 1자리 이상을 조합하여, 최소 8자리 이상<br>- 사용 가능 특수문자는 <strong><span style="color: rgb(151, 160, 175);">~!@#$^&amp;*</span></strong>]]></testData>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[<strong>[현재 비밀번호 오류 확인]</strong><br><br>1. 현재 비밀번호 입력란에 올바르지 않은 비밀번호 입력<br><br>2. 새 비밀번호, 새 비밀번호 확인을 조건에 맞게 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 현재 비밀번호와 다르게 입력<br><br>2. '비밀번호를 변경하시겠습니까?' 알럿 확인 &gt;<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9dec1ef0-ac99-465a-9967-cb67ffddd0c0-1777423243891-1777423243891.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">&nbsp;<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9dec1ef0-ac99-465a-9967-cb67ffddd0c0-1777423318173-1777423318173.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[비밀번호 조건 :&nbsp;<br id="isPasted">- 영문, 숫자, 특수문자 각 1자리 이상을 조합하여, 최소 8자리 이상<br>- 사용 가능 특수문자는 <strong><span style="color: rgb(151, 160, 175);">~!@#$^&amp;*</span></strong>]]></testData>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[조건에 맞는 비밀번호 입력]</strong><br><br>1. 현재 비밀번호 입력란에 올바른 비밀번호 입력<br><br>2. 새 비밀번호, 새 비밀번호 확인을 조건에 맞게 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호를 변경하시겠습니까?' 알럿 확인&nbsp;<br data-pasted="true"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9dec1ef0-ac99-465a-9967-cb67ffddd0c0-1777423243891-1777423243891.png" style="padding: 0px 1px; border: 0px; max-width: 100%; cursor: pointer; user-select: none; box-shadow: rgb(204, 204, 204) 10px 10px 5px 0px; text-align: left; color: rgb(9, 30, 66); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: -0.07px; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; width: 300px;" class="fr-fil fr-dib"><br><br><br>2. '비밀번호가 정상적으로 변경되었습니다.' 알럿 확인 &gt; 비밀번호 변경됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9dec1ef0-ac99-465a-9967-cb67ffddd0c0-1777423462305-1777423462305.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>3. [확인] 클릭 시 마이페이지로 이동]]></expectedResult>
+                        <testData><![CDATA[<strong>비밀번호 조건 :&nbsp;<br id="isPasted">- 영문, 숫자, 특수문자 각 1자리 이상을 조합하여, 최소 8자리 이상<br>- 사용 가능 특수문자는 <span style="color: rgb(151, 160, 175);">~!@#$^&amp;*</span><br><br></strong><span style="color: rgb(9, 30, 66);">Raontest6^ 확인 (통과되어야 함)</span>]]></testData>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="234099024" key="TCMETA-T430">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-14 06:32:58 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/마이페이지]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-873</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 구매내역 페이지네이션 테이블 영역과 너무 붙어서 출력됨]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-518</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 구매내역 > 취소 및 환불 버튼 동작없음]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+                <label><![CDATA[텍스트반영완료]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][마이페이지] 004. 구매내역]]></name>
+            <objective><![CDATA[마이페이지 - 구매내역을 검증한다]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Draft]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[구매내역]</strong><br id="isPasted"><br>1. 라온 메타데미 접속<br><br>2. 로그인<br><br>3. 헤더 [마이페이지] 클릭<br><br>4. 마이페이지 페이지 이동<br><br>5. [구매내역] 탭 클릭]]></description>
+                        <expectedResult><![CDATA[<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/31c2c5b6-7bad-4ea3-80f2-e2a262a169a3-1777508542996-1777508542996.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[구매내역 없는 계정으로 진행]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[구매내역이 없는 경우]</strong>]]></description>
+                        <expectedResult><![CDATA['구매 내역이 없습니다.' 출력 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/31c2c5b6-7bad-4ea3-80f2-e2a262a169a3-1777508475316-1777508475316.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[상단 문의하기 클릭]</strong>]]></description>
+                        <expectedResult><![CDATA[1. [문의하기] 클릭<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/31c2c5b6-7bad-4ea3-80f2-e2a262a169a3-1777508611247-1777508611247.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. <a href="https://metademy.raonsecure.co.kr:39090/cs/inquiry">서비스 이용 문의</a> 페이지로 이동]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[구매내역 확인]</strong><br><br>1. 유저가 구매한 항목에 대한 정보 출력 확인<br><br>]]></description>
+                        <expectedResult><![CDATA[1. 포함 항목:&nbsp;<br><table data-pasted="true" style="width: 100%; height: 352px;"><tbody><tr><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>내용</strong><br></td></tr><tr><td>콘텐츠 썸네일<br></td><td>콘텐츠 썸네일 이미지</td></tr><tr style="height: 33px;"><td>결제일시&nbsp;<br></td><td>&nbsp;(YYYY.MM.DD HH:MM:SS)<br></td></tr><tr><td>주문번호<br></td><td>(12자리 숫자)<br></td></tr><tr style="height: 36px;"><td>구매 항목명<br></td><td>구매한 콘텐츠 이름</td></tr><tr><td style="null">결제 금액</td><td style="null">00원</td></tr><tr><td>옵션명<br></td><td>구매한 콘텐츠 옵션(기간)</td></tr><tr><td>주문 상세 버튼<br></td><td>주문 상세 모달 노출</td></tr><tr><td>메뉴얼 보기 버튼<br></td><td>해당 강좌 메뉴얼 pdf 조회 페이지로 이동</td></tr><tr><td>문의하기 버튼&nbsp;<br></td><td><a href="https://metademy.raonsecure.co.kr:39090/cs/inquiry">고객센터 서비스 이용 문의</a>로 이동</td></tr><tr><td style="null">실습 가능 기간&nbsp;</td><td style="null">YYYY-MM-DD ~ YYYY-MM-DD</td></tr><tr><td style="null">실습 안내</td><td style="null">실습 안내 모달 노출</td></tr></tbody></table><br><br>(리스트는 5개씩 페이지네이션 노출)<br><strong><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/31c2c5b6-7bad-4ea3-80f2-e2a262a169a3-1777508817415-1777508817415.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"></strong><br><br id="isPasted">2. 페이지네이션이 테이블 영역과 떨어져있는지 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/4b866f4d-65a8-47e1-b759-9084aaccf6b6-1777509055984-1777509055984.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br><br>]]></expectedResult>
+                        <testData><![CDATA[구매내역 있는 계정으로 진행(없을시 구매하지말고, PM이나 QA분들께 요청)<br><br>raontest6 / Raontest6! (!안되면 ^)]]></testData>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[배송 조회 (아직 없는 기능임)]]></description>
+                        <testData><![CDATA[<span style="color: rgb(255, 86, 48);"><strong>나중에 생기면 추가해주세요!!!!!!</strong></span>]]></testData>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[<strong>[취소 및 환불]</strong><br><br><br>1. [취소 및 환불] 버튼을 클릭한다.<span class="fr-img-caption fr-fil fr-dib" style="width: 217px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/b9683e72-efd8-437c-8fc1-5ef70b2aaa7e-1764835118324-1764835118324.png" style="width: 215px;" class="fr-fic fr-shadow"><span class="fr-inner">색상 변경시 이미지 교체 필요</span></span></span><br>2. 취소 및 환불 요청 드롭다운을 클릭한다.<br><br>3. [고객변심]을 선택한다.<br><br>4. 확인을 클릭한다.<br><br>5. 어드민 페이지에서 확인한다.]]></description>
+                        <expectedResult><![CDATA[1. 취소 및 환불 요청 모달이 노출된다.&nbsp;<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/eb709b7c-9d1a-4391-812a-af4bca0bedcb-1781073814531-1781073814531.png" style="width: 300px;" class="fr-fic fr-fil fr-dib" data-fr-last-image-pasted="true">2. 드롭다운 목록 TBD<br><br>3. 고객 변심이 선택된다.<br><br>4. 완료 모달이 노출된다.<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/f64bf025-5999-4fa3-b9d8-493163ac6987-1781074138590-1781074138590.png" style="width: 300px;" class="fr-fic fr-fil fr-dib" data-fr-last-image-pasted="true"><br>5. 취소 및 환불 신청한 주문번호의 상품의 상태가 바뀌어있다.]]></expectedResult>
+                        <testData><![CDATA[구매한지 7일이 지나지 않은 콘텐츠]]></testData>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[문의하기 버튼]</strong><br><br><br>1. [문의하기] 버튼을 클릭한다.<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/4b866f4d-65a8-47e1-b759-9084aaccf6b6-1777509107439-1777509107439.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>]]></description>
+                        <expectedResult><![CDATA[1. <a href="https://metademy.raonsecure.co.kr:39090/cs/inquiry">고객센터</a>로 이동한다.]]></expectedResult>
+                        <testData><![CDATA[구매한지 7일이 지난 콘텐츠]]></testData>
+                    </step>
+                    <step index="7">
+                        <customFields/>
+                        <description><![CDATA[<strong>[주문 상세]</strong><br><br>1.&nbsp;<u><strong>주문 상세</strong></u> 클릭<br><br>2. 팝업 내용 확인<br><br>3. 하단 서비스 이용 문의 클릭<br><br>4. 닫기 클릭<br><br>]]></description>
+                        <expectedResult><![CDATA[1. 팝업으로 주문 상세 페이지 출력<span class="fr-img-caption fr-fil fr-dib" style="width: 302px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/e1b61215-8338-451b-8d05-50bbad9f8618-1777509891166-%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7+2026-04-30+094338.png" style="width: 300px;" class="fr-fic fr-shadow"><span class="fr-inner">닫기 버튼 색상 변경 시 이미지 교체 필요</span></span></span><br>2. 주문 상세 결제 정보 출력 확인 - 포함 항목:&nbsp;<br><br><br><table data-pasted="true" style="height: 221px; width: 100%;"><tbody><tr style="height: 31px;"><td style="background-color: rgb(204, 204, 204);"><strong>항목</strong><br></td><td style="background-color: rgb(204, 204, 204);"><strong>내용</strong><br></td></tr><tr style="height: 31px;"><td>주문일시</td><td><br></td></tr><tr style="height: 31px;"><td>주문번호</td><td>12자리 숫자</td></tr><tr style="height: 31px;"><td>주문항목</td><td>주문한 콘텐츠 정보</td></tr><tr style="height: 31px;"><td>배송정보</td><td><table style="width: 50%; height: 100px; margin: auto; border-width: 1px; border-style: solid;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr><td>배송주소</td></tr><tr><td>주문자명</td></tr><tr><td>휴대폰 번호</td></tr><tr><td>요청사항</td></tr></tbody></table><br></td></tr><tr style="height: 31px;"><td>결제수단</td><td>결제수단에 따라 다름</td></tr></tbody></table><br>3.&nbsp;<a href="https://metademy.raonsecure.co.kr:39090/cs/inquiry">서비스 이용 문의</a> 페이지로 이동<br><br>4. 팝업 닫힘]]></expectedResult>
+                        <testData><![CDATA[]]></testData>
+                    </step>
+                    <step index="8">
+                        <customFields/>
+                        <description><![CDATA[<strong>[결제수단에 따른 주문 상세 페이지 확인]</strong><br><br>1. 신용카드<br><br>2. 계좌이체<br><br>3. 가상계좌]]></description>
+                        <expectedResult><![CDATA[1. 신용카드 - 카드번호, 할부 개월, 승인 일시<br>[카드 영수증] 버튼<span class="fr-img-caption fr-fil fr-dib" style="width: 302px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bdad9384-46f9-46d7-a6ce-bb1b68abf8cb-1777510058080-1777510058080.png" style="width: 300px;" class="fr-fic fr-shadow"><span class="fr-inner">닫기 버튼 색상 변경 시 이미지 교체 필요</span></span></span><br>2. 계좌이체 - 은행 계좌, 입금일시[구매 영수증] 버튼<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/10a06b70-5d90-4cff-ac20-fa2c1bcaeb83-1744616852824-1744616852824.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 가상계좌 - 은행 계좌, 입금일시<br>입금 전, 입금 후 출력되는 버튼이 다름<br>입금 전 &gt; [입금 전]<br id="isPasted">입금 후 &gt; [구매 영수증]<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/10a06b70-5d90-4cff-ac20-fa2c1bcaeb83-1744616861309-1744616861309.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>]]></expectedResult>
+                        <testData><![CDATA[<span style="color: rgb(255, 86, 48);"><strong>계좌이체, 가상계좌 결제 방식 생기고 나면 반영해주세요!!</strong></span>]]></testData>
+                    </step>
+                    <step index="9">
+                        <customFields/>
+                        <description><![CDATA[<strong>[카드 영수증 발행]</strong><br><br>1.&nbsp;<u id="isPasted"><strong>주문 상세</strong></u> 클릭<br><br>2. 하단 [카드 영수증] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 하단 [카드 영수증] 버튼 클릭<span class="fr-img-caption fr-fil fr-dib" style="width: 302px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/bdad9384-46f9-46d7-a6ce-bb1b68abf8cb-1777510106636-1777510106636.png" style="width: 300px;" class="fr-fic fr-shadow"><span class="fr-inner">닫기 버튼 색상 변경 시 이미지 교체 필요</span></span></span><br>2. 카드 영수증 출력 페이지로 이동<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/310bf37b-3f37-42af-84c7-92e38991c77a-1744616386938-1744616386938.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 정보 입력 후 영수증 발행 확인<br><strong><span style="color: rgb(255, 86, 48);">현재 미구현된 기능 - 추후 기능 개발 시 반영해주세요!!!</span></strong>]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="234105009" key="TCMETA-T432">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>고연재</createdBy>
+            <createdOn>2025-04-14 07:56:42 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/마이페이지]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-593</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 비밀번호 표시 버튼 동작 없음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-545</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 탈퇴 사유 > 기타 체크시 입력필드 활성화 되지 않음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-541</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 취소 버튼 동작 없음]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][마이페이지] 005. 회원 탈퇴]]></name>
+            <objective><![CDATA[회원 탈퇴 기능을 검증한다]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Deprecated]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[회원 탈퇴 동작 확인]</strong><br id="isPasted"><br>1. 라온 메타데미 접속<br><br>2. 로그인<br><br>3. 헤더 [마이페이지] 클릭<br><br>4. 마이페이지 페이지 이동<br><br>5. 하단 <strong><span style="color: rgb(255, 86, 48);"><u>회원탈퇴 &gt;</u>&nbsp;</span></strong>클릭]]></description>
+                        <expectedResult><![CDATA[<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/93dfec57-737d-46e3-b30a-9b06cb566f25-1778552179972-1778552179972.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력 확인]</strong><br><br>1. 비밀번호 입력 필드 placeholder 확인<br><br id="isPasted">2. 입력 없이 [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호를 입력해 주세요.'<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618129622-1744618129622.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '비밀번호가 입력되지 않았습니다.' 알럿 출력<span class="fr-img-caption fr-dii" style="width: 302px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744362915948-1744362915948.png" style="width: 300px;" id="isPasted" class="fr-fic fr-shadow"><span class="fr-inner">확인 버튼 색상 수정시 이미지 변경 필요</span></span></span>]]></expectedResult>
+                        <testData><![CDATA[현재 비밀번호 입력 없으나 필요한건지 확인필요]]></testData>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[보이기/숨기기 버튼 동작 확인]</strong><br id="isPasted"><br>1. 비밀번호 필드에 임의의 텍스트 입력<br><br>2. 비밀번호 보이기 버튼 클릭<br><br>3. 비밀번호 숨기기 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[1. 마스킹되어 입력됨<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363163371-1744363163371.png" style="width: 300px;" class="fr-fic fr-dii fr-shadow"><br><br>2. &nbsp;비밀번호 입력 필드에 텍스트가 표시되며, 아이콘이 표시됨으로 변경됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363158490-1744363158490.png" style="width: 300px;" class="fr-fic fr-dii"><br>3. 비밀번호 입력 필드에 텍스트가 마스킹됨, 아이콘이 숨김으로 변경됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363176343-1744363176343.png" style="width: 300px;" class="fr-fic fr-dii"><br>]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력]</strong><br id="isPasted"><br>1. 틀린 비밀번호 입력 &gt; [확인] 버튼 선택<br><br>2. 맞는 비밀번호 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호가 올바르지 않습니다. 입력하신 비밀번호를 다시 확인해 주세요.' 알럿 확인<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363256080-1744363256080.png" style="width: 300px;" class="fr-fic fr-dii"><br><br>2. 회원탈퇴 페이지로 이동됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618482895-1744618482895.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[취소 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[취소 버튼 클릭 시 마이페이지로 돌아감<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9f92eb48-311a-449c-9fee-6c08b05c0bdb-1745222564138-1745222564138.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[아무것도 선택하지 않고 [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 버튼 선택<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618316910-1744618316910.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. '회원 탈퇴 사유를 선택해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/93dfec57-737d-46e3-b30a-9b06cb566f25-1778552324347-1778552324347.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 사유 목록 확인]</strong>]]></description>
+                        <expectedResult><![CDATA[<table style="width: 79%; margin: auto; border-width: 1px; border-style: solid; height: 320px;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr style="height: 31px;"><td style="background-color: rgb(204, 204, 204);"><strong>탈퇴 사유 항목</strong><br></td></tr><tr><td>개인 기록 삭제 목적</td></tr><tr><td>서비스 이용이 불편하고 장애가 많아서</td></tr><tr><td>마음에 드는 실습 콘텐츠가 없어서</td></tr><tr style="height: 54px;"><td>삭제하고 싶은 내용이 있어서</td></tr><tr><td>서비스 사용 빈도가 낮아서</td></tr><tr><td>다른 사이트가 더 좋아서</td></tr><tr><td>기타</td></tr></tbody></table>]]></expectedResult>
+                    </step>
+                    <step index="7">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 사유 선택 확인]</strong><br><br>1. 탈퇴 사유 항목 중 하나 선택 (한 번에 하나만 선택 가능해야 함)<br><br>2. [기타] 항목 선택 시 입력 필드가 하단에 출력되는지 확인<br><br>3. [기타] 외 다른 항목 선택 시 입력 필드가 사라지는지 확인<br><br>4. 탈퇴 사유 선택하고 [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 탈퇴 사유는 하나만 선택 가능하며, 중복 선택은 되지 않음<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618858751-1744618858751.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. 텍스트 입력 필드가 하단에 추가됨 (입력 가능한지 확인)<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618886521-1744618886521.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 다른 항목 선택 또는 기타 선택 취소 시 텍스트 입력 필드가 사라져야 함<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618953129-1744618953129.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>4. '회원 탈퇴 안내 사항을 확인하고 동의해 주세요.' 알럿 출력<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744619007415-1744619007415.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="8">
+                        <customFields/>
+                        <description><![CDATA[탈퇴 안내 사항 동의 확인<br><br>1. 탈퇴 동의 체크 &gt; [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 탈퇴 동의 체크<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619425157-1744619425157.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. '보안 확인 절차를 진행해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619467871-1744619467871.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="9">
+                        <customFields/>
+                        <description><![CDATA[보안 확인(리캡챠)<br><br>1. 리캡챠 진행 &gt; [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 체크 박스 선택 시 리캡챠 진행 가능<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619565687-1744619565687.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. 완료 시 체크박스 체크됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619589177-1744619589177.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 일정 시간이 지나면 만료됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619647244-1744619647244.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>4. 리캡챠 진행 후 [탈퇴하기] 버튼 클릭 시 회원 탈퇴 완료 페이지로 이동함&nbsp;]]></expectedResult>
+                    </step>
+                    <step index="10">
+                        <customFields/>
+                        <description><![CDATA[회원 탈퇴 완료 페이지<br><br><br>]]></description>
+                        <expectedResult><![CDATA[1. 회원 탈퇴가 정상적으로 완료되었습니다.<br>지금까지 라온 메타데미를 이용해 주셔서 감사합니다.<br id="isPasted">더 나은 서비스와 콘텐츠로 보답할 수 있도록 노력하겠습니다.&nbsp;<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/09cb9e9a-382a-4821-9410-ff55fe35c5d8-1778633020822-1778633020822.png" style="width: 302px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. [메인으로] 버튼 선택 시 메인페이지로 이동<br>정상적으로 로그아웃 됐는지 확인]]></expectedResult>
+                    </step>
+                    <step index="11">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 후 재가입]</strong><br><br>1. 탈퇴한 후 재가입 시도]]></description>
+                        <expectedResult><![CDATA[1. 정상 가입 되어야 함]]></expectedResult>
+                    </step>
+                    <step index="12">
+                        <customFields/>
+                        <description><![CDATA[<strong>[재가입 후 탈퇴]</strong><br><br>1. 재가입 후 탈퇴 시도]]></description>
+                        <expectedResult><![CDATA[1. 정상 탈퇴 되어야함]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="341606005" key="TCMETA-T1641">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>조예빈</createdBy>
+            <createdOn>2026-05-22 05:47:34 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/마이페이지]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-593</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 비밀번호 표시 버튼 동작 없음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-545</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 탈퇴 사유 > 기타 체크시 입력필드 활성화 되지 않음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-541</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 취소 버튼 동작 없음]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][마이페이지] 006. 실습 대시보드]]></name>
+            <objective><![CDATA[회원 탈퇴 기능을 검증한다]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Deprecated]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[회원 탈퇴 동작 확인]</strong><br id="isPasted"><br>1. 라온 메타데미 접속<br><br>2. 로그인<br><br>3. 헤더 [마이페이지] 클릭<br><br>4. 마이페이지 페이지 이동<br><br>5. 하단 <strong><span style="color: rgb(255, 86, 48);"><u>회원탈퇴 &gt;</u>&nbsp;</span></strong>클릭]]></description>
+                        <expectedResult><![CDATA[<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/93dfec57-737d-46e3-b30a-9b06cb566f25-1778552179972-1778552179972.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력 확인]</strong><br><br>1. 비밀번호 입력 필드 placeholder 확인<br><br id="isPasted">2. 입력 없이 [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호를 입력해 주세요.'<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618129622-1744618129622.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '비밀번호가 입력되지 않았습니다.' 알럿 출력<span class="fr-img-caption fr-dii" style="width: 302px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744362915948-1744362915948.png" style="width: 300px;" id="isPasted" class="fr-fic fr-shadow"><span class="fr-inner">확인 버튼 색상 수정시 이미지 변경 필요</span></span></span>]]></expectedResult>
+                        <testData><![CDATA[현재 비밀번호 입력 없으나 필요한건지 확인필요]]></testData>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[보이기/숨기기 버튼 동작 확인]</strong><br id="isPasted"><br>1. 비밀번호 필드에 임의의 텍스트 입력<br><br>2. 비밀번호 보이기 버튼 클릭<br><br>3. 비밀번호 숨기기 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[1. 마스킹되어 입력됨<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363163371-1744363163371.png" style="width: 300px;" class="fr-fic fr-dii fr-shadow"><br><br>2. &nbsp;비밀번호 입력 필드에 텍스트가 표시되며, 아이콘이 표시됨으로 변경됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363158490-1744363158490.png" style="width: 300px;" class="fr-fic fr-dii"><br>3. 비밀번호 입력 필드에 텍스트가 마스킹됨, 아이콘이 숨김으로 변경됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363176343-1744363176343.png" style="width: 300px;" class="fr-fic fr-dii"><br>]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력]</strong><br id="isPasted"><br>1. 틀린 비밀번호 입력 &gt; [확인] 버튼 선택<br><br>2. 맞는 비밀번호 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호가 올바르지 않습니다. 입력하신 비밀번호를 다시 확인해 주세요.' 알럿 확인<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363256080-1744363256080.png" style="width: 300px;" class="fr-fic fr-dii"><br><br>2. 회원탈퇴 페이지로 이동됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618482895-1744618482895.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[취소 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[취소 버튼 클릭 시 마이페이지로 돌아감<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9f92eb48-311a-449c-9fee-6c08b05c0bdb-1745222564138-1745222564138.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[아무것도 선택하지 않고 [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 버튼 선택<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618316910-1744618316910.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. '회원 탈퇴 사유를 선택해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/93dfec57-737d-46e3-b30a-9b06cb566f25-1778552324347-1778552324347.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 사유 목록 확인]</strong>]]></description>
+                        <expectedResult><![CDATA[<table style="width: 79%; margin: auto; border-width: 1px; border-style: solid; height: 320px;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr style="height: 31px;"><td style="background-color: rgb(204, 204, 204);"><strong>탈퇴 사유 항목</strong><br></td></tr><tr><td>개인 기록 삭제 목적</td></tr><tr><td>서비스 이용이 불편하고 장애가 많아서</td></tr><tr><td>마음에 드는 실습 콘텐츠가 없어서</td></tr><tr style="height: 54px;"><td>삭제하고 싶은 내용이 있어서</td></tr><tr><td>서비스 사용 빈도가 낮아서</td></tr><tr><td>다른 사이트가 더 좋아서</td></tr><tr><td>기타</td></tr></tbody></table>]]></expectedResult>
+                    </step>
+                    <step index="7">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 사유 선택 확인]</strong><br><br>1. 탈퇴 사유 항목 중 하나 선택 (한 번에 하나만 선택 가능해야 함)<br><br>2. [기타] 항목 선택 시 입력 필드가 하단에 출력되는지 확인<br><br>3. [기타] 외 다른 항목 선택 시 입력 필드가 사라지는지 확인<br><br>4. 탈퇴 사유 선택하고 [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 탈퇴 사유는 하나만 선택 가능하며, 중복 선택은 되지 않음<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618858751-1744618858751.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. 텍스트 입력 필드가 하단에 추가됨 (입력 가능한지 확인)<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618886521-1744618886521.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 다른 항목 선택 또는 기타 선택 취소 시 텍스트 입력 필드가 사라져야 함<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618953129-1744618953129.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>4. '회원 탈퇴 안내 사항을 확인하고 동의해 주세요.' 알럿 출력<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744619007415-1744619007415.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="8">
+                        <customFields/>
+                        <description><![CDATA[탈퇴 안내 사항 동의 확인<br><br>1. 탈퇴 동의 체크 &gt; [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 탈퇴 동의 체크<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619425157-1744619425157.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. '보안 확인 절차를 진행해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619467871-1744619467871.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="9">
+                        <customFields/>
+                        <description><![CDATA[보안 확인(리캡챠)<br><br>1. 리캡챠 진행 &gt; [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 체크 박스 선택 시 리캡챠 진행 가능<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619565687-1744619565687.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. 완료 시 체크박스 체크됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619589177-1744619589177.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 일정 시간이 지나면 만료됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619647244-1744619647244.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>4. 리캡챠 진행 후 [탈퇴하기] 버튼 클릭 시 회원 탈퇴 완료 페이지로 이동함&nbsp;]]></expectedResult>
+                    </step>
+                    <step index="10">
+                        <customFields/>
+                        <description><![CDATA[회원 탈퇴 완료 페이지<br><br><br>]]></description>
+                        <expectedResult><![CDATA[1. 회원 탈퇴가 정상적으로 완료되었습니다.<br>지금까지 라온 메타데미를 이용해 주셔서 감사합니다.<br id="isPasted">더 나은 서비스와 콘텐츠로 보답할 수 있도록 노력하겠습니다.&nbsp;<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/09cb9e9a-382a-4821-9410-ff55fe35c5d8-1778633020822-1778633020822.png" style="width: 302px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. [메인으로] 버튼 선택 시 메인페이지로 이동<br>정상적으로 로그아웃 됐는지 확인]]></expectedResult>
+                    </step>
+                    <step index="11">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 후 재가입]</strong><br><br>1. 탈퇴한 후 재가입 시도]]></description>
+                        <expectedResult><![CDATA[1. 정상 가입 되어야 함]]></expectedResult>
+                    </step>
+                    <step index="12">
+                        <customFields/>
+                        <description><![CDATA[<strong>[재가입 후 탈퇴]</strong><br><br>1. 재가입 후 탈퇴 시도]]></description>
+                        <expectedResult><![CDATA[1. 정상 탈퇴 되어야함]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="341606020" key="TCMETA-T1642">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>조예빈</createdBy>
+            <createdOn>2026-05-22 05:47:48 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/마이페이지]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-593</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 비밀번호 표시 버튼 동작 없음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-545</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 탈퇴 사유 > 기타 체크시 입력필드 활성화 되지 않음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-541</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 취소 버튼 동작 없음]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][마이페이지] 007. 디지털 배지]]></name>
+            <objective><![CDATA[회원 탈퇴 기능을 검증한다]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Deprecated]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[회원 탈퇴 동작 확인]</strong><br id="isPasted"><br>1. 라온 메타데미 접속<br><br>2. 로그인<br><br>3. 헤더 [마이페이지] 클릭<br><br>4. 마이페이지 페이지 이동<br><br>5. 하단 <strong><span style="color: rgb(255, 86, 48);"><u>회원탈퇴 &gt;</u>&nbsp;</span></strong>클릭]]></description>
+                        <expectedResult><![CDATA[<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/93dfec57-737d-46e3-b30a-9b06cb566f25-1778552179972-1778552179972.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력 확인]</strong><br><br>1. 비밀번호 입력 필드 placeholder 확인<br><br id="isPasted">2. 입력 없이 [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호를 입력해 주세요.'<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618129622-1744618129622.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '비밀번호가 입력되지 않았습니다.' 알럿 출력<span class="fr-img-caption fr-dii" style="width: 302px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744362915948-1744362915948.png" style="width: 300px;" id="isPasted" class="fr-fic fr-shadow"><span class="fr-inner">확인 버튼 색상 수정시 이미지 변경 필요</span></span></span>]]></expectedResult>
+                        <testData><![CDATA[현재 비밀번호 입력 없으나 필요한건지 확인필요]]></testData>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[보이기/숨기기 버튼 동작 확인]</strong><br id="isPasted"><br>1. 비밀번호 필드에 임의의 텍스트 입력<br><br>2. 비밀번호 보이기 버튼 클릭<br><br>3. 비밀번호 숨기기 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[1. 마스킹되어 입력됨<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363163371-1744363163371.png" style="width: 300px;" class="fr-fic fr-dii fr-shadow"><br><br>2. &nbsp;비밀번호 입력 필드에 텍스트가 표시되며, 아이콘이 표시됨으로 변경됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363158490-1744363158490.png" style="width: 300px;" class="fr-fic fr-dii"><br>3. 비밀번호 입력 필드에 텍스트가 마스킹됨, 아이콘이 숨김으로 변경됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363176343-1744363176343.png" style="width: 300px;" class="fr-fic fr-dii"><br>]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력]</strong><br id="isPasted"><br>1. 틀린 비밀번호 입력 &gt; [확인] 버튼 선택<br><br>2. 맞는 비밀번호 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호가 올바르지 않습니다. 입력하신 비밀번호를 다시 확인해 주세요.' 알럿 확인<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363256080-1744363256080.png" style="width: 300px;" class="fr-fic fr-dii"><br><br>2. 회원탈퇴 페이지로 이동됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618482895-1744618482895.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[취소 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[취소 버튼 클릭 시 마이페이지로 돌아감<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9f92eb48-311a-449c-9fee-6c08b05c0bdb-1745222564138-1745222564138.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[아무것도 선택하지 않고 [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 버튼 선택<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618316910-1744618316910.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. '회원 탈퇴 사유를 선택해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/93dfec57-737d-46e3-b30a-9b06cb566f25-1778552324347-1778552324347.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 사유 목록 확인]</strong>]]></description>
+                        <expectedResult><![CDATA[<table style="width: 79%; margin: auto; border-width: 1px; border-style: solid; height: 320px;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr style="height: 31px;"><td style="background-color: rgb(204, 204, 204);"><strong>탈퇴 사유 항목</strong><br></td></tr><tr><td>개인 기록 삭제 목적</td></tr><tr><td>서비스 이용이 불편하고 장애가 많아서</td></tr><tr><td>마음에 드는 실습 콘텐츠가 없어서</td></tr><tr style="height: 54px;"><td>삭제하고 싶은 내용이 있어서</td></tr><tr><td>서비스 사용 빈도가 낮아서</td></tr><tr><td>다른 사이트가 더 좋아서</td></tr><tr><td>기타</td></tr></tbody></table>]]></expectedResult>
+                    </step>
+                    <step index="7">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 사유 선택 확인]</strong><br><br>1. 탈퇴 사유 항목 중 하나 선택 (한 번에 하나만 선택 가능해야 함)<br><br>2. [기타] 항목 선택 시 입력 필드가 하단에 출력되는지 확인<br><br>3. [기타] 외 다른 항목 선택 시 입력 필드가 사라지는지 확인<br><br>4. 탈퇴 사유 선택하고 [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 탈퇴 사유는 하나만 선택 가능하며, 중복 선택은 되지 않음<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618858751-1744618858751.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. 텍스트 입력 필드가 하단에 추가됨 (입력 가능한지 확인)<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618886521-1744618886521.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 다른 항목 선택 또는 기타 선택 취소 시 텍스트 입력 필드가 사라져야 함<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618953129-1744618953129.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>4. '회원 탈퇴 안내 사항을 확인하고 동의해 주세요.' 알럿 출력<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744619007415-1744619007415.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="8">
+                        <customFields/>
+                        <description><![CDATA[탈퇴 안내 사항 동의 확인<br><br>1. 탈퇴 동의 체크 &gt; [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 탈퇴 동의 체크<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619425157-1744619425157.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. '보안 확인 절차를 진행해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619467871-1744619467871.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="9">
+                        <customFields/>
+                        <description><![CDATA[보안 확인(리캡챠)<br><br>1. 리캡챠 진행 &gt; [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 체크 박스 선택 시 리캡챠 진행 가능<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619565687-1744619565687.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. 완료 시 체크박스 체크됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619589177-1744619589177.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 일정 시간이 지나면 만료됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619647244-1744619647244.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>4. 리캡챠 진행 후 [탈퇴하기] 버튼 클릭 시 회원 탈퇴 완료 페이지로 이동함&nbsp;]]></expectedResult>
+                    </step>
+                    <step index="10">
+                        <customFields/>
+                        <description><![CDATA[회원 탈퇴 완료 페이지<br><br><br>]]></description>
+                        <expectedResult><![CDATA[1. 회원 탈퇴가 정상적으로 완료되었습니다.<br>지금까지 라온 메타데미를 이용해 주셔서 감사합니다.<br id="isPasted">더 나은 서비스와 콘텐츠로 보답할 수 있도록 노력하겠습니다.&nbsp;<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/09cb9e9a-382a-4821-9410-ff55fe35c5d8-1778633020822-1778633020822.png" style="width: 302px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. [메인으로] 버튼 선택 시 메인페이지로 이동<br>정상적으로 로그아웃 됐는지 확인]]></expectedResult>
+                    </step>
+                    <step index="11">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 후 재가입]</strong><br><br>1. 탈퇴한 후 재가입 시도]]></description>
+                        <expectedResult><![CDATA[1. 정상 가입 되어야 함]]></expectedResult>
+                    </step>
+                    <step index="12">
+                        <customFields/>
+                        <description><![CDATA[<strong>[재가입 후 탈퇴]</strong><br><br>1. 재가입 후 탈퇴 시도]]></description>
+                        <expectedResult><![CDATA[1. 정상 탈퇴 되어야함]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+        <testCase id="341607155" key="TCMETA-T1643">
+            <attachments/>
+            <confluencePageLinks/>
+            <createdBy>조예빈</createdBy>
+            <createdOn>2026-05-22 05:48:38 UTC</createdOn>
+            <customFields/>
+            <folder><![CDATA[Full TC/Front /PC/마이페이지]]></folder>
+            <issues>
+                <issue>
+                    <key>METADEMY-593</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 비밀번호 표시 버튼 동작 없음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-545</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 탈퇴 사유 > 기타 체크시 입력필드 활성화 되지 않음]]></summary>
+                </issue>
+                <issue>
+                    <key>METADEMY-541</key>
+                    <summary><![CDATA[[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 취소 버튼 동작 없음]]></summary>
+                </issue>
+            </issues>
+            <labels>
+                <label><![CDATA[2.1.1.0]]></label>
+            </labels>
+            <name><![CDATA[[Front][PC][마이페이지] 007. 구매내역]]></name>
+            <objective><![CDATA[회원 탈퇴 기능을 검증한다]]></objective>
+            <owner>712020:a6227acd-2774-464e-b288-c53eb72d36b1</owner>
+            <precondition><![CDATA[<a href="https://metademy.ac/" data-pasted="true">메타데미</a>에 접속한 상태여야 한다.]]></precondition>
+            <priority><![CDATA[Normal]]></priority>
+            <status><![CDATA[Deprecated]]></status>
+            <parameters/>
+            <testDataWrapper/>
+            <testScript type="steps">
+                <steps>
+                    <step index="0">
+                        <customFields/>
+                        <description><![CDATA[<strong>[회원 탈퇴 동작 확인]</strong><br id="isPasted"><br>1. 라온 메타데미 접속<br><br>2. 로그인<br><br>3. 헤더 [마이페이지] 클릭<br><br>4. 마이페이지 페이지 이동<br><br>5. 하단 <strong><span style="color: rgb(255, 86, 48);"><u>회원탈퇴 &gt;</u>&nbsp;</span></strong>클릭]]></description>
+                        <expectedResult><![CDATA[<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/93dfec57-737d-46e3-b30a-9b06cb566f25-1778552179972-1778552179972.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow">]]></expectedResult>
+                        <testData><![CDATA[메타데미(QA) : https://metademy.raonsecure.co.kr:39090/]]></testData>
+                    </step>
+                    <step index="1">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력 확인]</strong><br><br>1. 비밀번호 입력 필드 placeholder 확인<br><br id="isPasted">2. 입력 없이 [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호를 입력해 주세요.'<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618129622-1744618129622.png" style="width: 300px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. '비밀번호가 입력되지 않았습니다.' 알럿 출력<span class="fr-img-caption fr-dii" style="width: 302px;"><span class="fr-img-wrap"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744362915948-1744362915948.png" style="width: 300px;" id="isPasted" class="fr-fic fr-shadow"><span class="fr-inner">확인 버튼 색상 수정시 이미지 변경 필요</span></span></span>]]></expectedResult>
+                        <testData><![CDATA[현재 비밀번호 입력 없으나 필요한건지 확인필요]]></testData>
+                    </step>
+                    <step index="2">
+                        <customFields/>
+                        <description><![CDATA[<strong>[보이기/숨기기 버튼 동작 확인]</strong><br id="isPasted"><br>1. 비밀번호 필드에 임의의 텍스트 입력<br><br>2. 비밀번호 보이기 버튼 클릭<br><br>3. 비밀번호 숨기기 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[1. 마스킹되어 입력됨<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363163371-1744363163371.png" style="width: 300px;" class="fr-fic fr-dii fr-shadow"><br><br>2. &nbsp;비밀번호 입력 필드에 텍스트가 표시되며, 아이콘이 표시됨으로 변경됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363158490-1744363158490.png" style="width: 300px;" class="fr-fic fr-dii"><br>3. 비밀번호 입력 필드에 텍스트가 마스킹됨, 아이콘이 숨김으로 변경됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363176343-1744363176343.png" style="width: 300px;" class="fr-fic fr-dii"><br>]]></expectedResult>
+                    </step>
+                    <step index="3">
+                        <customFields/>
+                        <description><![CDATA[<strong>[비밀번호 입력]</strong><br id="isPasted"><br>1. 틀린 비밀번호 입력 &gt; [확인] 버튼 선택<br><br>2. 맞는 비밀번호 입력 &gt; [확인] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. '비밀번호가 올바르지 않습니다. 입력하신 비밀번호를 다시 확인해 주세요.' 알럿 확인<br id="isPasted"><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/1c60b5e6-4c69-4a5e-ab26-065733aa5a27-1744363256080-1744363256080.png" style="width: 300px;" class="fr-fic fr-dii"><br><br>2. 회원탈퇴 페이지로 이동됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618482895-1744618482895.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="4">
+                        <customFields/>
+                        <description><![CDATA[취소 버튼 클릭]]></description>
+                        <expectedResult><![CDATA[취소 버튼 클릭 시 마이페이지로 돌아감<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/9f92eb48-311a-449c-9fee-6c08b05c0bdb-1745222564138-1745222564138.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="5">
+                        <customFields/>
+                        <description><![CDATA[아무것도 선택하지 않고 [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 버튼 선택<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/80feabcf-008d-4b63-90af-9416960f80cd-1744618316910-1744618316910.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. '회원 탈퇴 사유를 선택해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/93dfec57-737d-46e3-b30a-9b06cb566f25-1778552324347-1778552324347.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="6">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 사유 목록 확인]</strong>]]></description>
+                        <expectedResult><![CDATA[<table style="width: 79%; margin: auto; border-width: 1px; border-style: solid; height: 320px;"><colgroup><col style="width: 100.0000%;"></colgroup><tbody><tr style="height: 31px;"><td style="background-color: rgb(204, 204, 204);"><strong>탈퇴 사유 항목</strong><br></td></tr><tr><td>개인 기록 삭제 목적</td></tr><tr><td>서비스 이용이 불편하고 장애가 많아서</td></tr><tr><td>마음에 드는 실습 콘텐츠가 없어서</td></tr><tr style="height: 54px;"><td>삭제하고 싶은 내용이 있어서</td></tr><tr><td>서비스 사용 빈도가 낮아서</td></tr><tr><td>다른 사이트가 더 좋아서</td></tr><tr><td>기타</td></tr></tbody></table>]]></expectedResult>
+                    </step>
+                    <step index="7">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 사유 선택 확인]</strong><br><br>1. 탈퇴 사유 항목 중 하나 선택 (한 번에 하나만 선택 가능해야 함)<br><br>2. [기타] 항목 선택 시 입력 필드가 하단에 출력되는지 확인<br><br>3. [기타] 외 다른 항목 선택 시 입력 필드가 사라지는지 확인<br><br>4. 탈퇴 사유 선택하고 [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 탈퇴 사유는 하나만 선택 가능하며, 중복 선택은 되지 않음<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618858751-1744618858751.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. 텍스트 입력 필드가 하단에 추가됨 (입력 가능한지 확인)<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618886521-1744618886521.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 다른 항목 선택 또는 기타 선택 취소 시 텍스트 입력 필드가 사라져야 함<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744618953129-1744618953129.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>4. '회원 탈퇴 안내 사항을 확인하고 동의해 주세요.' 알럿 출력<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/fac66970-16f1-44c6-a71b-1214f45f16cb-1744619007415-1744619007415.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="8">
+                        <customFields/>
+                        <description><![CDATA[탈퇴 안내 사항 동의 확인<br><br>1. 탈퇴 동의 체크 &gt; [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 탈퇴 동의 체크<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619425157-1744619425157.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. '보안 확인 절차를 진행해 주세요.' 알럿 확인<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619467871-1744619467871.png" style="width: 300px;" class="fr-fic fr-fil fr-dib">]]></expectedResult>
+                    </step>
+                    <step index="9">
+                        <customFields/>
+                        <description><![CDATA[보안 확인(리캡챠)<br><br>1. 리캡챠 진행 &gt; [탈퇴하기] 버튼 선택]]></description>
+                        <expectedResult><![CDATA[1. 체크 박스 선택 시 리캡챠 진행 가능<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619565687-1744619565687.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>2. 완료 시 체크박스 체크됨<img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619589177-1744619589177.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>3. 일정 시간이 지나면 만료됨<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/847096f0-b9cd-46f8-8c13-e71f53e228b2-1744619647244-1744619647244.png" style="width: 300px;" class="fr-fic fr-fil fr-dib"><br>4. 리캡챠 진행 후 [탈퇴하기] 버튼 클릭 시 회원 탈퇴 완료 페이지로 이동함&nbsp;]]></expectedResult>
+                    </step>
+                    <step index="10">
+                        <customFields/>
+                        <description><![CDATA[회원 탈퇴 완료 페이지<br><br><br>]]></description>
+                        <expectedResult><![CDATA[1. 회원 탈퇴가 정상적으로 완료되었습니다.<br>지금까지 라온 메타데미를 이용해 주셔서 감사합니다.<br id="isPasted">더 나은 서비스와 콘텐츠로 보답할 수 있도록 노력하겠습니다.&nbsp;<br><img src="https://cloudfront.tm4j.smartbear.com/tenant/81120b90-3fbe-3aea-8c23-510ce21bc0f8/project/10164/09cb9e9a-382a-4821-9410-ff55fe35c5d8-1778633020822-1778633020822.png" style="width: 302px;" class="fr-fic fr-fil fr-dib fr-shadow"><br>2. [메인으로] 버튼 선택 시 메인페이지로 이동<br>정상적으로 로그아웃 됐는지 확인]]></expectedResult>
+                    </step>
+                    <step index="11">
+                        <customFields/>
+                        <description><![CDATA[<strong>[탈퇴 후 재가입]</strong><br><br>1. 탈퇴한 후 재가입 시도]]></description>
+                        <expectedResult><![CDATA[1. 정상 가입 되어야 함]]></expectedResult>
+                    </step>
+                    <step index="12">
+                        <customFields/>
+                        <description><![CDATA[<strong>[재가입 후 탈퇴]</strong><br><br>1. 재가입 후 탈퇴 시도]]></description>
+                        <expectedResult><![CDATA[1. 정상 탈퇴 되어야함]]></expectedResult>
+                    </step>
+                </steps>
+            </testScript>
+        </testCase>
+    </testCases>
+</project>
