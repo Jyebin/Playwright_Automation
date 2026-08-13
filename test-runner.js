@@ -402,18 +402,41 @@ var lastCmd = '';
 var timerInterval = null;
 
 // ── Load tests ──
-fetch('/api/tests')
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    catData = data.categories;
-    allFiles = data.allFiles;
-    renderTree();
-    var total = allFiles.length;
-    document.getElementById('total-badge').textContent = total + '개 파일';
-  })
-  .catch(function() {
-    document.getElementById('file-tree').innerHTML = '<span style="padding:16px;color:#f87171;font-size:12px;display:block">파일 로드 실패</span>';
-  });
+function loadTests() {
+  var timer = setTimeout(function() {
+    document.getElementById('file-tree').innerHTML = '<span style="padding:16px;color:#f87171;font-size:12px;display:block">&#9888; 서버 응답 없음 — 터미널에서 node test-runner.js 실행 후 새로고침</span>';
+  }, 5000);
+
+  fetch('/api/tests')
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      clearTimeout(timer);
+      catData = data.categories || {};
+      allFiles = data.allFiles || [];
+      renderTree();
+      document.getElementById('total-badge').textContent = allFiles.length + '개 파일';
+    })
+    .catch(function(e) {
+      clearTimeout(timer);
+      var msg = e && e.message ? e.message : String(e);
+      var div = document.createElement('div');
+      div.style.cssText = 'padding:16px;color:#f87171;font-size:13px';
+      div.innerHTML = '&#9888; 파일 로드 실패 — <span style="font-size:11px;color:#888">' + escHtml(msg) + '</span>';
+      var retry = document.createElement('a');
+      retry.href = 'javascript:void(0)';
+      retry.textContent = ' 재시도';
+      retry.style.cssText = 'color:#a78bfa;font-size:11px;display:block;margin-top:4px';
+      retry.addEventListener('click', loadTests);
+      div.appendChild(retry);
+      var tree = document.getElementById('file-tree');
+      tree.innerHTML = '';
+      tree.appendChild(div);
+    });
+}
+loadTests();
 
 function renderTree() {
   var html = '';
@@ -424,7 +447,7 @@ function renderTree() {
     var openClass = i < 3 ? ' open' : '';
     var arrowClass = i < 3 ? ' open' : '';
     html += '<div class="category-section" id="cat-' + i + '">';
-    html += '<div class="category-header" onclick="toggleCat(' + i + ')">';
+    html += '<div class="category-header" data-cat="' + i + '">';
     html += '<span class="cat-arrow' + arrowClass + '" id="arr-' + i + '">&#9654;</span>';
     html += '<span class="cat-name">' + escHtml(cat) + '</span>';
     html += '<span class="cat-count">' + files.length + '</span>';
@@ -435,9 +458,9 @@ function renderTree() {
       var label = f.replace('.spec.ts', '');
       var chk = selected[f] ? ' checked' : '';
       var selClass = selected[f] ? ' selected' : '';
-      html += '<div class="file-item' + selClass + '" id="item-' + f + '">';
-      html += '<input type="checkbox" id="cb-' + f + '"' + chk + ' onchange="toggleFile(\'' + escJs(f) + '\')">';
-      html += '<span class="file-item-name" onclick="toggleFile(\'' + escJs(f) + '\')">' + escHtml(label) + '</span>';
+      html += '<div class="file-item' + selClass + '" id="item-' + f + '" data-file="' + escHtml(f) + '">';
+      html += '<input type="checkbox" id="cb-' + f + '"' + chk + '>';
+      html += '<span class="file-item-name">' + escHtml(label) + '</span>';
       html += '<div class="file-status" id="fs-' + f + '"></div>';
       html += '</div>';
     }
@@ -445,6 +468,26 @@ function renderTree() {
     html += '</div>';
   }
   document.getElementById('file-tree').innerHTML = html;
+
+  // 이벤트 리스너 등록 (인라인 �핸들러 대신 사용해 따옴표 이스케이프 문제 방지)
+  document.querySelectorAll('.category-header[data-cat]').forEach(function(header) {
+    header.addEventListener('click', function() { toggleCat(parseInt(this.dataset.cat, 10)); });
+  });
+  document.querySelectorAll('#file-tree .file-item').forEach(function(item) {
+    var f = item.dataset.file;
+    var cb = item.querySelector('input[type=checkbox]');
+    cb.addEventListener('change', function() {
+      selected[f] = cb.checked;
+      if (selected[f]) item.classList.add('selected');
+      else item.classList.remove('selected');
+      updateSelCount();
+    });
+    item.addEventListener('click', function(e) {
+      if (e.target === cb) return;
+      toggleFile(f);
+    });
+  });
+
   updateSelCount();
 }
 
@@ -664,12 +707,18 @@ function startTimer() {
 }
 function stopTimer() { clearInterval(timerInterval); }
 
-// ── Classify output lines ──
+// ── Classify output lines (Playwright list reporter) ──
 function classifyLine(line) {
-  if (/passed|\\u2713|\\u2714|\\u2705/.test(line)) return 'pass';
-  if (/failed|\\u2717|\\u2718|\\u274c|Error:|FAILED/.test(line)) return 'fail';
-  if (/skipped|\\u2796|\\u23e9|pending/.test(line)) return 'skip';
-  if (/^\\s*(Running|\\[)/.test(line)) return 'info';
+  var s = stripAnsi(line);
+  // 요약 줄: "5 passed", "2 failed", "3 skipped"
+  if (/\\d+ passed/.test(s)) return 'pass';
+  if (/\\d+ failed/.test(s)) return 'fail';
+  if (/\\d+ skipped/.test(s)) return 'skip';
+  // 개별 테스트 줄 (list 리포터): ✓ / √ = pass,  ✗ / × = fail,  - = skip
+  if (/^\\s+(\\u2713|\\u221a|\\u2714)/.test(s)) return 'pass';
+  if (/^\\s+(\\u2717|\\u00d7|\\u2718)/.test(s) || /Error:|TimeoutError:|expect\\(/.test(s)) return 'fail';
+  if (/^\\s+-\\s+\\d+/.test(s)) return 'skip';
+  if (/^Running \\d+|^\\s+\\[/.test(s)) return 'info';
   return '';
 }
 
@@ -734,7 +783,7 @@ const server = http.createServer((req, res) => {
         'X-Accel-Buffering': 'no',
       });
 
-      const args = ['playwright', 'test', '--reporter=line'];
+      const args = ['playwright', 'test', '--reporter=list'];
       if (project) args.push('--project=' + project);
       files.forEach(f => args.push('tests/' + f));
 
@@ -747,9 +796,12 @@ const server = http.createServer((req, res) => {
       currentProc = proc;
 
       const sendLine = (text) => {
-        const lines = text.split(/\r?\n/);
-        lines.forEach(line => {
-          if (line) {
+        // \r 처리: 캐리지 리턴으로 덮어쓴 경우 마지막 값만 사용
+        const lines = text.split('\n');
+        lines.forEach(rawLine => {
+          const parts = rawLine.split('\r');
+          const line = parts[parts.length - 1];
+          if (line.trim()) {
             res.write('data: ' + JSON.stringify({ type: 'line', text: line }) + '\n\n');
           }
         });
