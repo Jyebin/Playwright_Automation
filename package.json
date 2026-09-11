@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "report": "node report-server.js",
+    "runner": "node test-runner.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
