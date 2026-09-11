@@ -1,5 +1,5 @@
 {
-  "test_cases": {
+  "specs": {
     "TCMETA-T421": {
       "key": "TCMETA-T421",
       "name": "[Front][PC][회원가입] 002. 개인 회원 - 이메일 가입",
@@ -44,7 +44,8 @@
           "key": "METADEMY-660",
           "summary": "[메타데미][Front][PC] 회원가입 > 약관동의 > 각 약관 체크박스 선택시 스크립트 오류 발생하고 전체동의와 별개로 동작함"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.433Z"
     },
     "TCMETA-T758": {
       "key": "TCMETA-T758",
@@ -104,7 +105,8 @@
           "key": "METADEMY-2327",
           "summary": "[메타데미][Front][PC] 회원가입 > 약관 동의 > 동의 모달이 올바르지 않음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.433Z"
     },
     "TCMETA-T759": {
       "key": "TCMETA-T759",
@@ -138,7 +140,8 @@
           "key": "METADEMY-660",
           "summary": "[메타데미][Front][PC] 회원가입 > 약관동의 > 각 약관 체크박스 선택시 스크립트 오류 발생하고 전체동의와 별개로 동작함"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.433Z"
     },
     "TCMETA-T470": {
       "key": "TCMETA-T470",
@@ -173,7 +176,8 @@
           "testData": ""
         }
       ],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.434Z"
     },
     "TCMETA-T471": {
       "key": "TCMETA-T471",
@@ -229,7 +233,8 @@
           "key": "METADEMY-2362",
           "summary": "[메타데미][Front][PC] 이용가이드 > 검색 결과 empty case가 기획서와 상이함"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.434Z"
     },
     "TCMETA-T416": {
       "key": "TCMETA-T416",
@@ -258,7 +263,8 @@
           "testData": ""
         }
       ],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T417": {
       "key": "TCMETA-T417",
@@ -326,7 +332,8 @@
           "key": "METADEMY-683",
           "summary": "[메타데미][Front][PC] 로그인 > 비밀번호 표시 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T418": {
       "key": "TCMETA-T418",
@@ -349,7 +356,8 @@
           "testData": ""
         }
       ],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T419": {
       "key": "TCMETA-T419",
@@ -455,7 +463,8 @@
           "key": "METADEMY-681",
           "summary": "[메타데미][Front][PC] 로그인 > ID/PW 로그인 > 아이디/비밀번호 찾기 취소 버튼 미동작"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T423": {
       "key": "TCMETA-T423",
@@ -571,7 +580,8 @@
           "key": "METADEMY-681",
           "summary": "[메타데미][Front][PC] 로그인 > ID/PW 로그인 > 아이디/비밀번호 찾기 취소 버튼 미동작"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T424": {
       "key": "TCMETA-T424",
@@ -663,7 +673,8 @@
           "key": "METADEMY-681",
           "summary": "[메타데미][Front][PC] 로그인 > ID/PW 로그인 > 아이디/비밀번호 찾기 취소 버튼 미동작"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T509": {
       "key": "TCMETA-T509",
@@ -751,7 +762,8 @@
           "key": "METADEMY-681",
           "summary": "[메타데미][Front][PC] 로그인 > ID/PW 로그인 > 아이디/비밀번호 찾기 취소 버튼 미동작"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T510": {
       "key": "TCMETA-T510",
@@ -809,7 +821,8 @@
           "key": "METADEMY-681",
           "summary": "[메타데미][Front][PC] 로그인 > ID/PW 로그인 > 아이디/비밀번호 찾기 취소 버튼 미동작"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T760": {
       "key": "TCMETA-T760",
@@ -865,7 +878,8 @@
           "key": "METADEMY-683",
           "summary": "[메타데미][Front][PC] 로그인 > 비밀번호 표시 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T1596": {
       "key": "TCMETA-T1596",
@@ -957,7 +971,8 @@
           "key": "METADEMY-681",
           "summary": "[메타데미][Front][PC] 로그인 > ID/PW 로그인 > 아이디/비밀번호 찾기 취소 버튼 미동작"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.437Z"
     },
     "TCMETA-T411": {
       "key": "TCMETA-T411",
@@ -1091,7 +1106,8 @@
           "key": "METADEMY-2329",
           "summary": "[메타데미][Front][PC] 검색어 미입력 시 Enter와 검색버튼 동작 불일치"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.438Z"
     },
     "TCMETA-T412": {
       "key": "TCMETA-T412",
@@ -1126,7 +1142,8 @@
           "testData": ""
         }
       ],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.438Z"
     },
     "TCMETA-T413": {
       "key": "TCMETA-T413",
@@ -1192,7 +1209,8 @@
           "key": "METADEMY-631",
           "summary": "[메타데미][Front][PC] 고객센터 > 카테고리 > 검색 후 다른 페이지 이동 후 돌아와도 이전 검색 결과가 유지됨"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.438Z"
     },
     "TCMETA-T414": {
       "key": "TCMETA-T414",
@@ -1292,7 +1310,8 @@
           "key": "METADEMY-631",
           "summary": "[메타데미][Front][PC] 고객센터 > 카테고리 > 검색 후 다른 페이지 이동 후 돌아와도 이전 검색 결과가 유지됨"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.438Z"
     },
     "TCMETA-T1631": {
       "key": "TCMETA-T1631",
@@ -1315,7 +1334,8 @@
           "testData": "메타데미(QA) : https://metademy.raonsecure.co.kr:39090/"
         }
       ],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.438Z"
     },
     "TCMETA-T425": {
       "key": "TCMETA-T425",
@@ -1356,7 +1376,8 @@
           "testData": ""
         }
       ],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T426": {
       "key": "TCMETA-T426",
@@ -1442,7 +1463,8 @@
           "key": "METADEMY-870",
           "summary": "[메타데미][Front][PC] 비밀번호 변경하기, 프로필 수정 > 비밀번호 표시 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T428": {
       "key": "TCMETA-T428",
@@ -1500,7 +1522,8 @@
           "key": "METADEMY-870",
           "summary": "[메타데미][Front][PC] 비밀번호 변경하기, 프로필 수정 > 비밀번호 표시 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T430": {
       "key": "TCMETA-T430",
@@ -1574,7 +1597,8 @@
           "key": "METADEMY-518",
           "summary": "[메타데미][Front][PC] 마이페이지 > 구매내역 > 취소 및 환불 버튼 동작없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T432": {
       "key": "TCMETA-T432",
@@ -1676,7 +1700,8 @@
           "key": "METADEMY-541",
           "summary": "[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 취소 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T1641": {
       "key": "TCMETA-T1641",
@@ -1724,7 +1749,8 @@
           "key": "METADEMY-541",
           "summary": "[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 취소 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T1642": {
       "key": "TCMETA-T1642",
@@ -1826,7 +1852,8 @@
           "key": "METADEMY-541",
           "summary": "[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 취소 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T1643": {
       "key": "TCMETA-T1643",
@@ -1928,7 +1955,8 @@
           "key": "METADEMY-541",
           "summary": "[메타데미][Front][PC] 마이페이지 > 회원탈퇴 > 취소 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.440Z"
     },
     "TCMETA-T1775": {
       "key": "TCMETA-T1775",
@@ -1938,7 +1966,8 @@
       "precondition": "",
       "priority": "Normal",
       "steps": [],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T1776": {
       "key": "TCMETA-T1776",
@@ -1948,7 +1977,8 @@
       "precondition": "",
       "priority": "Normal",
       "steps": [],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T1790": {
       "key": "TCMETA-T1790",
@@ -1963,7 +1993,8 @@
           "key": "METADEMY-870",
           "summary": "[메타데미][Front][PC] 비밀번호 변경하기, 프로필 수정 > 비밀번호 표시 버튼 동작 없음"
         }
-      ]
+      ],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     },
     "TCMETA-T1798": {
       "key": "TCMETA-T1798",
@@ -1998,205 +2029,1407 @@
           "testData": "취업준비 이벤트 진행중일경우에만 테스트"
         }
       ],
-      "issues": []
+      "issues": [],
+      "synced_at": "2026-09-11T08:18:56.442Z"
     }
   },
   "results": {
     "TCMETA-T421": {
-      "status": "pending",
-      "actual_result": "",
-      "notes": "",
-      "updated_at": ""
+      "status": "pass",
+      "actual_result": "�̸��� ���� ��ü �÷ο� ���� ���� Ȯ��",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pass",
+          "actual": "�Ҽ� �α��� ��ư 3�� ���� ����, �̸��� ���� ��ư Ȱ��ȭ Ȯ��"
+        },
+        {
+          "index": 1,
+          "status": "pass",
+          "actual": "ȸ������ �̸��� ���� ����, ����/�߽��� ��ġ"
+        },
+        {
+          "index": 2,
+          "status": "pass",
+          "actual": "�̸��� �� ��ư Ŭ�� �� ȸ������ ������ ���� �̵�"
+        },
+        {
+          "index": 3,
+          "status": "pass",
+          "actual": "placeholder �ؽ�Ʈ ���� ��ġ"
+        },
+        {
+          "index": 4,
+          "status": "pass",
+          "actual": "��� ��ư Ŭ�� �� ��� ��� ���� �� ���� �̵�"
+        }
+      ],
+      "notes": "QA ȯ�濡�� �׽�Ʈ �Ϸ�",
+      "updated_at": "2026-09-11T08:19:31.727Z"
     },
     "TCMETA-T758": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T759": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T470": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T471": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T416": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T417": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T418": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T419": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 12,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T423": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 12,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 13,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T424": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T509": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T510": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T760": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T1596": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T411": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 12,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T412": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T413": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T414": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T1631": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T425": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T426": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T428": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T430": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T432": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 12,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T1641": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T1642": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 12,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T1643": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 4,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 5,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 6,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 7,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 8,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 9,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 10,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 11,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 12,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     },
     "TCMETA-T1775": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": []
     },
     "TCMETA-T1776": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": []
     },
     "TCMETA-T1790": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": []
     },
     "TCMETA-T1798": {
       "status": "pending",
       "actual_result": "",
       "notes": "",
-      "updated_at": ""
+      "updated_at": "",
+      "step_results": [
+        {
+          "index": 0,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 1,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 2,
+          "status": "pending",
+          "actual": ""
+        },
+        {
+          "index": 3,
+          "status": "pending",
+          "actual": ""
+        }
+      ]
     }
   },
   "meta": {
-    "last_sync": "2026-09-11T08:11:21.550Z",
+    "last_sync": "2026-09-11T08:18:56.442Z",
     "files": [
       "atm-exporter (3).xml",
       "atm-exporter (4).xml",
