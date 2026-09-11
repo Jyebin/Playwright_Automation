@@ -20,6 +20,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
+    ['list'],  // 터미널에 실시간 진행상황 표시
     ['html'],
     ['./tests/reporters/report-db-reporter.ts'],  // 결과 자동 저장 → test-report-db.json
     // ['./tests/reporters/jira-reporter.ts'],  // Jira 자동 이슈 생성 (활성화하려면 주석 해제)
