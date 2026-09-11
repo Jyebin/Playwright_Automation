@@ -21,6 +21,7 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html'],
+    ['./tests/reporters/report-db-reporter.ts'],  // 결과 자동 저장 → test-report-db.json
     // ['./tests/reporters/jira-reporter.ts'],  // Jira 자동 이슈 생성 (활성화하려면 주석 해제)
   ],
   /* 시각적 회귀 테스트 기본 옵션 */
