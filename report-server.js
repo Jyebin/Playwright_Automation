@@ -91,6 +91,7 @@ function loadDB() {
   db.results = db.results || {};
   db.revisions = db.revisions || {};
   db.spec_images = db.spec_images || {};   // { TC키: { 스텝index: [{ id, name, path, uploaded_at }] } }
+  db.hidden_atm_images = db.hidden_atm_images || {};   // 결과서에서 삭제한 ATM 기대 결과 이미지 { TC키: { 스텝index: [원래 주소] } } (XML 원본은 유지)
   db.meta = db.meta || { last_sync: null, files: [] };
 
   // 마이그레이션: 수동 판정 필드 제거 (결과는 자동화 실행으로만 판정)
@@ -611,6 +612,8 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .img-pick:hover{border-color:var(--ac);color:var(--ac2);}
 .img-del{margin-left:auto;background:none;border:none;color:var(--tx3);cursor:pointer;font-size:12px;padding:0 2px;}
 .img-del:hover{color:var(--fail);}
+.atm-restore{align-self:flex-start;margin-top:6px;background:#fff;border:1px dashed var(--bd2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--tx2);cursor:pointer;}
+.atm-restore:hover{border-color:var(--ac);color:var(--ac2);}
 
 /* 보기 모드 3분할: 절차·테스트 데이터 | 기대 | 실제 */
 .tri{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:14px;padding:12px 0;}
@@ -797,6 +800,7 @@ var results = {};
 var revisions = {};
 var specImages = {};   // 기대 화면 이미지 { TC키: { 스텝index: [...] } }
 var atmImages = {};    // ATM 이미지 원래 주소 → 로컬 사본 경로 (npm run atm-images)
+var hiddenAtm = {};    // 결과서에서 삭제한 ATM 기대 결과 이미지 { TC키: { 스텝index: [원래 주소] } }
 var curFilter = 'all';
 var expandedKey = null;
 var editing = {};   // "TC키#스텝index" → 편집 모드
@@ -815,7 +819,13 @@ document.getElementById('tbody').addEventListener('click', function(e) {
   var pickBtn = e.target.closest('.img-pick');
   if (pickBtn) { pickBtn.parentNode.querySelector('.img-input').click(); return; }
   var delBtn = e.target.closest('.img-del');
-  if (delBtn) { deleteSpecImage(delBtn.dataset.key, parseInt(delBtn.dataset.idx, 10), delBtn.dataset.id); return; }
+  if (delBtn) {
+    if (delBtn.dataset.kind === 'atm') hideAtmImage(delBtn.dataset.key, parseInt(delBtn.dataset.idx, 10), delBtn.dataset.src);
+    else deleteSpecImage(delBtn.dataset.key, parseInt(delBtn.dataset.idx, 10), delBtn.dataset.id);
+    return;
+  }
+  var restoreBtn = e.target.closest('.atm-restore');
+  if (restoreBtn) { restoreAtmImages(restoreBtn.dataset.key, parseInt(restoreBtn.dataset.idx, 10)); return; }
   var editBtn = e.target.closest('.rev-edit');
   if (editBtn) { startEdit(editBtn.dataset.key, parseInt(editBtn.dataset.idx, 10)); return; }
   var cancelBtn = e.target.closest('.rev-cancel');
@@ -872,6 +882,7 @@ function loadData() {
       revisions = data.revisions || {};
       specImages = data.spec_images || {};
       atmImages  = data.atm_images || {};
+      hiddenAtm  = data.hidden_atm_images || {};
       updateStats(data.stats || {});
       buildFolderOptions();
       applyFilters();
@@ -1050,8 +1061,7 @@ function buildDetail(tc, r) {
         '<div class="tri-field">' + cmpRow(key, step, rf, 'description', '📋 절차', '', false) + '</div>' +
         '<div class="tri-field">' + cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '', false) + '</div></div>';
       html += '<div class="tri-col tri-exp"><div class="tri-h">✅ 기대</div>' +
-        '<div class="tri-field">' + cmpRow(key, step, rf, 'expectedResult', '기대 결과', ' exp', false) + '</div>' +
-        '<div class="tri-field">' + specImageRow(key, step.index, (specImages[key] || {})[step.index], sst) + '</div></div>';
+        '<div class="tri-field">' + cmpRow(key, step, rf, 'expectedResult', '기대 결과', ' exp', false) + expectedGallery(key, step, sst) + '</div></div>';
       html += '<div class="tri-col tri-act st-' + sst + '"><div class="tri-h">🔍 실제' + badge(sst) + '</div>' +
         actualBlock(r, no, stepEvidence[no], sst) + '</div>';
       html += '</div>';
@@ -1084,26 +1094,76 @@ function evidenceList(list) {
   }).join('') + '</div>';
 }
 
-// 스텝 보기 모드의 "🖼️ 기대 화면" 행: 사용자가 올린 정상 스펙 이미지 + 업로드 영역
-// 실패한 스텝인데 기대 화면이 없으면 업로드 영역을 강조
-function specImageRow(key, idx, list, stepStatus) {
+// 기대 결과 이미지 중 결과서에서 삭제하지 않은 ATM(XML) 이미지
+function visibleAtmImages(key, step) {
+  var hidden = (hiddenAtm[key] || {})[step.index] || [];
+  return ((step.images && step.images.expectedResult) || []).filter(function(src) { return hidden.indexOf(src) === -1; });
+}
+
+function expectedImageCount(key, step) {
+  return visibleAtmImages(key, step).length + ((specImages[key] || {})[step.index] || []).length;
+}
+
+// 기대 결과 이미지 목록: ATM에서 가져온 이미지 + 직접 올린 이미지 (모두 삭제 가능) + 업로드 영역
+// 실패한 스텝인데 이미지가 하나도 없으면 업로드 영역을 강조
+function expectedGallery(key, step, stepStatus) {
+  var idx = step.index;
   var attrs = ' data-key="' + eh(key) + '" data-idx="' + idx + '"';
-  var has = list && list.length;
-  var html = '<div class="cmp-lbl">🖼️ 기대 화면</div><div>';
-  if (has) {
-    html += '<div class="ev-list">' + list.map(function(img) {
-      var src = '/' + String(img.path).split('/').map(encodeURIComponent).join('/');
-      return '<figure class="ev ev-spec"><a href="' + eh(src) + '" target="_blank" rel="noopener"><img src="' + eh(src) + '" alt="' + eh(img.name) + '" loading="lazy"></a>' +
-        '<figcaption><span class="ev-n">' + eh(img.name) + '</span><span class="ev-t">' + fmtDate(img.uploaded_at) + '</span>' +
-        '<button class="img-del"' + attrs + ' data-id="' + eh(img.id) + '">삭제</button></figcaption></figure>';
-    }).join('') + '</div>';
-  }
-  var need = !has && stepStatus === 'fail';
+  var figs = [];
+
+  visibleAtmImages(key, step).forEach(function(src) {
+    var local = atmImages[src];
+    var href = local ? '/' + String(local).split('/').map(encodeURIComponent).join('/') : '';
+    figs.push('<figure class="ev ev-spec">' +
+      (local
+        ? '<a href="' + eh(href) + '" target="_blank" rel="noopener"><img src="' + eh(href) + '" alt="ATM 이미지" loading="lazy"></a>'
+        : '<a class="xml-img" href="' + eh(src) + '" target="_blank" rel="noopener">🖼️ 미다운로드 (npm run atm-images)</a>') +
+      '<figcaption><span class="ev-t">ATM(Zephyr) 원본</span>' +
+      '<button class="img-del"' + attrs + ' data-kind="atm" data-src="' + eh(src) + '">삭제</button></figcaption></figure>');
+  });
+
+  ((specImages[key] || {})[idx] || []).forEach(function(img) {
+    var src = '/' + String(img.path).split('/').map(encodeURIComponent).join('/');
+    figs.push('<figure class="ev ev-spec"><a href="' + eh(src) + '" target="_blank" rel="noopener"><img src="' + eh(src) + '" alt="' + eh(img.name) + '" loading="lazy"></a>' +
+      '<figcaption><span class="ev-n">' + eh(img.name) + '</span><span class="ev-t">직접 업로드 · ' + fmtDate(img.uploaded_at) + '</span>' +
+      '<button class="img-del"' + attrs + ' data-kind="upload" data-id="' + eh(img.id) + '">삭제</button></figcaption></figure>');
+  });
+
+  var html = figs.length ? '<div class="ev-list">' + figs.join('') + '</div>' : '';
+  var hiddenCount = ((hiddenAtm[key] || {})[idx] || []).length;
+  if (hiddenCount) html += '<button class="atm-restore"' + attrs + '>↺ 삭제한 ATM 이미지 ' + hiddenCount + '개 되돌리기</button>';
+
+  var need = !figs.length && stepStatus === 'fail';
   html += '<div class="drop' + (need ? ' need' : '') + '" tabindex="0"' + attrs + '>' +
-    '<span>' + (need ? '⚠️ 실패한 스텝입니다. ' : '📎 ') + '정상 화면 이미지를 끌어다 놓거나, 여기를 클릭한 뒤 Ctrl+V로 붙여넣기</span>' +
+    '<span>' + (need ? '⚠️ 실패한 스텝입니다. ' : '📎 ') + '기대 결과 이미지를 끌어다 놓거나, 여기를 클릭한 뒤 Ctrl+V로 붙여넣기</span>' +
     '<button class="img-pick"' + attrs + '>파일 선택</button>' +
     '<input type="file" class="img-input" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden' + attrs + '></div>';
-  return html + '</div>';
+  return html;
+}
+
+function postJSON(url, body) {
+  return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8' }, body: JSON.stringify(body) })
+    .then(function(r) { return r.json(); })
+    .then(function(d) { if (!d.ok) throw new Error(d.error || '요청 실패'); return d; });
+}
+
+function setHiddenAtm(key, idx, list) {
+  if (!hiddenAtm[key]) hiddenAtm[key] = {};
+  if (list && list.length) hiddenAtm[key][idx] = list;
+  else delete hiddenAtm[key][idx];
+}
+
+function hideAtmImage(key, idx, src) {
+  if (!confirm('ATM에서 가져온 이 기대 결과 이미지를 삭제할까요? XML 원본은 그대로 두고 결과서에서만 삭제되며, 되돌릴 수 있습니다.')) return;
+  postJSON('/api/atm-image/hide', { key: key, index: idx, src: src })
+    .then(function(d) { setHiddenAtm(key, idx, d.hidden); applyFilters(); toast('ATM 이미지 삭제', 'ok'); })
+    .catch(function(e) { toast('오류: ' + e.message, 'err'); });
+}
+
+function restoreAtmImages(key, idx) {
+  postJSON('/api/atm-image/restore', { key: key, index: idx })
+    .then(function() { setHiddenAtm(key, idx, []); applyFilters(); toast('삭제한 ATM 이미지를 되돌렸습니다', 'ok'); })
+    .catch(function(e) { toast('오류: ' + e.message, 'err'); });
 }
 
 // 기대 화면 이미지 업로드 (파일 선택 / 드래그 / 붙여넣기 공통), 여러 장이면 순서대로
@@ -1130,12 +1190,12 @@ function uploadSpecImages(key, idx, fileList) {
         setSpecImages(key, idx, d.images);
       });
   }, Promise.resolve())
-    .then(function() { applyFilters(); toast('기대 화면 이미지 ' + files.length + '개 저장', 'ok'); })
+    .then(function() { applyFilters(); toast('기대 결과 이미지 ' + files.length + '개 저장', 'ok'); })
     .catch(function(e) { applyFilters(); toast('오류: ' + e.message, 'err'); });
 }
 
 function deleteSpecImage(key, idx, id) {
-  if (!confirm('이 기대 화면 이미지를 삭제할까요?')) return;
+  if (!confirm('직접 올린 이 기대 결과 이미지를 삭제할까요?')) return;
   fetch('/api/spec-image/delete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
@@ -1146,7 +1206,7 @@ function deleteSpecImage(key, idx, id) {
       if (!d.ok) throw new Error(d.error || '삭제 실패');
       setSpecImages(key, idx, d.images);
       applyFilters();
-      toast('기대 화면 이미지 삭제', 'ok');
+      toast('기대 결과 이미지 삭제', 'ok');
     })
     .catch(function(e) { toast('오류: ' + e.message, 'err'); });
 }
@@ -1202,15 +1262,19 @@ function cmpRow(key, step, rf, field, label, cls, isEditing) {
   var required = field === 'expectedResult' || field === 'testData';   // 필수 항목
   var html    = '<div class="cmp-lbl">' + label + (required ? '<span class="req">필수</span>' : '') + (changed ? '<span class="tag tag-wait">수정됨</span>' : '') + '</div>';
 
-  var imgs   = xmlImages(step, field);   // XML(ATM) 첨부 이미지 — 텍스트가 없어도 내용으로 인정
-  var NONE   = '<span class="none">없음</span>';
+  // 보기 모드의 기대 결과 이미지는 expectedGallery 에서 따로(삭제·업로드 가능하게) 표시
+  var gallery = field === 'expectedResult' && !isEditing;
+  var imgs    = gallery ? '' : xmlImages(step, field, key);   // XML(ATM) 첨부 이미지 — 텍스트가 없어도 내용으로 인정
+  var NONE    = '<span class="none">없음</span>';
 
   if (!isEditing) {
-    var body    = formatSpecText(val, opts);
-    var missing = required && body === NONE && !imgs;
+    var body      = formatSpecText(val, opts);
+    var hasImages = !!imgs || (gallery && expectedImageCount(key, step) > 0);
+    var missing   = required && body === NONE && !hasImages;
+    if (body === NONE && hasImages) body = gallery ? '<span class="none">아래 이미지 참고</span>' : '';
     html += '<div>';
     html += '<div class="sg-txt fxw' + cls + (missing ? ' missing' : '') + '">' +
-      (missing ? '⚠️ 필수 항목이 비어 있습니다. ✏️ 수정을 눌러 입력해 주세요.' : (body === NONE && imgs ? '' : body) + imgs) + '</div>';
+      (missing ? '⚠️ 필수 항목이 비어 있습니다. ✏️ 수정을 눌러 입력하거나 아래에 이미지를 올려 주세요.' : body + imgs) + '</div>';
     if (changed) html += '<details class="orig-d"><summary>원본 보기</summary><div class="sg-txt fxw old">' + formatSpecText(orig, opts) + '</div></details>';
     return html + '</div>';
   }
@@ -1224,8 +1288,8 @@ function cmpRow(key, step, rf, field, label, cls, isEditing) {
 
 // XML(ATM)에 첨부된 이미지: 로컬 사본(npm run atm-images)이 있으면 바로 보이게, 없으면 안내 카드
 // (ATM 원래 주소는 로그인 JWT가 필요해 결과서에서 직접 열 수 없음)
-function xmlImages(step, field) {
-  var list = (step.images && step.images[field]) || [];
+function xmlImages(step, field, key) {
+  var list = field === 'expectedResult' && key ? visibleAtmImages(key, step) : ((step.images && step.images[field]) || []);
   if (!list.length) return '';
   return '<div class="xml-imgs">' + list.map(function(src, i) {
     var local = atmImages[src];
@@ -1240,7 +1304,9 @@ function xmlImages(step, field) {
 function stepHasImages(key, idx, field) {
   var tc = cases.filter(function(c) { return c.key === key; })[0];
   var st = tc && (tc.steps || []).filter(function(s) { return s.index === idx; })[0];
-  return !!(st && st.images && st.images[field] && st.images[field].length);
+  if (!st) return false;
+  if (field === 'expectedResult') return expectedImageCount(key, st) > 0;   // ATM(삭제 안 한 것) + 직접 올린 이미지
+  return !!(st.images && st.images[field] && st.images[field].length);
 }
 
 function startEdit(key, idx) {
@@ -1444,6 +1510,7 @@ const server = http.createServer(async (req, res) => {
       revisions: db.revisions,
       spec_images: db.spec_images,
       atm_images: loadAtmImages(),
+      hidden_atm_images: db.hidden_atm_images,
       stats:     getStats(db),
       meta:      db.meta
     });
@@ -1471,8 +1538,11 @@ const server = http.createServer(async (req, res) => {
       // 필수 항목: 수정 후 유효값(수정본 또는 원본)의 기대 결과·테스트 데이터가 비어 있으면 거부 (되돌리기는 허용)
       if (Object.keys(changed).length) {
         const ZWSP = String.fromCharCode(0x200B);
-        const blank = f => !String(f in changed ? changed[f] : (step[f] || '')).split(ZWSP).join('').trim()
-          && !((step.images || {})[f] || []).length;   // XML 첨부 이미지만 있어도 내용으로 인정
+        // 이미지만 있어도 내용으로 인정: XML(ATM) 이미지 중 삭제하지 않은 것 + (기대 결과) 직접 올린 이미지
+        const hiddenAtm = (db.hidden_atm_images[key] || {})[index] || [];
+        const imageCount = f => ((step.images || {})[f] || []).filter(u => !hiddenAtm.includes(u)).length
+          + (f === 'expectedResult' ? ((db.spec_images[key] || {})[index] || []).length : 0);
+        const blank = f => !String(f in changed ? changed[f] : (step[f] || '')).split(ZWSP).join('').trim() && !imageCount(f);
         const missingReq = ['expectedResult', 'testData'].filter(blank);
         if (missingReq.length) {
           sendJSON(res, 400, { ok: false, error: '필수 항목이 비어 있습니다: ' + missingReq.map(f => (f === 'expectedResult' ? '기대 결과' : '테스트 데이터')).join(', ') });
@@ -1553,6 +1623,44 @@ const server = http.createServer(async (req, res) => {
       if (!Object.keys(db.spec_images[key]).length) delete db.spec_images[key];
       saveDB(db);
       sendJSON(res, 200, { ok: true, images: list });
+    } catch (e) {
+      sendJSON(res, 400, { ok: false, error: e.message });
+    }
+    return;
+  }
+
+  // ── POST /api/atm-image/hide ── ATM(XML) 기대 결과 이미지를 결과서에서 삭제 { key, index, src } (XML 원본은 유지)
+  if (req.method === 'POST' && pathname === '/api/atm-image/hide') {
+    try {
+      const { key, index, src } = await readJSON(req);
+      const db = loadDB();
+      const step = ((db.specs[key] || {}).steps || []).find(s => s.index === index);
+      if (!step || !((step.images || {}).expectedResult || []).includes(src)) {
+        sendJSON(res, 404, { ok: false, error: '이미지를 찾을 수 없습니다.' });
+        return;
+      }
+      const byStep = db.hidden_atm_images[key] = db.hidden_atm_images[key] || {};
+      const list = byStep[index] = byStep[index] || [];
+      if (!list.includes(src)) list.push(src);
+      saveDB(db);
+      sendJSON(res, 200, { ok: true, hidden: list });
+    } catch (e) {
+      sendJSON(res, 400, { ok: false, error: e.message });
+    }
+    return;
+  }
+
+  // ── POST /api/atm-image/restore ── 삭제한 ATM 이미지 되돌리기 { key, index }
+  if (req.method === 'POST' && pathname === '/api/atm-image/restore') {
+    try {
+      const { key, index } = await readJSON(req);
+      const db = loadDB();
+      if (db.hidden_atm_images[key]) {
+        delete db.hidden_atm_images[key][index];
+        if (!Object.keys(db.hidden_atm_images[key]).length) delete db.hidden_atm_images[key];
+      }
+      saveDB(db);
+      sendJSON(res, 200, { ok: true, hidden: [] });
     } catch (e) {
       sendJSON(res, 400, { ok: false, error: e.message });
     }
