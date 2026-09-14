@@ -4,7 +4,7 @@ import { CsNoticePage, NOTICE_CATEGORIES, NOTICE_SORT_OPTIONS } from './pages/Cs
 import { CsEventPage, EVENT_CATEGORIES } from './pages/CsEventPage';
 import { CsFaqPage, FAQ_CATEGORIES } from './pages/CsFaqPage';
 import { CsInquiryPage, INQUIRY_TYPES } from './pages/CsInquiryPage';
-import { tcStep } from './utils/evidence';
+import { tcStep, captureEvidence } from './utils/evidence';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // T1631 고객센터 기본
@@ -239,6 +239,65 @@ test.describe('T411 공지사항', () => {
     });
     await test.step('[검증] 탭 복귀 후 검색 상태 초기화 확인', async () => {
       await notice.verifyPageResetAfterTabSwitch();
+    });
+  });
+
+  test('헤더 [고객센터] 재클릭 시 동작 없음 — 공지사항 기본 탭 유지', { annotation: tcStep(1) }, async ({ page }) => {
+    const cs = new CsPage(page);
+    // 탭 구조: #CSCenterView > .tabs-group > div#Tab(.active) > a(탭 이름) + span.border
+    const tabs = page.locator('.tabs-group > div');
+    const headerCsLink = page.getByRole('link', { name: '고객센터' }).first();
+    const rows = page.locator('tbody tr');
+    const snapshot = async () => ({
+      url: page.url(),
+      activeTab: ((await tabs.filter({ has: page.locator('a') }).evaluateAll(list =>
+        list.filter(t => t.classList.contains('active')).map(t => t.textContent?.trim() ?? ''))).join(', ')),
+      rowCount: await rows.count(),
+      firstRow: ((await rows.first().textContent().catch(() => '')) ?? '').replace(/\s+/g, ' ').trim(),
+    });
+
+    await test.step('[셋업] 메인에서 헤더 [고객센터] 클릭 → 고객센터 진입', async () => {
+      await cs.navigateViaHeader();
+    });
+
+    let before: Awaited<ReturnType<typeof snapshot>>;
+    await test.step('[검증] 고객센터 진입 시 공지사항 탭 기본 선택', async () => {
+      await expect(page, '[앱오류] 헤더 [고객센터] 클릭 후 /cs 로 이동되지 않음').toHaveURL(/\/cs(\/notice)?$/);
+      await expect(tabs, '[UI/셀렉터] 고객센터 탭 4개를 찾을 수 없음').toHaveCount(4);
+      await expect(tabs.filter({ hasText: /^공지사항$/ }), '[앱오류] 고객센터 진입 시 [공지사항] 탭이 기본 선택(active) 상태가 아님').toHaveClass(/\bactive\b/);
+      await expect(rows.first(), '[앱오류] 공지사항 목록이 표시되지 않음').toBeVisible({ timeout: 10000 });
+      before = await snapshot();
+      console.log(`✅ 클릭 전 URL: ${before.url}`);
+      console.log(`✅ 클릭 전 선택 탭: "${before.activeTab}", 목록 ${before.rowCount}건, 첫 행: "${before.firstRow}"`);
+    });
+
+    await test.step('[셋업] 헤더 [고객센터] 한 번 더 클릭', async () => {
+      // 전체 새로고침 여부 판별용 마커 + 메인 프레임 이동 기록
+      await page.evaluate(() => { (window as any).__csReclickMarker = true; });
+      const navs: string[] = [];
+      const onNav = (f: import('@playwright/test').Frame) => { if (f === page.mainFrame()) navs.push(f.url()); };
+      page.on('framenavigated', onNav);
+      await headerCsLink.scrollIntoViewIfNeeded();
+      await headerCsLink.click({ force: true });
+      await page.waitForTimeout(1500);
+      page.off('framenavigated', onNav);
+      console.log(`✅ 재클릭 중 메인 프레임 이동 이벤트: ${navs.length}건${navs.length ? ` (${navs.join(', ')})` : ''}`);
+    });
+
+    await test.step('[검증] 재클릭 후 URL·선택 탭·목록 변화 없음', async () => {
+      const reloaded = !(await page.evaluate(() => (window as any).__csReclickMarker === true));
+      const after = await snapshot();
+      console.log(`✅ 클릭 후 URL: ${after.url}`);
+      console.log(`✅ 클릭 후 선택 탭: "${after.activeTab}", 목록 ${after.rowCount}건, 첫 행: "${after.firstRow}"`);
+      console.log(`✅ 페이지 새로고침 발생: ${reloaded ? '예' : '아니오'}`);
+
+      expect(after.url, '[앱오류] [고객센터] 재클릭 시 URL이 변경됨').toBe(before.url);
+      expect(reloaded, '[앱오류] [고객센터] 재클릭 시 페이지가 새로고침됨 (동작 없음이어야 함)').toBe(false);
+      expect(after.activeTab, '[앱오류] [고객센터] 재클릭 후 선택 탭이 공지사항에서 변경됨').toBe(before.activeTab);
+      expect(after.rowCount, '[앱오류] [고객센터] 재클릭 후 공지사항 목록 건수가 변경됨').toBe(before.rowCount);
+      expect(after.firstRow, '[앱오류] [고객센터] 재클릭 후 공지사항 목록 내용이 변경됨').toBe(before.firstRow);
+
+      await captureEvidence(page, '헤더 [고객센터] 재클릭 후 화면 (공지사항 탭 유지)');
     });
   });
 });
@@ -746,6 +805,87 @@ test.describe('T414 서비스 이용 문의', () => {
     });
     await test.step('[검증] 재업로드된 파일명 노출 확인', async () => {
       await inquiry.verifyFileUploaded('reupload.txt');
+    });
+  });
+
+  // 업로드 영역 구조: .file-upload-group > .file-name > .file-item > p(파일명) + label#FileUploadButton > input#file-upload
+  test('파일 업로드 — 허용 확장자(.jpg) 첨부 시 파일명 노출', { annotation: tcStep(9) }, async ({ page }) => {
+    const inquiry = new CsInquiryPage(page);
+    const fileInput = page.locator('input#file-upload');
+    const uploadGroup = page.locator('.file-upload-group');
+    const fileName = 'qa-allowed-image.jpg';
+    // 1x1 JPEG
+    const jpg = Buffer.from(
+      '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q==',
+      'base64',
+    );
+    const dialogs: string[] = [];
+    page.on('dialog', d => { dialogs.push(d.message()); d.dismiss().catch(() => {}); });
+
+    await test.step('[셋업] 서비스 이용 문의 페이지 이동', async () => {
+      await inquiry.navigate();
+      await expect(fileInput, '[UI/셀렉터] [파일 불러오기] 파일 input(#file-upload)을 찾을 수 없음').toHaveCount(1);
+      console.log(`✅ [파일 불러오기] accept 속성: "${await fileInput.getAttribute('accept')}"`);
+    });
+
+    await test.step('[셋업] .jpg 파일 선택', async () => {
+      await fileInput.setInputFiles({ name: fileName, mimeType: 'image/jpeg', buffer: jpg });
+      console.log(`📎 파일 선택: ${fileName} (image/jpeg, ${jpg.length} bytes)`);
+    });
+
+    await test.step('[검증] 파일명이 [파일 불러오기] 버튼 상단에 표시됨', async () => {
+      const shown = uploadGroup.locator('.file-name .file-item p');
+      await expect(shown, `[앱오류] 허용 확장자(.jpg) 파일 첨부 후 파일명 "${fileName}" 미노출`).toHaveText(fileName, { timeout: 5000 });
+      const modalVisible = await page.locator('.modal').isVisible().catch(() => false);
+      const modalText = modalVisible ? ((await page.locator('.modal .modal-body').textContent()) ?? '').trim() : '';
+      console.log(`✅ 표시된 파일명: "${(await shown.textContent())?.trim()}"`);
+      console.log(`✅ 오류 알럿: ${modalVisible ? `"${modalText}"` : '없음'}${dialogs.length ? `, 브라우저 dialog: ${dialogs.join(' / ')}` : ''}`);
+      expect(modalVisible, `[앱오류] 허용 확장자(.jpg) 첨부 시 오류 알럿이 표시됨: "${modalText}"`).toBe(false);
+      await captureEvidence(uploadGroup, '.jpg 파일 첨부 후 업로드 영역');
+    });
+  });
+
+  test('파일 업로드 — 허용되지 않는 확장자(.exe) 첨부 거부', { annotation: tcStep(10) }, async ({ page }) => {
+    const inquiry = new CsInquiryPage(page);
+    const fileInput = page.locator('input#file-upload');
+    const uploadGroup = page.locator('.file-upload-group');
+    const fileName = 'qa-not-allowed.exe';
+    const dialogs: string[] = [];
+    page.on('dialog', d => { dialogs.push(d.message()); d.dismiss().catch(() => {}); });
+
+    await test.step('[셋업] 서비스 이용 문의 페이지 이동', async () => {
+      await inquiry.navigate();
+      await expect(fileInput, '[UI/셀렉터] [파일 불러오기] 파일 input(#file-upload)을 찾을 수 없음').toHaveCount(1);
+      console.log(`✅ [파일 불러오기] accept 속성: "${await fileInput.getAttribute('accept')}"`);
+    });
+
+    await test.step('[셋업] .exe 파일 선택', async () => {
+      await fileInput.setInputFiles({ name: fileName, mimeType: 'application/x-msdownload', buffer: Buffer.from('MZ dummy exe for QA') });
+      console.log(`📎 파일 선택: ${fileName} (application/x-msdownload, 더미)`);
+    });
+
+    await test.step('[검증] .exe 파일이 첨부되지 않음', async () => {
+      const modal = page.locator('.modal');
+      const modalVisible = await modal.waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false);
+      const modalText = modalVisible ? ((await modal.locator('.modal-body').textContent()) ?? '').trim() : '';
+      await page.waitForTimeout(300);
+      const shownNames = (await uploadGroup.locator('.file-name .file-item p').allTextContents()).map(t => t.trim());
+      const attached = shownNames.some(n => n.includes(fileName));
+
+      console.log(`✅ 오류 알럿: ${modalVisible ? `"${modalText}"` : '없음'}${dialogs.length ? `, 브라우저 dialog: ${dialogs.join(' / ')}` : ''}`);
+      console.log(`✅ 업로드 영역에 표시된 파일명: ${shownNames.length ? shownNames.map(n => `"${n}"`).join(', ') : '없음'}`);
+      console.log(`✅ 실제 동작: ${attached ? '.exe 파일이 그대로 첨부됨' : '.exe 파일 첨부 거부됨 (파일명 미표시)'}`);
+
+      if (modalVisible) await captureEvidence(page, '.exe 파일 선택 시 알럿');
+
+      expect(attached, `[앱오류] 허용되지 않는 확장자(.exe)가 첨부됨 — 표시된 파일명: ${shownNames.join(', ')}`).toBe(false);
+
+      if (modalVisible) {
+        await modal.getByRole('button', { name: '확인' }).click({ force: true });
+        await expect(modal, '[앱오류] 알럿 [확인] 클릭 후 알럿이 닫히지 않음').toBeHidden({ timeout: 3000 });
+        console.log('🖱️ 알럿 [확인] 클릭 → 닫힘');
+      }
+      await captureEvidence(uploadGroup, '.exe 파일 선택 후 업로드 영역 (첨부되지 않음)');
     });
   });
 

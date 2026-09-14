@@ -176,4 +176,105 @@ test.describe('T760 계정/비밀번호 로그인', () => {
       await loginPage.verifyPasswordToggle();
     });
   });
+
+  test('입력 필드 placeholder·포커스 보라색 밑줄·미입력 로그인 알럿 확인', { annotation: tcStep(1) }, async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    // 입력 필드 구조: form #Input.with-text-lebel > p.text-label(계정/비밀번호) + .input.line > input + span.border(밑줄)
+    const fieldGroup = page.locator('form .input-group');
+    const fieldOf = (label: string) => page.locator('form .with-text-lebel')
+      .filter({ has: page.locator('p.text-label', { hasText: new RegExp(`^${label}$`) }) });
+    const idField = fieldOf('계정');
+    const pwField = fieldOf('비밀번호');
+    const idInput = idField.locator('input');
+    const pwInput = pwField.locator('input');
+    const isPurple = (color: string) => {
+      const [r, g, b] = (color.match(/\d+/g) || []).map(Number);
+      return b >= 150 && b - r >= 40 && b - g >= 60;
+    };
+    const underlineColor = (field: typeof idField) =>
+      field.locator('.border').evaluate(b => getComputedStyle(b).backgroundColor);
+
+    await test.step('[검증] 아이디/비밀번호 입력 필드 placeholder', async () => {
+      await expect(idInput, '[UI/셀렉터] 계정 입력 필드를 찾을 수 없음').toBeVisible({ timeout: 8000 });
+      await expect(pwInput, '[UI/셀렉터] 비밀번호 입력 필드를 찾을 수 없음').toBeVisible();
+      const idPlaceholder = await idInput.getAttribute('placeholder');
+      const pwPlaceholder = await pwInput.getAttribute('placeholder');
+      console.log(`✅ 계정 입력 필드 placeholder: "${idPlaceholder}"`);
+      console.log(`✅ 비밀번호 입력 필드 placeholder: "${pwPlaceholder}"`);
+      await captureEvidence(fieldGroup, '계정/비밀번호 입력 필드 placeholder');
+
+      // 불일치해도 이후 확인(포커스 밑줄·알럿)은 계속 진행하도록 soft 검증
+      expect.soft(idPlaceholder,
+        `[앱오류] 계정 입력 필드 placeholder가 스펙과 다름 — 스펙 "아이디를 입력해 주세요." / 실제 "${idPlaceholder}"`,
+      ).toBe('아이디를 입력해 주세요.');
+      expect.soft(pwPlaceholder,
+        `[앱오류] 비밀번호 입력 필드 placeholder가 스펙과 다름 — 스펙 "비밀번호를 입력해 주세요." / 실제 "${pwPlaceholder}"`,
+      ).toBe('비밀번호를 입력해 주세요.');
+    });
+
+    for (const [label, field, input] of [['계정', idField, idInput], ['비밀번호', pwField, pwInput]] as const) {
+      await test.step(`[검증] ${label} 입력 필드 클릭 시 커서 및 보라색 밑줄`, async () => {
+        await expect(field.locator('.border'), `[UI/셀렉터] ${label} 입력 필드 밑줄(span.border)을 찾을 수 없음`).toHaveCount(1);
+        const before = await underlineColor(field);
+        expect(isPurple(before), `[앱오류] ${label} 입력 필드가 포커스 전부터 보라색 밑줄임 (${before})`).toBe(false);
+
+        await input.click();
+        await expect(input, `[앱오류] ${label} 입력 필드 클릭 시 포커스(커서)가 들어가지 않음`).toBeFocused();
+        await expect.poll(async () => isPurple(await underlineColor(field)), {
+          message: `[앱오류] ${label} 입력 필드 클릭 시 밑줄이 보라색으로 바뀌지 않음 (포커스 전 ${before})`,
+          timeout: 3000,
+        }).toBe(true);
+        const after = await underlineColor(field);
+        const caret = await input.evaluate(i => getComputedStyle(i).caretColor);
+        console.log(`✅ ${label} 입력 필드 밑줄 색: 포커스 전 ${before} → 포커스 후 ${after} (커서 색 ${caret})`);
+        await captureEvidence(fieldGroup, `${label} 입력 필드 클릭(포커스) 시 보라색 밑줄`);
+      });
+    }
+
+    await test.step('[검증] 아이디/비밀번호 미입력 [로그인] 클릭 → 알럿 노출 후 [확인] 시 닫힘', async () => {
+      await expect(idInput).toHaveValue('');
+      await expect(pwInput).toHaveValue('');
+      await loginPage.clickLoginButton();
+
+      const modal = page.locator('#CommonAlert');
+      await expect(modal, '[앱오류] 미입력 상태로 [로그인] 클릭 시 알럿 모달이 뜨지 않음').toBeVisible({ timeout: 10000 });
+      const message = (await modal.locator('.modal-body').innerText()).trim();
+      console.log(`✅ 알럿 모달 문구: "${message}"`);
+      await captureEvidence(page, '미입력 로그인 시 알럿 모달');
+      expect(message, `[앱오류] 알럿 문구가 스펙과 다름 (실제 "${message}")`).toContain('아이디와 비밀번호를 모두 입력해 주세요');
+      await expect(page, '[앱오류] 미입력 로그인 시 로그인 페이지를 벗어남').toHaveURL(/\/login/);
+
+      await modal.getByRole('button', { name: '확인' }).click();
+      await expect(modal, '[앱오류] 알럿 [확인] 클릭 후 모달이 닫히지 않음').not.toBeVisible();
+      console.log('✅ 알럿 [확인] 클릭 시 모달 닫힘');
+    });
+  });
+
+  test('로그인 상태 유지하기 체크박스 노출 및 체크 동작 확인', { annotation: tcStep(5) }, async ({ page }) => {
+    // 구조: #Checkbox > input#stayLogin(숨김) + label.checkbox[for=stayLogin] > .custom-checkbox + .text > p
+    const checkboxArea = page.locator('#Checkbox').filter({ has: page.locator('#stayLogin') });
+    const checkbox = page.locator('#stayLogin');
+    const label = checkboxArea.locator('label.checkbox');
+
+    await test.step('[검증] [로그인 상태 유지하기] 체크박스 노출', async () => {
+      await expect(label, '[앱오류] [로그인 상태 유지하기] 체크박스가 노출되지 않음').toBeVisible({ timeout: 8000 });
+      await expect(label, '[앱오류] 체크박스 문구가 "로그인 상태 유지하기"가 아님').toHaveText('로그인 상태 유지하기');
+      await expect(checkbox, '[UI/셀렉터] 로그인 상태 유지 체크박스 input(#stayLogin)을 찾을 수 없음').toHaveCount(1);
+      const initial = await checkbox.isChecked();
+      console.log(`✅ [로그인 상태 유지하기] 체크박스 노출, 초기 체크 상태: ${initial ? '선택' : '미선택'}`);
+      expect(initial, '[앱오류] [로그인 상태 유지하기] 체크박스가 기본 선택 상태임').toBe(false);
+      await captureEvidence(checkboxArea, '로그인 상태 유지하기 체크박스 (초기 미선택)');
+    });
+
+    await test.step('[검증] 클릭 시 체크 상태 변경', async () => {
+      await label.click();
+      await expect(checkbox, '[앱오류] 체크박스 클릭 후 선택 상태로 바뀌지 않음').toBeChecked();
+      console.log('✅ 체크박스 클릭 → 선택 상태');
+      await captureEvidence(checkboxArea, '로그인 상태 유지하기 체크박스 선택');
+
+      await label.click();
+      await expect(checkbox, '[앱오류] 체크박스 재클릭 후 선택 해제되지 않음').not.toBeChecked();
+      console.log('✅ 체크박스 재클릭 → 선택 해제 (로그인 유지 기간은 실제 로그인 필요 — 수동 확인)');
+    });
+  });
 });
