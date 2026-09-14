@@ -259,14 +259,47 @@ function formatSpecText(text, opts) {
       '<div class="fx-chips">' + list.map(function (c) { return '<span class="fx-chip">' + esc(c) + '</span>'; }).join('') + '</div>';
   }
 
+  // 입력 필드 미리보기: 빨간 안내 문구 / 마스킹 입력 / 문구 없음
+  function mockField(state, content, help, note) {
+    return '<div class="mock"><div class="mock-input ' + state + '">' + (content || '') + '</div>' +
+      (help ? '<div class="mock-help">' + help + '</div>' : '') +
+      (note ? '<div class="mock-note">' + note + '</div>' : '') + '</div>';
+  }
+
+  // 문장 안의 미리보기: "'문구' 가 필드 하단에 출력" → 입력칸+빨간 문구, "'문구' 알럿" → 알럿 박스
+  function richText(s) {
+    var h = esc(s);
+    h = h.replace(/['‘]([^'’]{2,150})['’]\s*(?:가|이)?\s*(?:입력\s*)?필드\s*(?:하단|아래)에?\s*(?:빨간색으로\s*)?(?:출력|노출|표시)(?:됨|된다|되며|되고)?/g, function (_, m) {
+      return '<span class="mock inline"><span class="mock-input err"></span><span class="mock-help">' + m + '</span></span>';
+    });
+    h = h.replace(/['‘]([^'’]{2,150})['’]\s*(알럿|alert|모달|modal|팝업)/gi, function (_, m, kind) {
+      return '<span class="mock-alert"><span class="mock-alert-k">' + kind + '</span>' + m + '</span>';
+    });
+    return h;
+  }
+
+  // 표의 값 칸: placeholder / 빨간 안내 문구 / 마스킹 입력 / 문구 없음 은 입력 필드 미리보기로
+  function valueHtml(v, headCol, rowKey) {
+    if (/placeholder/i.test(headCol || '') || /^placeholder$/i.test(rowKey || '')) {
+      return mockField('ph', esc(v));
+    }
+    var red = v.match(/^(.+?)\s*(?:text|텍스트|문구)(?:가|이)\s*(?:입력\s*필드\s*아래에?\s*)?빨간색으로\s*(?:출력|노출|표시)/);
+    if (red) return mockField('err', '', esc(red[1].replace(/^['‘"]|['’"]$/g, '')));
+    var noMsg = /아무런\s*(?:문구|text|텍스트)가\s*(?:뜨지|출력되지)\s*않|아무것도\s*출력되지\s*않/.test(v);
+    var mask = v.match(/(\d+)\s*자리의?\s*마스킹/);
+    if (mask) return mockField('ok', new Array(Math.min(20, +mask[1]) + 1).join('●'), '', noMsg ? '안내 문구 없음' : '');
+    if (noMsg) return mockField('ok', '', '', '안내 문구 없음');
+    return richText(v);
+  }
+
   function isTable(body) {
     return body.split('|').filter(function (c) { return c.trim(); }).length >= 3;
   }
 
   function pipeHtml(body) {
-    if (body.indexOf('|') === -1) return esc(body);
+    if (body.indexOf('|') === -1) return richText(body);
     var cells = body.split('|').map(function (c) { return c.trim(); }).filter(Boolean);
-    if (cells.length < 3) return esc(body.replace(/\s*\|\s*$/, ''));   // 끝에 남은 "|" 제거
+    if (cells.length < 3) return richText(body.replace(/\s*\|\s*$/, ''));   // 끝에 남은 "|" 제거
 
     var lead = '';
     var head = null;
@@ -288,7 +321,7 @@ function formatSpecText(text, opts) {
     }
     html += '<div class="fx-kv"><div class="fx-kv-h"><span>' + esc(head[0]) + '</span><span>' + esc(head[1]) + '</span></div>';
     for (var i = 0; i < cells.length; i += 2) {
-      html += '<div class="fx-kv-r"><b>' + esc(cells[i]) + '</b><span>' + esc(cells[i + 1]) + '</span></div>';
+      html += '<div class="fx-kv-r"><b>' + esc(cells[i]) + '</b><div>' + valueHtml(cells[i + 1], head[1], cells[i]) + '</div></div>';
     }
     return html + '</div>';
   }
@@ -501,6 +534,19 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .fx-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
 .fx-chip{background:rgba(255,255,255,.8);border:1px solid var(--bd2);border-radius:12px;padding:1px 10px;font-size:12px;color:var(--tx);}
 .pre-box .fx{color:var(--ac2);}
+
+/* 화면 미리보기 (입력 필드 / 알럿) */
+.mock{display:flex;flex-direction:column;gap:3px;max-width:360px;}
+.mock.inline{display:inline-flex;vertical-align:top;margin:3px 0;}
+.mock-input{min-height:30px;min-width:200px;border:1px solid var(--bd2);border-bottom:2px solid var(--bd2);border-radius:4px;background:#fff;padding:4px 10px;font-size:13px;color:var(--tx);letter-spacing:2px;display:flex;align-items:center;}
+.mock-input.err{border-bottom-color:#dc2626;}
+.mock-input.ok{border-bottom-color:var(--ac);}
+.mock-input.ph{color:var(--tx3);letter-spacing:0;}
+.mock-help{font-size:12px;color:#dc2626;line-height:1.5;}
+.mock-note{font-size:11px;color:var(--tx3);line-height:1.5;}
+.mock-alert{display:inline-flex;flex-direction:column;gap:2px;background:#fff;border:1px solid var(--bd2);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:8px 12px;margin:3px 0;font-size:13px;color:var(--tx);max-width:440px;vertical-align:top;}
+.mock-alert-k{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;}
+.sg-txt.old .mock-input,.sg-txt.old .mock-alert{opacity:.6;}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .sg-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
 .sg-txt{font-size:13px;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
@@ -512,15 +558,24 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .rev-ta{background:#fff;border:2px solid var(--bd);color:var(--tx);padding:10px 12px;border-radius:var(--r);font-size:13px;line-height:1.6;resize:vertical;min-height:84px;font-family:inherit;outline:none;width:100%;transition:border-color .15s;}
 .rev-ta:focus{border-color:var(--ac);}
 .rev-ta.changed{border-color:#f59e0b;background:#fffbeb;}
-/* 수정 칸 높이 = 같은 행의 원본 칸 높이: textarea를 absolute로 셀에 채워 행 높이에 영향 주지 않게 하고,
-   원본/수정 셀 모두 행 높이로 stretch (행 최소 72px) */
+/* 보기 모드: 라벨 | 내용 두 열 / 편집 모드: 라벨 | 원본 | 수정 세 열 */
+.cmp-grid.view{grid-template-columns:120px 1fr;}
+/* 편집 모드 수정 칸: 원본 칸 높이 이상 + 내용 줄 수만큼 (원본/수정 셀 모두 행 높이로 stretch) */
 .cmp-grid .sg-txt{align-self:stretch;}
-.cmp-grid .rev-cell{position:relative;align-self:stretch;min-height:72px;}
-.cmp-grid .rev-cell .rev-ta{position:absolute;inset:0;width:100%;height:100%;min-height:0;resize:none;}
+.cmp-grid .rev-cell{display:flex;align-self:stretch;min-height:72px;}
+.cmp-grid .rev-cell .rev-ta{flex:1;min-height:0;resize:vertical;}
+.step.editing{border-color:var(--ac);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
+.orig-d{margin-top:6px;font-size:12px;color:var(--tx3);}
+.orig-d summary{cursor:pointer;user-select:none;width:max-content;}
+.orig-d .sg-txt{margin-top:6px;}
 .rev-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--bd);padding-top:12px;}
 .rev-reset{background:#fff;color:var(--tx2);border:1px solid var(--bd2);padding:8px 14px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;}
 .rev-reset:hover{border-color:var(--fail);color:var(--fail);}
 .rev-reset:disabled{opacity:.45;cursor:not-allowed;}
+.rev-edit{background:#eef2ff;color:var(--ac2);border:1px solid #c7d2fe;padding:8px 16px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;}
+.rev-edit:hover{background:#e0e7ff;}
+.rev-cancel{background:#fff;color:var(--tx2);border:1px solid var(--bd2);padding:8px 14px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;}
+.rev-cancel:hover{border-color:var(--tx2);}
 .rev-save{background:var(--ac);color:#fff;border:none;padding:8px 18px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;}
 .rev-save:hover{background:var(--ac2);}
 .rev-save:disabled{opacity:.45;cursor:not-allowed;}
@@ -553,11 +608,9 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .prog{height:3px;background:var(--ac);width:0%;transition:width .4s;position:fixed;top:0;left:0;z-index:1000;}
 
 @media (max-width:900px){
-  .cmp-grid{grid-template-columns:1fr;}
+  .cmp-grid, .cmp-grid.view{grid-template-columns:1fr;}
   .cmp-h{display:none;}
-  /* 한 열일 때는 나란한 원본이 없으므로 내용 줄 수(rows)로 */
-  .cmp-grid .rev-cell{position:static;min-height:0;}
-  .cmp-grid .rev-cell .rev-ta{position:static;height:auto;min-height:84px;resize:vertical;}
+  .cmp-grid .rev-cell{min-height:84px;}
   .dc{padding:0 12px 20px;}
 }
 </style>
@@ -647,6 +700,8 @@ var results = {};
 var revisions = {};
 var curFilter = 'all';
 var expandedKey = null;
+var editing = {};   // "TC키#스텝index" → 편집 모드
+var drafts = {};    // "TC키#스텝index#항목" → 편집 중 입력값 (다시 그려도 유지)
 var toastTimer = null;
 
 var LABEL = { pass:'통과', fail:'실패', pending:'미실행', skip:'스킵', unmapped:'미연결' };
@@ -658,6 +713,10 @@ document.getElementById('tbody').addEventListener('click', function(e) {
   if (saveBtn) { saveRevision(saveBtn.dataset.key, parseInt(saveBtn.dataset.idx, 10), false); return; }
   var resetBtn = e.target.closest('.rev-reset');
   if (resetBtn) { saveRevision(resetBtn.dataset.key, parseInt(resetBtn.dataset.idx, 10), true); return; }
+  var editBtn = e.target.closest('.rev-edit');
+  if (editBtn) { startEdit(editBtn.dataset.key, parseInt(editBtn.dataset.idx, 10)); return; }
+  var cancelBtn = e.target.closest('.rev-cancel');
+  if (cancelBtn) { endEdit(cancelBtn.dataset.key, parseInt(cancelBtn.dataset.idx, 10)); return; }
   if (e.target.closest('textarea, button, a, .dr')) return;
   var tr = e.target.closest('tr.tr');
   if (tr) toggleRow(tr.dataset.key);
@@ -740,6 +799,11 @@ function applyFilters() {
 
 // ── 테이블 렌더 ────────────────────────────────────────────
 function renderTable(list) {
+  // 편집 중인 스텝의 입력값 보존
+  document.querySelectorAll('#tbody .rev-ta').forEach(function(ta) {
+    if (editing[ta.dataset.key + '#' + ta.dataset.idx]) drafts[ta.dataset.key + '#' + ta.dataset.idx + '#' + ta.dataset.field] = ta.value;
+  });
+
   var html = '';
   list.forEach(function(tc) {
     var r       = results[tc.key] || {};
@@ -817,6 +881,7 @@ function buildDetail(tc, r) {
     var no  = step.index + 1;
     var sst = stepStatus[no] || (ran ? 'unmapped' : 'pending');
     var rev = revs[step.index];
+    var isEditing = !!editing[key + '#' + step.index];
     var title = '';
     if (step.description) {
       var m = step.description.match(/\\[([^\\]]+)\\]/);
@@ -824,19 +889,21 @@ function buildDetail(tc, r) {
       if (title.length > 70) title = title.substring(0, 70) + '…';
     }
 
-    html += '<div class="step">';
+    html += '<div class="step' + (isEditing ? ' editing' : '') + '">';
     html += '<div class="step-head"><span class="step-num">Step ' + no + '</span><span class="step-title">' + eh(title) + '</span>';
     html += '<span class="hdr-sp"></span>' + badge(sst, sst === 'unmapped' ? '이 스텝에 연결된 자동화 테스트가 없습니다 (tcstep annotation 필요)' : '') + '</div>';
     var rf = (rev && rev.fields) || {};
-    html += '<div class="step-body"><div class="cmp-grid">';
-    html += '<div class="cmp-h"></div><div class="cmp-h">원본 스펙</div><div class="cmp-h">✏️ 수정 (내용을 고친 뒤 저장)</div>';
-    html += cmpRow(key, step, rf, 'description', '📋 절차', '');
-    html += cmpRow(key, step, rf, 'expectedResult', '✅ 기대 결과', ' exp');
-    html += cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '');
+    html += '<div class="step-body"><div class="cmp-grid ' + (isEditing ? 'editing' : 'view') + '">';
+    if (isEditing) html += '<div class="cmp-h"></div><div class="cmp-h">원본 스펙</div><div class="cmp-h">✏️ 수정 (내용을 고친 뒤 저장)</div>';
+    html += cmpRow(key, step, rf, 'description', '📋 절차', '', isEditing);
+    html += cmpRow(key, step, rf, 'expectedResult', '✅ 기대 결과', ' exp', isEditing);
+    html += cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '', isEditing);
     html += '</div>';
 
     var attrs = ' data-key="' + eh(key) + '" data-idx="' + step.index + '"';
-    html += '<div class="rev-actions"><button class="rev-save"' + attrs + '>💾 저장</button>';
+    html += '<div class="rev-actions">';
+    if (isEditing) html += '<button class="rev-save"' + attrs + '>💾 저장</button><button class="rev-cancel"' + attrs + '>취소</button>';
+    else html += '<button class="rev-edit"' + attrs + '>✏️ 수정</button>';
     if (rev) html += '<button class="rev-reset"' + attrs + '>↺ 원래대로</button>';
     html += revState(rev) + '</div>';
 
@@ -850,19 +917,51 @@ function buildDetail(tc, r) {
 
 function status0(r) { return (r && r.status) || 'pending'; }
 
-// 한 항목의 [라벨 | 원본 | 수정 입력] 행. 수정 칸에는 현재 유효한 값(수정본 또는 원본)을 채움
-function cmpRow(key, step, rf, field, label, cls) {
+// 한 항목 행.
+//  보기 모드: [라벨 | 현재 유효한 값(수정본 우선)], 수정된 항목은 원본을 "원본 보기"로 접어 둠
+//  편집 모드: [라벨 | 원본 | 수정 입력], 입력 칸에는 작성 중인 값 → 수정본 → 원본 순으로 채움
+function cmpRow(key, step, rf, field, label, cls, isEditing) {
   var orig    = step[field] || '';
   var changed = Object.prototype.hasOwnProperty.call(rf, field);
   var val     = changed ? rf[field] : orig;
-  return '<div class="cmp-lbl">' + label + (changed ? '<span class="tag tag-wait">수정됨</span>' : '') + '</div>' +
-    '<div class="sg-txt fxw' + cls + (changed ? ' old' : '') + '">' + formatSpecText(orig, { dropTitle: field === 'description' }) + '</div>' +
-    '<div class="rev-cell"><textarea class="rev-ta' + (changed ? ' changed' : '') + '" rows="' + taRows(val) + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(val) + '</textarea></div>';
+  var opts    = { dropTitle: field === 'description' };
+  var html    = '<div class="cmp-lbl">' + label + (changed ? '<span class="tag tag-wait">수정됨</span>' : '') + '</div>';
+
+  if (!isEditing) {
+    html += '<div>';
+    html += '<div class="sg-txt fxw' + cls + '">' + formatSpecText(val, opts) + '</div>';
+    if (changed) html += '<details class="orig-d"><summary>원본 보기</summary><div class="sg-txt fxw old">' + formatSpecText(orig, opts) + '</div></details>';
+    return html + '</div>';
+  }
+
+  var draft = drafts[key + '#' + step.index + '#' + field];
+  var cur   = draft != null ? draft : val;
+  return html +
+    '<div class="sg-txt fxw' + cls + (changed ? ' old' : '') + '">' + formatSpecText(orig, opts) + '</div>' +
+    '<div class="rev-cell"><textarea class="rev-ta' + (changed ? ' changed' : '') + '" rows="' + taRows(cur) + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(cur) + '</textarea></div>';
 }
 
-// 수정 칸 높이를 내용 줄 수에 맞춤 (3~14줄)
+function startEdit(key, idx) {
+  editing[key + '#' + idx] = true;
+  applyFilters();
+  var ta = document.querySelector('.rev-ta[data-key="' + key + '"][data-idx="' + idx + '"]');
+  if (ta) ta.focus({ preventScroll: true });
+}
+
+function endEdit(key, idx) {
+  delete editing[key + '#' + idx];
+  clearDrafts(key, idx);
+  applyFilters();
+}
+
+function clearDrafts(key, idx) {
+  var prefix = key + '#' + idx + '#';
+  Object.keys(drafts).forEach(function(k) { if (k.indexOf(prefix) === 0) delete drafts[k]; });
+}
+
+// 입력 칸 줄 수 = 내용 줄 수 + 1 (3~20줄). 편집 모드에서 내용이 잘리지 않게
 function taRows(v) {
-  return Math.min(14, Math.max(3, String(v || '').split(String.fromCharCode(10)).length + 1));
+  return Math.min(20, Math.max(3, String(v || '').split(String.fromCharCode(10)).length + 1));
 }
 
 function badge(status, tip) {
@@ -913,6 +1012,8 @@ function saveRevision(key, idx, reset) {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data.ok) throw new Error(data.error || '저장 실패');
+      delete editing[key + '#' + idx];   // 저장/원래대로 후 보기 모드로
+      clearDrafts(key, idx);
       if (!revisions[key]) revisions[key] = {};
       if (data.revision) revisions[key][idx] = data.revision;
       else delete revisions[key][idx];
