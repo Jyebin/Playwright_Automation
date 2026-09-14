@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from './pages/LoginPage';
-import { tcStep } from './utils/evidence';
+import { captureEvidence, tcStep } from './utils/evidence';
 
 // 로그인 관련 TC는 세션 없이 시작
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -37,6 +37,51 @@ test.describe('T417 로그인 페이지 UI 확인', () => {
     await test.step('[검증] URL /login 확인', async () => {
       await expect(page).toHaveURL(/\/login/);
       console.log('✅ 로그인 페이지 URL 확인');
+    });
+  });
+
+  test('로그인 탭 기본 선택 — 볼드 및 보라색 밑줄 확인', { annotation: tcStep(2) }, async ({ page }) => {
+    // 탭 구조: .tabs-group > div(.active) > p(탭 이름) + span.border(밑줄)
+    const tabs = page.locator('.tabs-group > div');
+    const loginTab = tabs.filter({ has: page.locator('p', { hasText: /^로그인$/ }) });
+    // 보라색 판정: 파랑이 강하고 빨강·초록보다 충분히 큼 (진입 시 색 전환 애니메이션 중간색도 보라로 인정, 회색은 제외)
+    const isPurple = (color: string) => {
+      const [r, g, b] = (color.match(/\d+/g) || []).map(Number);
+      return b >= 150 && b - r >= 40 && b - g >= 60;
+    };
+
+    await test.step('[검증] 중앙 [로그인] 탭 기본 선택', async () => {
+      await expect(tabs, '[UI/셀렉터] 로그인 방식 탭 3개를 찾을 수 없음').toHaveCount(3);
+      await expect(loginTab, '[앱오류] [로그인] 탭이 기본 선택(active) 상태가 아님').toHaveClass(/\bactive\b/);
+    });
+
+    await test.step('[검증] 볼드 처리 및 보라색 밑줄', async () => {
+      const style = await loginTab.evaluate(tab => {
+        const text = getComputedStyle(tab.querySelector('p')!);
+        const border = tab.querySelector('.border');
+        return {
+          weight: Number(text.fontWeight),
+          color: text.color,
+          underline: border ? getComputedStyle(border).backgroundColor : '',
+          height: border ? border.getBoundingClientRect().height : 0,
+        };
+      });
+      const inactiveUnderlines = await tabs.evaluateAll(list => list
+        .filter(t => !t.classList.contains('active'))
+        .map(t => { const b = t.querySelector('.border'); return b ? getComputedStyle(b).backgroundColor : ''; }));
+
+      console.log(`✅ [로그인] 탭 글자 굵기 ${style.weight}, 글자색 ${style.color}, 밑줄 ${style.underline} (${style.height}px)`);
+      console.log(`✅ 선택되지 않은 탭 밑줄 색: ${inactiveUnderlines.join(', ')}`);
+
+      expect(style.weight, '[앱오류] [로그인] 탭 글자가 볼드 처리되지 않음').toBeGreaterThanOrEqual(600);
+      expect(style.height, '[앱오류] [로그인] 탭 밑줄이 표시되지 않음').toBeGreaterThan(0);
+      await expect.poll(
+        async () => isPurple(await loginTab.locator('.border').evaluate(b => getComputedStyle(b).backgroundColor)),
+        { message: `[앱오류] [로그인] 탭 밑줄이 보라색이 아님 (${style.underline})`, timeout: 3000 },
+      ).toBe(true);
+      expect(inactiveUnderlines.filter(isPurple), '[앱오류] 선택되지 않은 탭에도 보라색 밑줄이 표시됨').toHaveLength(0);
+
+      await captureEvidence(page.locator('.tabs-group'), '로그인 방식 탭 (진입 시 기본 선택)');
     });
   });
 
