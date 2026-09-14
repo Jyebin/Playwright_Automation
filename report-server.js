@@ -236,6 +236,113 @@ function getStats(db) {
 
 // ─── HTML ─────────────────────────────────────────────────────────────────────
 // 주의: 아래는 JS 템플릿 리터럴이므로 브라우저 코드의 백슬래시는 두 번(\\) 써야 함
+// ─── 스펙 텍스트 표시용 포맷터 ─────────────────────────────────────────────────
+// 원문은 그대로 두고 화면에만 적용: 번호/대시 목록, 줄바꿈, 평탄화된 "a | b | c |" 표 복원.
+// 브라우저에서도 쓰이므로(HTML에 toString()으로 삽입) 외부 변수 없이 자체 완결로 작성할 것.
+function formatSpecText(text, opts) {
+  opts = opts || {};
+  var esc = function (v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+  var invisible = new RegExp('[' + String.fromCharCode(0x200B, 0xA0) + ']', 'g');
+  var src = String(text || '').replace(/\r/g, '').replace(invisible, ' ').trim();
+  if (opts.dropTitle) src = src.replace(/^\[[^\]\n]*\]\s*/, '');
+  if (!src) return '<span class="none">없음</span>';
+
+  // 문장 뒤에 붙은 번호 항목을 새 줄로: "변경된다.4. 구분" / "진행 2. 로그인" / "[제목] 1. 내용"
+  src = src.replace(/([^\d\s-])[ \t]*(?=\d{1,2}(?:-\d{1,2})?\.\s)/g, '$1\n');
+
+  var HEADER = /^(항목|구분|필드명|No|검색탭|탭 항목)$/;
+
+  function chips(label, list) {
+    return (label ? '<div class="fx-chips-l">' + esc(label) + '</div>' : '') +
+      '<div class="fx-chips">' + list.map(function (c) { return '<span class="fx-chip">' + esc(c) + '</span>'; }).join('') + '</div>';
+  }
+
+  function isTable(body) {
+    return body.split('|').filter(function (c) { return c.trim(); }).length >= 3;
+  }
+
+  function pipeHtml(body) {
+    if (body.indexOf('|') === -1) return esc(body);
+    var cells = body.split('|').map(function (c) { return c.trim(); }).filter(Boolean);
+    if (cells.length < 3) return esc(body.replace(/\s*\|\s*$/, ''));   // 끝에 남은 "|" 제거
+
+    var lead = '';
+    var head = null;
+    // "구분 및 내용을 확인한다. 구분 내용 한글" → 설명 / 헤더(구분, 내용) / 첫 셀(한글)
+    var merged = cells[0].match(/^(.*?)\s*(구분|항목|No)\s+(내용|데이터)\s+(.+)$/);
+    // "…표시됨항목" → 설명 / 헤더 첫 칸(항목)
+    var tail = cells[0].match(/^(.+?)\s*(항목|구분|필드명)$/);
+    if (merged) {
+      lead = merged[1]; head = [merged[2], merged[3]]; cells[0] = merged[4];
+    } else if (tail && cells.length % 2 === 0) {
+      lead = tail[1]; cells[0] = tail[2];
+    }
+    if (!head && cells.length % 2 === 0 && HEADER.test(cells[0])) head = cells.splice(0, 2);
+
+    var html = lead ? '<div>' + esc(lead) + '</div>' : '';
+    if (!head || cells.length % 2 === 1) {
+      // "탭 목록 | 공지사항 | 이벤트 |" 처럼 라벨 + 나열
+      return html + (head ? chips(head.join(' / '), cells) : chips(cells[0], cells.slice(1)));
+    }
+    html += '<div class="fx-kv"><div class="fx-kv-h"><span>' + esc(head[0]) + '</span><span>' + esc(head[1]) + '</span></div>';
+    for (var i = 0; i < cells.length; i += 2) {
+      html += '<div class="fx-kv-r"><b>' + esc(cells[i]) + '</b><span>' + esc(cells[i + 1]) + '</span></div>';
+    }
+    return html + '</div>';
+  }
+
+  var NUM = /^(\d{1,2}(?:-\d{1,2})?)\.\s*(.*)$/;
+
+  // 표 칸 안의 줄바꿈 복원: "|"로 끝나지 않은 표 줄은 다음 줄(번호 항목 제외)과 합침
+  var lines = [];
+  src.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).forEach(function (line) {
+    var prev = lines[lines.length - 1];
+    if (prev && prev.indexOf('|') !== -1 && !/\|$/.test(prev) && !NUM.test(line)) lines[lines.length - 1] = prev + ' ' + line;
+    else lines.push(line);
+  });
+
+  var out = [];
+  var items = [];   // { marker, body: [html...] }
+  var pendingNum = '';
+  function flush() {
+    if (items.length) {
+      out.push('<ul class="fx-list">' + items.map(function (it) {
+        var sub = it.marker.indexOf('-') > 0;
+        return '<li' + (sub ? ' class="sub"' : '') + '><span class="fx-mk">' + esc(it.marker) + '</span><div class="fx-b">' + it.body.join('') + '</div></li>';
+      }).join('') + '</ul>');
+    }
+    items = [];
+  }
+
+  lines.forEach(function (line) {
+    var title = line.match(/^\[([^\]]+)\]$/);
+    if (title) { flush(); out.push('<div class="fx-title">' + esc(title[1]) + '</div>'); return; }
+
+    var num = line.match(NUM);
+    var dash = line.match(/^[-*•·]\s+(.*)$/);
+    if (num && !num[2]) { pendingNum = num[1]; return; }   // "3." 만 있는 줄은 다음 줄에 번호로 붙임
+
+    // 번호/대시 없는 표 줄은 새 항목 대신 바로 앞 항목에 붙임 ("2. 검색탭" + 표)
+    if (!num && !dash && !pendingNum && items.length && isTable(line)) {
+      items[items.length - 1].body.push(pipeHtml(line));
+      return;
+    }
+
+    var marker = '-';
+    var body = line;
+    if (num) { marker = num[1] + '.'; body = num[2]; }
+    else if (dash) { body = dash[1]; }
+    else if (pendingNum) { marker = pendingNum + '.'; }
+    pendingNum = '';
+    items.push({ marker: marker, body: [pipeHtml(body)] });
+  });
+  flush();
+  return '<div class="fx">' + out.join('') + '</div>';
+}
+
+// ─── HTML ─────────────────────────────────────────────────────────────────────
 const HTML = `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -375,6 +482,25 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .cmp-grid .sg-txt.exp{background:#dcfce7;}
 .cmp-grid .sg-txt.old{background:var(--s2);color:var(--tx3);text-decoration:line-through;}
 .none{color:var(--tx3);font-style:italic;}
+
+/* 스펙 텍스트 포맷 (formatSpecText) */
+.sg-txt.fxw{white-space:normal;}
+.fx{font-size:13px;line-height:1.7;color:var(--tx2);word-break:break-word;}
+.fx-title{font-weight:700;color:var(--tx);margin:2px 0 6px;}
+.fx-list{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:6px;}
+.fx-list li{display:flex;gap:8px;align-items:flex-start;}
+.fx-list li.sub{margin-left:20px;}
+.fx-mk{flex-shrink:0;min-width:16px;font-weight:700;color:var(--ac);}
+.fx-b{flex:1;min-width:0;}
+.fx-kv{margin:6px 0 2px;border:1px solid var(--bd);border-radius:6px;overflow:hidden;background:rgba(255,255,255,.7);}
+.fx-kv-h,.fx-kv-r{display:grid;grid-template-columns:minmax(90px,35%) 1fr;gap:10px;padding:5px 10px;}
+.fx-kv-h{font-size:11px;font-weight:700;color:var(--tx3);background:rgba(148,163,184,.12);}
+.fx-kv-r{border-top:1px solid var(--bd);}
+.fx-kv-r b{font-weight:600;color:var(--tx);}
+.fx-chips-l{font-weight:600;color:var(--tx);margin-top:4px;}
+.fx-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.fx-chip{background:rgba(255,255,255,.8);border:1px solid var(--bd2);border-radius:12px;padding:1px 10px;font-size:12px;color:var(--tx);}
+.pre-box .fx{color:var(--ac2);}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .sg-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
 .sg-txt{font-size:13px;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
@@ -506,6 +632,8 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 <div class="toast" id="toast"></div>
 
 <script>
+${formatSpecText.toString()}
+
 var cases = [];
 var results = {};
 var revisions = {};
@@ -636,7 +764,7 @@ function buildDetail(tc, r) {
   var html = '<div class="di">';
 
   if (tc.precondition) {
-    html += '<div class="pre-box"><div class="pre-lbl">전제조건</div><div>' + enl(tc.precondition) + '</div></div>';
+    html += '<div class="pre-box"><div class="pre-lbl">전제조건</div>' + formatSpecText(tc.precondition) + '</div>';
   }
 
   if (tc.issues && tc.issues.length) {
@@ -665,7 +793,7 @@ function buildDetail(tc, r) {
       html += '</div></div>';
     });
   } else if (r.actual_result) {
-    html += '<div class="run-empty">' + enl(r.actual_result) + '</div>';
+    html += formatSpecText(r.actual_result);
   } else {
     html += '<div class="run-empty">아직 실행 기록이 없습니다. npx playwright test 실행 후 새로고침하세요.</div>';
   }
@@ -720,8 +848,13 @@ function cmpRow(key, step, rf, field, label, cls) {
   var changed = Object.prototype.hasOwnProperty.call(rf, field);
   var val     = changed ? rf[field] : orig;
   return '<div class="cmp-lbl">' + label + (changed ? '<span class="tag tag-wait">수정됨</span>' : '') + '</div>' +
-    '<div class="sg-txt' + cls + (changed ? ' old' : '') + '">' + (orig ? enl(orig) : '<span class="none">없음</span>') + '</div>' +
-    '<textarea class="rev-ta' + (changed ? ' changed' : '') + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(val) + '</textarea>';
+    '<div class="sg-txt fxw' + cls + (changed ? ' old' : '') + '">' + formatSpecText(orig, { dropTitle: field === 'description' }) + '</div>' +
+    '<textarea class="rev-ta' + (changed ? ' changed' : '') + '" rows="' + taRows(val) + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(val) + '</textarea>';
+}
+
+// 수정 칸 높이를 내용 줄 수에 맞춤 (3~14줄)
+function taRows(v) {
+  return Math.min(14, Math.max(3, String(v || '').split(String.fromCharCode(10)).length + 1));
 }
 
 function badge(status, tip) {
@@ -923,31 +1056,36 @@ const server = http.createServer(async (req, res) => {
 });
 
 // ─── 시작 ─────────────────────────────────────────────────────────────────────
-console.log('');
-console.log('  ══════════════════════════════════════');
-console.log('   📋 테스트 결과서 서버');
-console.log('  ══════════════════════════════════════');
-
-// 시작 시 XML 자동 동기화 (기존 결과/수정결과 보존)
-try {
-  const r = syncXML();
+// node report-server.js 로 직접 실행할 때만 서버 시작 (require 시에는 함수만 사용)
+if (require.main === module) {
   console.log('');
-  console.log('  ✅ XML 동기화: TC ' + r.total + '개 / ' + r.files + '개 파일');
-} catch (e) {
-  console.log('  ⚠️  XML 동기화 오류:', e.message);
+  console.log('  ══════════════════════════════════════');
+  console.log('   📋 테스트 결과서 서버');
+  console.log('  ══════════════════════════════════════');
+
+  // 시작 시 XML 자동 동기화 (기존 결과/수정결과 보존)
+  try {
+    const r = syncXML();
+    console.log('');
+    console.log('  ✅ XML 동기화: TC ' + r.total + '개 / ' + r.files + '개 파일');
+  } catch (e) {
+    console.log('  ⚠️  XML 동기화 오류:', e.message);
+  }
+
+  server.listen(PORT, '127.0.0.1', () => {
+    console.log('');
+    console.log('  브라우저: http://localhost:' + PORT);
+    console.log('  종료: Ctrl+C');
+    console.log('');
+  });
+
+  server.on('error', e => {
+    if (e.code === 'EADDRINUSE') {
+      console.error('  오류: 포트 ' + PORT + ' 이미 사용 중입니다.');
+      process.exit(1);
+    }
+    throw e;
+  });
 }
 
-server.listen(PORT, '127.0.0.1', () => {
-  console.log('');
-  console.log('  브라우저: http://localhost:' + PORT);
-  console.log('  종료: Ctrl+C');
-  console.log('');
-});
-
-server.on('error', e => {
-  if (e.code === 'EADDRINUSE') {
-    console.error('  오류: 포트 ' + PORT + ' 이미 사용 중입니다.');
-    process.exit(1);
-  }
-  throw e;
-});
+module.exports = { formatSpecText };
