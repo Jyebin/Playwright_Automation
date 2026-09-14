@@ -512,6 +512,11 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .rev-ta{background:#fff;border:2px solid var(--bd);color:var(--tx);padding:10px 12px;border-radius:var(--r);font-size:13px;line-height:1.6;resize:vertical;min-height:84px;font-family:inherit;outline:none;width:100%;transition:border-color .15s;}
 .rev-ta:focus{border-color:var(--ac);}
 .rev-ta.changed{border-color:#f59e0b;background:#fffbeb;}
+/* 수정 칸 높이 = 같은 행의 원본 칸 높이: textarea를 absolute로 셀에 채워 행 높이에 영향 주지 않게 하고,
+   원본/수정 셀 모두 행 높이로 stretch (행 최소 72px) */
+.cmp-grid .sg-txt{align-self:stretch;}
+.cmp-grid .rev-cell{position:relative;align-self:stretch;min-height:72px;}
+.cmp-grid .rev-cell .rev-ta{position:absolute;inset:0;width:100%;height:100%;min-height:0;resize:none;}
 .rev-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--bd);padding-top:12px;}
 .rev-reset{background:#fff;color:var(--tx2);border:1px solid var(--bd2);padding:8px 14px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;}
 .rev-reset:hover{border-color:var(--fail);color:var(--fail);}
@@ -550,6 +555,9 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 @media (max-width:900px){
   .cmp-grid{grid-template-columns:1fr;}
   .cmp-h{display:none;}
+  /* 한 열일 때는 나란한 원본이 없으므로 내용 줄 수(rows)로 */
+  .cmp-grid .rev-cell{position:static;min-height:0;}
+  .cmp-grid .rev-cell .rev-ta{position:static;height:auto;min-height:84px;resize:vertical;}
   .dc{padding:0 12px 20px;}
 }
 </style>
@@ -849,7 +857,7 @@ function cmpRow(key, step, rf, field, label, cls) {
   var val     = changed ? rf[field] : orig;
   return '<div class="cmp-lbl">' + label + (changed ? '<span class="tag tag-wait">수정됨</span>' : '') + '</div>' +
     '<div class="sg-txt fxw' + cls + (changed ? ' old' : '') + '">' + formatSpecText(orig, { dropTitle: field === 'description' }) + '</div>' +
-    '<textarea class="rev-ta' + (changed ? ' changed' : '') + '" rows="' + taRows(val) + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(val) + '</textarea>';
+    '<div class="rev-cell"><textarea class="rev-ta' + (changed ? ' changed' : '') + '" rows="' + taRows(val) + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(val) + '</textarea></div>';
 }
 
 // 수정 칸 높이를 내용 줄 수에 맞춤 (3~14줄)
@@ -869,15 +877,18 @@ function revState(rev) {
 }
 
 // ── 행 토글 ───────────────────────────────────────────────
+// 펼친 TC 행의 윗부분이 목록 맨 위(고정 헤더 바로 아래)에 오도록 스크롤
 function toggleRow(key) {
   expandedKey = expandedKey === key ? null : key;
   applyFilters();
-  if (expandedKey) {
-    setTimeout(function() {
-      var el = document.querySelector('.dr.open');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 60);
-  }
+  if (!expandedKey) return;
+
+  var tw   = document.getElementById('tw');
+  var row  = document.querySelector('tr.tr.open');
+  var head = tw.querySelector('thead');
+  if (!row) return;
+  var top = row.getBoundingClientRect().top - tw.getBoundingClientRect().top + tw.scrollTop - (head ? head.offsetHeight : 0);
+  tw.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
 }
 
 // ── 수정결과 저장 ─────────────────────────────────────────
