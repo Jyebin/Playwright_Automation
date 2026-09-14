@@ -572,7 +572,7 @@ function renderTable(cases) {
     var badgeIcon  = {pass:'✓',fail:'✗',pending:'○',skip:'–'}[status];
     var actualSummary = (r.actual_result||'').replace(/\\n/g,' ').substring(0,50);
 
-    html += '<tr class="tr'+(open?' open':'')+'" data-key="'+eh(tc.key)+'" onclick="toggleRow(\''+ej(tc.key)+'\')">';
+    html += '<tr class="tr'+(open?' open':'')+'" data-key="'+eh(tc.key)+'" onclick="toggleRow(\\''+ej(tc.key)+'\\')">';
     html += '<td><span class="arrow">▶</span></td>';
     html += '<td><span class="badge b-'+status+'">'+badgeIcon+' '+badgeLabel+'</span></td>';
     html += '<td><div class="tc-key">'+eh(tc.key)+'</div></td>';
