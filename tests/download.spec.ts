@@ -116,21 +116,21 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
     await page.waitForLoadState('load');
   });
 
-  test('이용가이드 페이지 URL 확인', async ({ page }) => {
+  test('이용가이드 페이지 URL 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[검증] 이용가이드 페이지 URL 확인', async () => {
       await guidePage.verifyUrl();
     });
   });
 
-  test('4단계 이용가이드 카드 구성 확인', async ({ page }) => {
+  test('4단계 이용가이드 카드 구성 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[검증] 4단계 이용가이드 카드 구성 확인', async () => {
       await guidePage.verifyStepGuideCards();
     });
   });
 
-  test('매뉴얼 탭 4개 항목 노출 및 "전체" 기본 선택 확인', async ({ page }) => {
+  test('매뉴얼 탭 4개 항목 노출 및 "전체" 기본 선택 확인', { annotation: tcStep(3) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[검증] 매뉴얼 탭 4개 항목 노출 확인', async () => {
       await guidePage.verifyManualTabsExist();
@@ -141,7 +141,7 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
   });
 
   for (const tab of MANUAL_TABS) {
-    test(`매뉴얼 탭 클릭 및 하이라이트 - ${tab}`, async ({ page }) => {
+    test(`매뉴얼 탭 클릭 및 하이라이트 - ${tab}`, { annotation: tcStep(3) }, async ({ page }) => {
       const guidePage = new GuidePage(page);
       await test.step(`[셋업] "${tab}" 탭 클릭`, async () => {
         await guidePage.clickManualTab(tab);
@@ -152,14 +152,14 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
     });
   }
 
-  test('검색 placeholder "찾고있는 매뉴얼을 검색하세요" 노출 확인', async ({ page }) => {
+  test('검색 placeholder "찾고있는 매뉴얼을 검색하세요" 노출 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[검증] 검색 placeholder 노출 확인', async () => {
       await guidePage.verifySearchPlaceholder();
     });
   });
 
-  test('아무것도 입력하지 않은 상태에서 검색 시 전체 매뉴얼 노출', async ({ page }) => {
+  test('아무것도 입력하지 않은 상태에서 검색 시 전체 매뉴얼 노출', { annotation: tcStep(4) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[검증] 검색 placeholder 노출 확인', async () => {
       await guidePage.verifySearchPlaceholder();
@@ -174,7 +174,7 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
     });
   });
 
-  test('존재하는 키워드 검색 후 해당 매뉴얼만 필터링 확인', async ({ page }) => {
+  test('존재하는 키워드 검색 후 해당 매뉴얼만 필터링 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[셋업] 매뉴얼 "클라이언트" 검색', async () => {
       await guidePage.searchManual('클라이언트');
@@ -184,7 +184,7 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
     });
   });
 
-  test('검색 중 닫기 버튼 활성화 확인', async ({ page }) => {
+  test('검색 중 닫기 버튼 활성화 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[셋업] 검색창에 "설치" 입력', async () => {
       await page.locator('input[placeholder*="매뉴얼"]').first().fill('설치');
@@ -195,7 +195,7 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
     });
   });
 
-  test('검색 후 매뉴얼 탭 클릭 시 탭+키워드 복합 필터링 확인', async ({ page }) => {
+  test('검색 후 매뉴얼 탭 클릭 시 탭+키워드 복합 필터링 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[셋업] 매뉴얼 "설치" 검색', async () => {
       await guidePage.searchManual('설치');
@@ -211,7 +211,7 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
     });
   });
 
-  test('존재하지 않는 키워드 검색 시 결과 없음 상태 확인', async ({ page }) => {
+  test('존재하지 않는 키워드 검색 시 결과 없음 상태 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[셋업] 매뉴얼 "ZZZZNOTEXIST9999" 검색', async () => {
       await guidePage.searchManual('ZZZZNOTEXIST9999');
@@ -221,7 +221,7 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
     });
   });
 
-  test('매뉴얼 다운로드 버튼 클릭 및 파일 다운로드 확인', async ({ page }) => {
+  test('매뉴얼 다운로드 버튼 클릭 및 파일 다운로드 확인', { annotation: tcStep(5) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     let download: Awaited<ReturnType<typeof guidePage.downloadFirstManual>>;
     await test.step('[셋업] 첫 번째 매뉴얼 다운로드 버튼 클릭', async () => {
@@ -232,14 +232,14 @@ test.describe('T471 - 매뉴얼 다운로드', () => {
     });
   });
 
-  test('페이지당 노출 매뉴얼 30개 이하 확인', async ({ page }) => {
+  test('페이지당 노출 매뉴얼 30개 이하 확인', { annotation: tcStep(6) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[검증] 페이지당 매뉴얼 30개 이하 확인', async () => {
       await guidePage.verifyItemsPerPage(30);
     });
   });
 
-  test('30개 초과 시 페이지네이션 버튼 노출 확인', async ({ page }) => {
+  test('30개 초과 시 페이지네이션 버튼 노출 확인', { annotation: tcStep(6) }, async ({ page }) => {
     const guidePage = new GuidePage(page);
     await test.step('[검증] 페이지당 매뉴얼 30개 이하 확인', async () => {
       await guidePage.verifyItemsPerPage(30);

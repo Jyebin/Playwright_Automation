@@ -92,10 +92,14 @@ class ReportDBReporter implements Reporter {
 
   onTestEnd(test: TestCase, result: TestResult): void {
     // titlePath: ['', 'chromium', 'login.spec.ts', 'T416 간편인증 로그인', '테스트 제목'] 형태
-    let tcKey: string | null = null;
-    for (const segment of test.titlePath().filter(Boolean)) {
-      tcKey = extractTCKey(segment);
-      if (tcKey) break;
+    // TC 결정: tc annotation(tcCase) 우선, 없으면 describe 제목 등 titlePath 의 'T번호'
+    const tcAnnotation = test.annotations.find(a => a.type === 'tc' && a.description);
+    let tcKey: string | null = tcAnnotation ? extractTCKey(String(tcAnnotation.description)) : null;
+    if (!tcKey) {
+      for (const segment of test.titlePath().filter(Boolean)) {
+        tcKey = extractTCKey(segment);
+        if (tcKey) break;
+      }
     }
     if (!tcKey) return;
 

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from './pages/RegisterPage';
+import { tcStep } from './utils/evidence';
 import { waitForVerificationToken, waitForVerificationEmail, generateTestEmail } from './helpers/emailHelper';
 
 // 회원가입 테스트는 세션 없이 실행
@@ -29,19 +30,19 @@ test.describe('T759 - 소셜 회원가입 버튼 확인', () => {
     await register.verifySocialButtonOrder();
   });
 
-  test('카카오 버튼 클릭 시 카카오 로그인 페이지로 이동', async ({ page }) => {
+  test('카카오 버튼 클릭 시 카카오 로그인 페이지로 이동', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.clickKakaoButton();
     await register.verifyKakaoLoginPage();
   });
 
-  test('구글 버튼 클릭 시 구글 로그인 페이지로 이동', async ({ page }) => {
+  test('구글 버튼 클릭 시 구글 로그인 페이지로 이동', { annotation: tcStep(2) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.clickGoogleButton();
     await register.verifyGoogleLoginPage();
   });
 
-  test('네이버 버튼 클릭 시 네이버 로그인 페이지로 이동 (새 창)', async ({ page }) => {
+  test('네이버 버튼 클릭 시 네이버 로그인 페이지로 이동 (새 창)', { annotation: tcStep(3) }, async ({ page }) => {
     const register = new RegisterPage(page);
     // 네이버는 새 창으로 열릴 수 있음
     const popupPromise = page.context().waitForEvent('page', { timeout: 5000 }).catch(() => null);
@@ -57,14 +58,14 @@ test.describe('T759 - 소셜 회원가입 버튼 확인', () => {
   });
 
   // ── 자동화 불가 항목 (소셜 로그인 완료) ───────────────────────────────────
-  test.skip('[자동화 불가 - 외부 OAuth 서비스] 카카오 계정으로 실제 로그인 완료 후 회원가입 처리', async () => {
+  test.skip('[자동화 불가 - 외부 OAuth 서비스] 카카오 계정으로 실제 로그인 완료 후 회원가입 처리', { annotation: tcStep(1) }, async () => {
     // 카카오/구글/네이버는 외부 OAuth 서비스로, 실제 계정 자격증명 입력 및 로그인 완료는
     // 봇 감지(CAPTCHA 등) 및 외부 서비스 제어 불가로 자동화할 수 없습니다.
   });
 
-  test.skip('[자동화 불가 - 외부 OAuth 서비스] 구글 계정으로 실제 로그인 완료 후 회원가입 처리', async () => {});
+  test.skip('[자동화 불가 - 외부 OAuth 서비스] 구글 계정으로 실제 로그인 완료 후 회원가입 처리', { annotation: tcStep(2) }, async () => {});
 
-  test.skip('[자동화 불가 - 외부 OAuth 서비스] 네이버 계정으로 실제 로그인 완료 후 회원가입 처리', async () => {});
+  test.skip('[자동화 불가 - 외부 OAuth 서비스] 네이버 계정으로 실제 로그인 완료 후 회원가입 처리', { annotation: tcStep(3) }, async () => {});
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -76,40 +77,40 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await register.goto();
   });
 
-  test('회원가입 페이지 접속 및 URL 확인', async ({ page }) => {
+  test('회원가입 페이지 접속 및 URL 확인', { annotation: tcStep(1) }, async ({ page }) => {
     // 실제 URL: /regist (register 아님)
     await expect(page).toHaveURL(/\/regist(?:er)?|\/signup|\/join/);
     console.log(`✅ 회원가입 페이지 URL 확인: ${page.url()}`);
   });
 
-  test('소셜 버튼 3개 존재 확인', async ({ page }) => {
+  test('소셜 버튼 3개 존재 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.verifySocialButtonsVisible();
   });
 
-  test('소셜 버튼과 이메일 입력 사이 "또는" 구분선 확인', async ({ page }) => {
+  test('소셜 버튼과 이메일 입력 사이 "또는" 구분선 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.verifyDividerOrText();
   });
 
-  test('이메일 입력 필드 존재 확인', async ({ page }) => {
+  test('이메일 입력 필드 존재 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.verifyEmailInputVisible();
     await register.verifyEmailInputPlaceholder();
   });
 
-  test('이메일 미입력/형식 불일치 시 중복확인 버튼 비활성화 확인', async ({ page }) => {
+  test('이메일 미입력/형식 불일치 시 중복확인 버튼 비활성화 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.verifyDuplicateCheckButtonInitiallyInactive();
   });
 
-  test('이메일 형식 입력 시 중복확인 버튼 활성화 (회색→검은색 텍스트로 변경)', async ({ page }) => {
+  test('이메일 형식 입력 시 중복확인 버튼 활성화 (회색→검은색 텍스트로 변경)', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.typeEmail('test@example.com');
     await register.verifyDuplicateCheckButtonActive();
   });
 
-  test('중복확인 없이 이메일 인증 클릭 시 "이메일 중복 확인이 필요합니다." 안내', async ({ page }) => {
+  test('중복확인 없이 이메일 인증 클릭 시 "이메일 중복 확인이 필요합니다." 안내', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     const testEmail = process.env.EMAIL_IMAP_USER ?? `test_avail_${Date.now()}@gmail.com`;
     await register.typeEmail(testEmail);
@@ -118,7 +119,7 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await register.verifyDuplicateCheckRequiredMessage();
   });
 
-  test('reCAPTCHA 체크 후 이메일 인증 → 발송 완료 (v2 체크박스 클릭 시도)', async ({ page }) => {
+  test('reCAPTCHA 체크 후 이메일 인증 → 발송 완료 (v2 체크박스 클릭 시도)', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     const testEmail = process.env.EMAIL_IMAP_USER ?? `test_${Date.now()}@example.com`;
     await register.typeEmail(testEmail);
@@ -153,7 +154,7 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     expect(sent || blocked).toBe(true);
   });
 
-  test('이메일 형식이 아닌 텍스트 입력 시 중복확인 버튼 비활성 유지', async ({ page }) => {
+  test('이메일 형식이 아닌 텍스트 입력 시 중복확인 버튼 비활성 유지', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.typeEmail('invalid-email-text');
     // 실제 버튼 텍스트: "중복 확인" (공백 있음)
@@ -163,7 +164,7 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await expect(btn).toBeVisible();
   });
 
-  test('중복확인 → 사용 가능 모달 → 이메일 인증 → 발송 완료 모달 확인', async ({ page }) => {
+  test('중복확인 → 사용 가능 모달 → 이메일 인증 → 발송 완료 모달 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     const testEmail = process.env.EMAIL_IMAP_USER ?? `test_${Date.now()}@example.com`;
     await register.typeEmail(testEmail);
@@ -193,14 +194,14 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     expect(sent || blocked).toBe(true);
   });
 
-  test('이메일 형식 불일치 시 "필수 입력 정보입니다." 문구 노출', async ({ page }) => {
+  test('이메일 형식 불일치 시 "필수 입력 정보입니다." 문구 노출', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.typeEmail('invalid-email-text');
     await page.keyboard.press('Tab'); // blur → 유효성 검사 트리거
     await register.verifyEmailRequiredMessage();
   });
 
-  test('유효한 이메일 입력 시 "필수 입력 정보입니다." 문구 사라짐', async ({ page }) => {
+  test('유효한 이메일 입력 시 "필수 입력 정보입니다." 문구 사라짐', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     // 먼저 잘못된 이메일로 메시지 표시
     await register.typeEmail('invalid-email-text');
@@ -212,7 +213,7 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
   });
 
   // 수동 확인 항목 (발신자/제목 검증은 UI가 아닌 메일 클라이언트에서 확인)
-  test.skip('[수동 확인] 인증 이메일 제목·발신자 확인 — 제목: "[라온 메타데미] 이메일 인증 링크입니다.", 발신자: metademy@raon.com', async () => {});
+  test.skip('[수동 확인] 인증 이메일 제목·발신자 확인 — 제목: "[라온 메타데미] 이메일 인증 링크입니다.", 발신자: metademy@raon.com', { annotation: tcStep(2) }, async () => {});
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -277,22 +278,22 @@ test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () =>
     await page.waitForLoadState('load');
   });
 
-  test('인증 이메일 발신자 확인 — 보낸사람: 라온메타데미', async () => {
+  test('인증 이메일 발신자 확인 — 보낸사람: 라온메타데미', { annotation: tcStep(2) }, async () => {
     expect(emailFrom).toMatch(/라온|metademy|raon/i);
     console.log(`✅ 발신자 확인: ${emailFrom}`);
   });
 
-  test('인증 이메일 제목 확인 — [라온 메타데미] 이메일 인증 링크입니다.', async () => {
+  test('인증 이메일 제목 확인 — [라온 메타데미] 이메일 인증 링크입니다.', { annotation: tcStep(2) }, async () => {
     expect(emailSubject).toContain('[라온 메타데미] 이메일 인증 링크입니다.');
     console.log(`✅ 제목 확인: ${emailSubject}`);
   });
 
-  test('/regist_data 페이지 URL 및 접속 확인', async ({ page }) => {
+  test('/regist_data 페이지 URL 및 접속 확인', { annotation: tcStep(3) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.verifyRegistDataUrl();
   });
 
-  test('/regist_data 페이지 - E-mail/비밀번호/비밀번호 재확인 placeholder 확인', async ({ page }) => {
+  test('/regist_data 페이지 - E-mail/비밀번호/비밀번호 재확인 placeholder 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.verifyRegistDataPlaceholders();
   });
@@ -302,7 +303,7 @@ test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () =>
     await register.verifyEmailAutofilled(testEmail);
   });
 
-  test('/regist_data 페이지 - 취소 버튼 클릭 → 경고 모달 → [확인] 시 메인 페이지 이동', async ({ page }) => {
+  test('/regist_data 페이지 - 취소 버튼 클릭 → 경고 모달 → [확인] 시 메인 페이지 이동', { annotation: tcStep(5) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.clickRegistDataCancelButton();
     await register.verifyRegistDataCancelModal();
@@ -365,7 +366,7 @@ test.describe('T758 - 이용약관 동의', () => {
     await page.waitForLoadState('load');
   });
 
-  test('이메일 자동입력 확인 및 비밀번호 유효성 검사 (8자 미만/숫자 없음/문자 없음/기호 없음)', async ({ page }) => {
+  test('이메일 자동입력 확인 및 비밀번호 유효성 검사 (8자 미만/숫자 없음/문자 없음/기호 없음)', { annotation: tcStep(1) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.verifyEmailAutofilled(testEmail);
     // 8자 미만
@@ -378,13 +379,13 @@ test.describe('T758 - 이용약관 동의', () => {
     await register.fillPasswordAndVerifyError('Abcdef12', /특수|기호|symbol/i);
   });
 
-  test('전체 동의 체크 시 하위 항목 모두 체크 및 개별 해제 연동 동작 확인', async ({ page }) => {
+  test('전체 동의 체크 시 하위 항목 모두 체크 및 개별 해제 연동 동작 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.checkAllTermsAgree();
     await register.verifyAllSubCheckboxesChecked();
   });
 
-  test('약관 [보기] 버튼 클릭 시 모달 노출 및 X 버튼으로 닫힘 확인 (이용약관/개인정보/마케팅)', async ({ page }) => {
+  test('약관 [보기] 버튼 클릭 시 모달 노출 및 X 버튼으로 닫힘 확인 (이용약관/개인정보/마케팅)', { annotation: tcStep(3) }, async ({ page }) => {
     const register = new RegisterPage(page);
     for (const termType of ['이용약관', '개인정보', '마케팅'] as const) {
       await register.clickTermsViewButton(termType);
@@ -394,14 +395,14 @@ test.describe('T758 - 이용약관 동의', () => {
     }
   });
 
-  test('필수 약관 미체크 상태에서 [회원가입] 버튼 클릭 시 알럿 확인', async ({ page }) => {
+  test('필수 약관 미체크 상태에서 [회원가입] 버튼 클릭 시 알럿 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.fillPassword('TestPass1!', 'TestPass1!');
     await register.clickRegisterButton();
     await register.verifyTermsRequiredAlert();
   });
 
-  test('비밀번호 입력 + 필수 약관 동의 후 [회원가입] 클릭 → 회원가입 완료 페이지 이동', async ({ page }) => {
+  test('비밀번호 입력 + 필수 약관 동의 후 [회원가입] 클릭 → 회원가입 완료 페이지 이동', { annotation: tcStep(6) }, async ({ page }) => {
     const register = new RegisterPage(page);
     await register.fillPassword('TestPass1!', 'TestPass1!');
     await register.checkAllTermsAgree();

@@ -4,6 +4,7 @@ import { MyPageEditPage } from './pages/MyPageEditPage';
 import { MyPagePasswordPage } from './pages/MyPagePasswordPage';
 import { MyPagePurchasePage } from './pages/MyPagePurchasePage';
 import { MyPageDashboardPage } from './pages/MyPageDashboardPage';
+import { tcStep } from './utils/evidence';
 
 const PASSWORD = process.env.TEST_PASSWORD ?? '';
 const WRONG_PASSWORD = 'WrongPass123!';
@@ -13,7 +14,7 @@ const VALID_NEW_PASSWORD = 'NewPass1!';
 // T425 마이페이지 프로필
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T425 마이페이지 프로필', () => {
-  test('헤더 [마이페이지] 클릭 시 마이페이지 이동', async ({ page }) => {
+  test('헤더 [마이페이지] 클릭 시 마이페이지 이동', { annotation: tcStep(1) }, async ({ page }) => {
     const myPage = new MyPage(page);
     await test.step('[셋업] 헤더를 통해 마이페이지 이동', async () => {
       await myPage.navigateViaHeader();
@@ -23,7 +24,7 @@ test.describe('T425 마이페이지 프로필', () => {
     });
   });
 
-  test('마이페이지 URL 확인', async ({ page }) => {
+  test('마이페이지 URL 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const myPage = new MyPage(page);
     await test.step('[셋업] 마이페이지 이동', async () => {
       await myPage.navigate();
@@ -33,7 +34,7 @@ test.describe('T425 마이페이지 프로필', () => {
     });
   });
 
-  test('마이페이지 탭 목록 4개 확인 (실습 대시보드/디지털 배지/프로필/구매 및 결제 관리)', async ({ page }) => {
+  test('마이페이지 탭 목록 4개 확인 (실습 대시보드/디지털 배지/프로필/구매 및 결제 관리)', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     await test.step('[셋업] 마이페이지 이동', async () => {
       await myPage.navigate();
@@ -43,7 +44,7 @@ test.describe('T425 마이페이지 프로필', () => {
     });
   });
 
-  test('기본 탭 [프로필] 선택 확인', async ({ page }) => {
+  test('기본 탭 [프로필] 선택 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     await test.step('[셋업] 마이페이지 이동', async () => {
       await myPage.navigate();
@@ -53,7 +54,7 @@ test.describe('T425 마이페이지 프로필', () => {
     });
   });
 
-  test('프로필 기본 정보 항목 확인 (계정/이름/휴대폰/E-mail/마케팅)', async ({ page }) => {
+  test('프로필 기본 정보 항목 확인 (계정/이름/휴대폰/E-mail/마케팅)', { annotation: tcStep(3) }, async ({ page }) => {
     const myPage = new MyPage(page);
     await test.step('[셋업] 마이페이지 이동', async () => {
       await myPage.navigate();
@@ -70,7 +71,7 @@ test.describe('T425 마이페이지 프로필', () => {
 // T426 프로필 수정
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T426 프로필 수정', () => {
-  test('[프로필 수정] 버튼 클릭 → 비밀번호 확인 페이지 진입', async ({ page }) => {
+  test('[프로필 수정] 버튼 클릭 → 비밀번호 확인 페이지 진입', { annotation: tcStep(1) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
     await test.step('[셋업] 마이페이지 이동 및 프로필 수정 버튼 클릭', async () => {
@@ -82,7 +83,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('비밀번호 placeholder "비밀번호를 입력해 주세요." 확인', async ({ page }) => {
+  test('비밀번호 placeholder "비밀번호를 입력해 주세요." 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
     await test.step('[셋업] 마이페이지 이동 및 프로필 수정 버튼 클릭', async () => {
@@ -94,7 +95,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('비밀번호 미입력 → "비밀번호가 입력되지 않았습니다." 알럿', async ({ page }) => {
+  test('비밀번호 미입력 → "비밀번호가 입력되지 않았습니다." 알럿', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
     await test.step('[셋업] 마이페이지 이동 및 프로필 수정 버튼 클릭 후 확인 버튼 클릭', async () => {
@@ -108,7 +109,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('비밀번호 보이기/숨기기 토글 동작 확인', async ({ page }) => {
+  test('비밀번호 보이기/숨기기 토글 동작 확인', { annotation: tcStep(3) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
     await test.step('[셋업] 마이페이지 이동 및 프로필 수정 버튼 클릭', async () => {
@@ -133,7 +134,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('틀린 비밀번호 → "비밀번호가 올바르지 않습니다." 알럿', async ({ page }) => {
+  test('틀린 비밀번호 → "비밀번호가 올바르지 않습니다." 알럿', { annotation: tcStep(4) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
     await test.step('[셋업] 마이페이지 이동, 틀린 비밀번호 입력 후 확인 버튼 클릭', async () => {
@@ -148,7 +149,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('올바른 비밀번호 입력 → 프로필 수정 폼 이동', async ({ page }) => {
+  test('올바른 비밀번호 입력 → 프로필 수정 폼 이동', { annotation: tcStep(4) }, async ({ page }) => {
     test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
@@ -163,7 +164,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('수정 가능/불가능 필드 확인', async ({ page }) => {
+  test('수정 가능/불가능 필드 확인', { annotation: tcStep(5) }, async ({ page }) => {
     test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
@@ -180,7 +181,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('E-mail placeholder "이메일을 입력해 주세요." 확인', async ({ page }) => {
+  test('E-mail placeholder "이메일을 입력해 주세요." 확인', { annotation: tcStep(8) }, async ({ page }) => {
     test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
@@ -196,7 +197,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('E-mail 수정 후 [수정] → "프로필 수정이 완료되었습니다." 알럿 → 마이페이지 복귀', async ({ page }) => {
+  test('E-mail 수정 후 [수정] → "프로필 수정이 완료되었습니다." 알럿 → 마이페이지 복귀', { annotation: tcStep(8) }, async ({ page }) => {
     test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
@@ -220,7 +221,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('마케팅 수신 체크박스 토글 후 저장 확인', async ({ page }) => {
+  test('마케팅 수신 체크박스 토글 후 저장 확인', { annotation: tcStep(10) }, async ({ page }) => {
     test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
@@ -259,7 +260,7 @@ test.describe('T426 프로필 수정', () => {
     });
   });
 
-  test('[취소] 버튼 → 마이페이지 복귀', async ({ page }) => {
+  test('[취소] 버튼 → 마이페이지 복귀', { annotation: tcStep(11) }, async ({ page }) => {
     test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
@@ -281,7 +282,7 @@ test.describe('T426 프로필 수정', () => {
 // T428 비밀번호 변경
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T428 비밀번호 변경', () => {
-  test('[비밀번호 변경] 버튼 클릭 → 비밀번호 변경 페이지 이동', async ({ page }) => {
+  test('[비밀번호 변경] 버튼 클릭 → 비밀번호 변경 페이지 이동', { annotation: tcStep(1) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 마이페이지 이동 및 비밀번호 변경 버튼 클릭', async () => {
@@ -293,7 +294,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('비밀번호 보이기/숨기기 토글 동작 확인', async ({ page }) => {
+  test('비밀번호 보이기/숨기기 토글 동작 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 비밀번호 변경 페이지 진입 및 현재 비밀번호 입력', async () => {
@@ -314,7 +315,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('비밀번호 필드 placeholder 3개 확인 ("비밀번호를 입력해 주세요.")', async ({ page }) => {
+  test('비밀번호 필드 placeholder 3개 확인 ("비밀번호를 입력해 주세요.")', { annotation: tcStep(3) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 비밀번호 변경 페이지 진입', async () => {
@@ -327,7 +328,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('비밀번호 조건 안내 문구 확인 (영문/숫자/특수문자 8자 이상)', async ({ page }) => {
+  test('비밀번호 조건 안내 문구 확인 (영문/숫자/특수문자 8자 이상)', { annotation: tcStep(3) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 비밀번호 변경 페이지 진입', async () => {
@@ -340,7 +341,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('현재 비밀번호 미입력 → "현재 사용 중인 비밀번호를 입력해 주세요." 알럿', async ({ page }) => {
+  test('현재 비밀번호 미입력 → "현재 사용 중인 비밀번호를 입력해 주세요." 알럿', { annotation: tcStep(3) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 비밀번호 변경 페이지 진입 후 확인 버튼 클릭', async () => {
@@ -355,7 +356,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('현재 비밀번호만 입력 → "새 비밀번호 입력칸에 새로 사용하실 비밀번호를 입력해 주세요." 알럿', async ({ page }) => {
+  test('현재 비밀번호만 입력 → "새 비밀번호 입력칸에 새로 사용하실 비밀번호를 입력해 주세요." 알럿', { annotation: tcStep(4) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 비밀번호 변경 페이지 진입, 현재 비밀번호만 입력 후 확인 버튼 클릭', async () => {
@@ -371,7 +372,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('현재+새 비밀번호만 입력 → "새 비밀번호 확인 입력칸에..." 알럿', async ({ page }) => {
+  test('현재+새 비밀번호만 입력 → "새 비밀번호 확인 입력칸에..." 알럿', { annotation: tcStep(4) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 현재+새 비밀번호 입력 후 확인 버튼 클릭', async () => {
@@ -388,7 +389,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('새 비밀번호 != 확인 → "새로운 비밀번호가 일치하지 않습니다." 알럿', async ({ page }) => {
+  test('새 비밀번호 != 확인 → "새로운 비밀번호가 일치하지 않습니다." 알럿', { annotation: tcStep(4) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 새 비밀번호와 확인 불일치 입력 후 확인 버튼 클릭', async () => {
@@ -406,7 +407,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('조건 불충족 비밀번호 → "새로운 비밀번호가 조건에 맞지 않습니다." 알럿', async ({ page }) => {
+  test('조건 불충족 비밀번호 → "새로운 비밀번호가 조건에 맞지 않습니다." 알럿', { annotation: tcStep(5) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 조건 불충족 비밀번호 입력 후 확인 버튼 클릭', async () => {
@@ -424,7 +425,7 @@ test.describe('T428 비밀번호 변경', () => {
     });
   });
 
-  test('틀린 현재 비밀번호 + 조건에 맞는 새 비밀번호 → 변경 확인 알럿 → 취소로 실제 변경 방지', async ({ page }) => {
+  test('틀린 현재 비밀번호 + 조건에 맞는 새 비밀번호 → 변경 확인 알럿 → 취소로 실제 변경 방지', { annotation: tcStep(6) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const pwdPage = new MyPagePasswordPage(page);
     await test.step('[셋업] 틀린 현재 비밀번호 + 조건 충족 새 비밀번호 입력 후 확인 버튼 클릭', async () => {
@@ -449,7 +450,7 @@ test.describe('T428 비밀번호 변경', () => {
 // T430 구매내역
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T430 구매내역', () => {
-  test('[구매내역] 탭 클릭 → 구매내역 페이지 이동', async ({ page }) => {
+  test('[구매내역] 탭 클릭 → 구매내역 페이지 이동', { annotation: tcStep(1) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const purchasePage = new MyPagePurchasePage(page);
     await test.step('[셋업] 마이페이지 이동 및 구매내역 탭 클릭', async () => {
@@ -461,7 +462,7 @@ test.describe('T430 구매내역', () => {
     });
   });
 
-  test('구매내역이 없는 경우 "구매 내역이 없습니다." 문구 확인', async ({ page }) => {
+  test('구매내역이 없는 경우 "구매 내역이 없습니다." 문구 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const purchasePage = new MyPagePurchasePage(page);
     await test.step('[셋업] 구매내역 페이지 이동', async () => {
       await purchasePage.navigate();
@@ -488,7 +489,7 @@ test.describe('T430 구매내역', () => {
     });
   });
 
-  test('구매내역 항목 구성 확인 (썸네일/결제일시/주문번호/구매항목명/금액)', async ({ page }) => {
+  test('구매내역 항목 구성 확인 (썸네일/결제일시/주문번호/구매항목명/금액)', { annotation: tcStep(2, 3) }, async ({ page }) => {
     const purchasePage = new MyPagePurchasePage(page);
     await test.step('[셋업] 구매내역 페이지 이동', async () => {
       await purchasePage.navigate();
@@ -519,7 +520,7 @@ test.describe('T430 구매내역', () => {
     });
   });
 
-  test('구매내역 [주문 상세] 클릭 → 모달 내용 확인 → 닫기', async ({ page }) => {
+  test('구매내역 [주문 상세] 클릭 → 모달 내용 확인 → 닫기', { annotation: tcStep(7) }, async ({ page }) => {
     const purchasePage = new MyPagePurchasePage(page);
     await test.step('[셋업] 구매내역 페이지 이동 및 주문 상세 버튼 클릭', async () => {
       await purchasePage.navigate();
@@ -559,7 +560,7 @@ test.describe('T430 구매내역', () => {
 // 전제조건: 실습 콘텐츠 실행 기록이 있는 계정으로 로그인
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T1798 실습 내역', () => {
-  test('실습 대시보드 탭 이동 확인', async ({ page }) => {
+  test('실습 대시보드 탭 이동 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const dashPage = new MyPageDashboardPage(page);
     await test.step('[셋업] 마이페이지 이동 후 실습 대시보드 탭 클릭', async () => {
@@ -571,7 +572,7 @@ test.describe('T1798 실습 내역', () => {
     });
   });
 
-  test('진행중 실습내역 — 아코디언 기본 접힘 상태 확인', async ({ page }) => {
+  test('진행중 실습내역 — 아코디언 기본 접힘 상태 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const dashPage = new MyPageDashboardPage(page);
     await test.step('[셋업] 실습 대시보드 이동', async () => {
@@ -588,7 +589,7 @@ test.describe('T1798 실습 내역', () => {
     });
   });
 
-  test('진행중 실습내역 — 아코디언 펼침/닫기 동작 확인', async ({ page }) => {
+  test('진행중 실습내역 — 아코디언 펼침/닫기 동작 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const dashPage = new MyPageDashboardPage(page);
     await test.step('[셋업] 실습 대시보드 이동', async () => {
@@ -612,7 +613,7 @@ test.describe('T1798 실습 내역', () => {
     });
   });
 
-  test('진행중 실습내역 — 최근 실습일 YYYY-MM-DD 형식 노출 확인', async ({ page }) => {
+  test('진행중 실습내역 — 최근 실습일 YYYY-MM-DD 형식 노출 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const dashPage = new MyPageDashboardPage(page);
     await test.step('[셋업] 실습 대시보드 이동', async () => {
@@ -624,7 +625,7 @@ test.describe('T1798 실습 내역', () => {
     });
   });
 
-  test('진행중 실습내역 — 진행률 프로그래스바 및 퍼센트 노출 확인', async ({ page }) => {
+  test('진행중 실습내역 — 진행률 프로그래스바 및 퍼센트 노출 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const dashPage = new MyPageDashboardPage(page);
     await test.step('[셋업] 실습 대시보드 이동', async () => {
@@ -639,7 +640,7 @@ test.describe('T1798 실습 내역', () => {
     });
   });
 
-  test('진행중 실습내역 — 완료 콘텐츠가 진행중으로 표시되지 않는지 확인', async ({ page }) => {
+  test('진행중 실습내역 — 완료 콘텐츠가 진행중으로 표시되지 않는지 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const dashPage = new MyPageDashboardPage(page);
     await test.step('[셋업] 실습 대시보드 이동', async () => {
@@ -651,7 +652,7 @@ test.describe('T1798 실습 내역', () => {
     });
   });
 
-  test('완료 실습내역 — 진행률 100% 노출 확인', async ({ page }) => {
+  test('완료 실습내역 — 진행률 100% 노출 확인', { annotation: tcStep(3) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const dashPage = new MyPageDashboardPage(page);
     await test.step('[셋업] 실습 대시보드 이동', async () => {
@@ -663,7 +664,7 @@ test.describe('T1798 실습 내역', () => {
     });
   });
 
-  test('완료 실습내역 — 진행중 콘텐츠가 완료로 표시되지 않는지 확인', async ({ page }) => {
+  test('완료 실습내역 — 진행중 콘텐츠가 완료로 표시되지 않는지 확인', { annotation: tcStep(3) }, async ({ page }) => {
     const myPage = new MyPage(page);
     const dashPage = new MyPageDashboardPage(page);
     await test.step('[셋업] 실습 대시보드 이동', async () => {

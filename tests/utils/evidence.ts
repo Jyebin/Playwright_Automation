@@ -11,6 +11,14 @@ export function tcStep(...steps: number[]) {
 }
 
 /**
+ * 결과서 TC 지정 annotation. describe 제목에 'T번호'가 없는 파일에서 어느 TC인지 알려줄 때 사용.
+ *   test('제목', { annotation: [tcCase('T760'), tcStep(2)] }, async ({ page }) => { ... })
+ */
+export function tcCase(key: string) {
+  return { type: 'tc', description: key };
+}
+
+/**
  * 결과서 "📸 실제 결과"에 표시할 캡처를 현재 테스트에 첨부한다.
  * report-db-reporter가 이미지를 report-assets/ 로 복사하고 결과서 스텝에 연결한다.
  *

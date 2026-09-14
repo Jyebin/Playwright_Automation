@@ -4,12 +4,13 @@ import { CsNoticePage, NOTICE_CATEGORIES, NOTICE_SORT_OPTIONS } from './pages/Cs
 import { CsEventPage, EVENT_CATEGORIES } from './pages/CsEventPage';
 import { CsFaqPage, FAQ_CATEGORIES } from './pages/CsFaqPage';
 import { CsInquiryPage, INQUIRY_TYPES } from './pages/CsInquiryPage';
+import { tcStep } from './utils/evidence';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // T1631 고객센터 기본
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T1631 고객센터 기본', () => {
-  test('헤더 고객센터 클릭 시 고객센터 페이지로 이동', async ({ page }) => {
+  test('헤더 고객센터 클릭 시 고객센터 페이지로 이동', { annotation: tcStep(1) }, async ({ page }) => {
     const cs = new CsPage(page);
     await test.step('[셋업] 헤더 고객센터 클릭', async () => {
       await cs.navigateViaHeader();
@@ -19,7 +20,7 @@ test.describe('T1631 고객센터 기본', () => {
     });
   });
 
-  test('고객센터 URL 확인', async ({ page }) => {
+  test('고객센터 URL 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const cs = new CsPage(page);
     await test.step('[셋업] 고객센터 페이지 이동', async () => {
       await cs.navigate();
@@ -29,7 +30,7 @@ test.describe('T1631 고객센터 기본', () => {
     });
   });
 
-  test('고객센터 탭 목록 4개 노출 확인', async ({ page }) => {
+  test('고객센터 탭 목록 4개 노출 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const cs = new CsPage(page);
     await test.step('[셋업] 고객센터 페이지 이동', async () => {
       await cs.navigate();
@@ -39,7 +40,7 @@ test.describe('T1631 고객센터 기본', () => {
     });
   });
 
-  test('고객센터 기본 탭은 공지사항', async ({ page }) => {
+  test('고객센터 기본 탭은 공지사항', { annotation: tcStep(2) }, async ({ page }) => {
     const cs = new CsPage(page);
     await test.step('[셋업] 고객센터 페이지 이동', async () => {
       await cs.navigate();
@@ -54,7 +55,7 @@ test.describe('T1631 고객센터 기본', () => {
 // T411 공지사항
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T411 공지사항', () => {
-  test('공지사항 화면 구성 확인 (카테고리, 검색, 정렬, 게시물)', async ({ page }) => {
+  test('공지사항 화면 구성 확인 (카테고리, 검색, 정렬, 게시물)', { annotation: tcStep(2) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동', async () => {
       await notice.navigate();
@@ -76,7 +77,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 정렬 드롭다운 옵션 (최신순/과거순/조회순)', async ({ page }) => {
+  test('공지사항 정렬 드롭다운 옵션 (최신순/과거순/조회순)', { annotation: tcStep(7) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동', async () => {
       await notice.navigate();
@@ -86,7 +87,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 정렬 선택 동작', async ({ page }) => {
+  test('공지사항 정렬 선택 동작', { annotation: tcStep(7) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동 후 과거순 선택', async () => {
       await notice.navigate();
@@ -97,7 +98,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 빈 검색어 알럿 확인', async ({ page }) => {
+  test('공지사항 빈 검색어 알럿 확인', { annotation: tcStep(5) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동', async () => {
       await notice.navigate();
@@ -108,7 +109,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 키워드 검색 후 검색창 유지', async ({ page }) => {
+  test('공지사항 키워드 검색 후 검색창 유지', { annotation: tcStep(5) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동 후 키워드 검색', async () => {
       await notice.navigate();
@@ -119,7 +120,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 버튼/Enter 검색 결과 동일 확인', async ({ page }) => {
+  test('공지사항 버튼/Enter 검색 결과 동일 확인', { annotation: tcStep(3) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동', async () => {
       await notice.navigate();
@@ -129,7 +130,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 카테고리 필터링', async ({ page }) => {
+  test('공지사항 카테고리 필터링', { annotation: tcStep(4) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동', async () => {
       await notice.navigate();
@@ -147,7 +148,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 카테고리 초기화', async ({ page }) => {
+  test('공지사항 카테고리 초기화', { annotation: tcStep(12) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동 후 카테고리 선택', async () => {
       await notice.navigate();
@@ -158,7 +159,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 XSS 방어', async ({ page }) => {
+  test('공지사항 XSS 방어', { annotation: tcStep(6) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동', async () => {
       await notice.navigate();
@@ -168,7 +169,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 SQL Injection 방어', async ({ page }) => {
+  test('공지사항 SQL Injection 방어', { annotation: tcStep(6) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동', async () => {
       await notice.navigate();
@@ -178,7 +179,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 페이지당 게시물 수 확인 (최대 10개)', async ({ page }) => {
+  test('공지사항 페이지당 게시물 수 확인 (최대 10개)', { annotation: tcStep(8) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동', async () => {
       await notice.navigate();
@@ -191,7 +192,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 상세 페이지 — 본문/날짜 확인', async ({ page }) => {
+  test('공지사항 상세 페이지 — 본문/날짜 확인', { annotation: tcStep(9, 11, 13) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동 후 첫 번째 게시물 클릭', async () => {
       await notice.navigate();
@@ -211,7 +212,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 상세 → 목록으로 복귀', async ({ page }) => {
+  test('공지사항 상세 → 목록으로 복귀', { annotation: tcStep(9) }, async ({ page }) => {
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 페이지 이동 후 첫 번째 게시물 클릭', async () => {
       await notice.navigate();
@@ -225,7 +226,7 @@ test.describe('T411 공지사항', () => {
     });
   });
 
-  test('공지사항 탭 이동 후 복귀 시 초기화', async ({ page }) => {
+  test('공지사항 탭 이동 후 복귀 시 초기화', { annotation: tcStep(10) }, async ({ page }) => {
     const cs = new CsPage(page);
     const notice = new CsNoticePage(page);
     await test.step('[셋업] 공지사항 검색 후 이벤트 탭 이동 → 공지사항 탭 복귀', async () => {
@@ -246,7 +247,7 @@ test.describe('T411 공지사항', () => {
 // T412 이벤트
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T412 이벤트', () => {
-  test('이벤트 탭 이동 및 URL 확인', async ({ page }) => {
+  test('이벤트 탭 이동 및 URL 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const cs = new CsPage(page);
     const ev = new CsEventPage(page);
     await test.step('[셋업] 고객센터 페이지 이동 후 이벤트 탭 클릭', async () => {
@@ -261,7 +262,7 @@ test.describe('T412 이벤트', () => {
     });
   });
 
-  test('이벤트 카테고리 (진행/예정/종료) 노출 확인', async ({ page }) => {
+  test('이벤트 카테고리 (진행/예정/종료) 노출 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const ev = new CsEventPage(page);
     await test.step('[셋업] 이벤트 페이지 이동', async () => {
       await ev.navigate();
@@ -271,7 +272,7 @@ test.describe('T412 이벤트', () => {
     });
   });
 
-  test('이벤트 기본 카테고리 "진행" 선택 확인', async ({ page }) => {
+  test('이벤트 기본 카테고리 "진행" 선택 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const ev = new CsEventPage(page);
     await test.step('[셋업] 이벤트 페이지 이동', async () => {
       await ev.navigate();
@@ -281,7 +282,7 @@ test.describe('T412 이벤트', () => {
     });
   });
 
-  test('이벤트 카테고리 클릭 및 목록/빈 상태 확인', async ({ page }) => {
+  test('이벤트 카테고리 클릭 및 목록/빈 상태 확인', { annotation: tcStep(2, 4) }, async ({ page }) => {
     const ev = new CsEventPage(page);
     await test.step('[셋업] 이벤트 페이지 이동', async () => {
       await ev.navigate();
@@ -302,7 +303,7 @@ test.describe('T412 이벤트', () => {
     });
   });
 
-  test('이벤트 상세 — 제목/이미지/안내문구 확인', async ({ page }) => {
+  test('이벤트 상세 — 제목/이미지/안내문구 확인', { annotation: tcStep(3) }, async ({ page }) => {
     const ev = new CsEventPage(page);
     await test.step('[셋업] 이벤트 페이지 이동 후 진행 카테고리 확인', async () => {
       await ev.navigate();
@@ -329,7 +330,7 @@ test.describe('T412 이벤트', () => {
 // T413 자주 묻는 질문
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T413 자주 묻는 질문', () => {
-  test('FAQ 탭 이동 및 URL 확인', async ({ page }) => {
+  test('FAQ 탭 이동 및 URL 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const cs = new CsPage(page);
     const faq = new CsFaqPage(page);
     await test.step('[셋업] 고객센터 페이지 이동 후 FAQ 탭 클릭', async () => {
@@ -344,7 +345,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 카테고리 노출 확인', async ({ page }) => {
+  test('FAQ 카테고리 노출 확인', { annotation: tcStep(2) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동', async () => {
       await faq.navigate();
@@ -354,7 +355,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 카테고리별 클릭 및 게시물 확인', async ({ page }) => {
+  test('FAQ 카테고리별 클릭 및 게시물 확인', { annotation: tcStep(2, 3) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동', async () => {
       await faq.navigate();
@@ -375,7 +376,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 검색 placeholder 확인', async ({ page }) => {
+  test('FAQ 검색 placeholder 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동', async () => {
       await faq.navigate();
@@ -385,7 +386,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 빈 검색어 알럿 확인', async ({ page }) => {
+  test('FAQ 빈 검색어 알럿 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동', async () => {
       await faq.navigate();
@@ -396,7 +397,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 키워드 검색 결과 확인', async ({ page }) => {
+  test('FAQ 키워드 검색 결과 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동 후 키워드 검색', async () => {
       await faq.navigate();
@@ -414,7 +415,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 아코디언 — 항목 클릭 시 펼침', async ({ page }) => {
+  test('FAQ 아코디언 — 항목 클릭 시 펼침', { annotation: tcStep(6) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동 후 첫 번째 항목 클릭', async () => {
       await faq.navigate();
@@ -426,7 +427,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 아코디언 — 같은 항목 재클릭 시 닫힘', async ({ page }) => {
+  test('FAQ 아코디언 — 같은 항목 재클릭 시 닫힘', { annotation: tcStep(6) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동 후 첫 번째 항목 펼침', async () => {
       await faq.navigate();
@@ -442,7 +443,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 아코디언 — 다른 항목 클릭 시 기존 항목 닫힘', async ({ page }) => {
+  test('FAQ 아코디언 — 다른 항목 클릭 시 기존 항목 닫힘', { annotation: tcStep(6) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동 후 첫 번째 항목 펼침', async () => {
       await faq.navigate();
@@ -458,7 +459,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 페이지네이션 확인', async ({ page }) => {
+  test('FAQ 페이지네이션 확인', { annotation: tcStep(5) }, async ({ page }) => {
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 페이지 이동', async () => {
       await faq.navigate();
@@ -468,7 +469,7 @@ test.describe('T413 자주 묻는 질문', () => {
     });
   });
 
-  test('FAQ 탭 이동 후 복귀 시 초기화', async ({ page }) => {
+  test('FAQ 탭 이동 후 복귀 시 초기화', { annotation: tcStep(7) }, async ({ page }) => {
     const cs = new CsPage(page);
     const faq = new CsFaqPage(page);
     await test.step('[셋업] FAQ 검색 후 이벤트 탭 이동 → FAQ 탭 복귀', async () => {
@@ -489,7 +490,7 @@ test.describe('T413 자주 묻는 질문', () => {
 // T414 서비스 이용 문의
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T414 서비스 이용 문의', () => {
-  test('서비스 이용 문의 탭 이동 및 URL 확인', async ({ page }) => {
+  test('서비스 이용 문의 탭 이동 및 URL 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const cs = new CsPage(page);
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 고객센터 페이지 이동 후 서비스 이용 문의 탭 클릭', async () => {
@@ -504,7 +505,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('서비스 이용 문의 화면 구성 — placeholder 확인', async ({ page }) => {
+  test('서비스 이용 문의 화면 구성 — placeholder 확인', { annotation: tcStep(3, 4, 5, 6, 7) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 서비스 이용 문의 페이지 이동', async () => {
       await inquiry.navigate();
@@ -520,7 +521,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('서비스 이용 문의 탭 이동 후 복귀 시 초기화', async ({ page }) => {
+  test('서비스 이용 문의 탭 이동 후 복귀 시 초기화', { annotation: tcStep(2) }, async ({ page }) => {
     const cs = new CsPage(page);
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 문의 탭에서 이름 입력 후 다른 탭 이동 → 복귀', async () => {
@@ -536,7 +537,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('이름 미입력 → 알럿 "이름을 입력해 주세요."', async ({ page }) => {
+  test('이름 미입력 → 알럿 "이름을 입력해 주세요."', { annotation: tcStep(3) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 서비스 이용 문의 페이지 이동 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -548,7 +549,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('소속 미입력 → 알럿 "소속을 입력해 주세요."', async ({ page }) => {
+  test('소속 미입력 → 알럿 "소속을 입력해 주세요."', { annotation: tcStep(3) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 이름만 입력 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -561,7 +562,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('문의 종류 미선택 → 알럿 "문의 종류를 선택해 주세요."', async ({ page }) => {
+  test('문의 종류 미선택 → 알럿 "문의 종류를 선택해 주세요."', { annotation: tcStep(3, 4) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 이름/소속 입력 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -575,7 +576,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('문의 종류 드롭다운 항목 6개 확인', async ({ page }) => {
+  test('문의 종류 드롭다운 항목 6개 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 서비스 이용 문의 페이지 이동', async () => {
       await inquiry.navigate();
@@ -585,7 +586,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('이메일 미입력 → 알럿 "E-mail 주소를 입력해 주세요."', async ({ page }) => {
+  test('이메일 미입력 → 알럿 "E-mail 주소를 입력해 주세요."', { annotation: tcStep(5) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 이름/소속/문의종류 입력 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -600,7 +601,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('이메일 잘못된 형식 → 필드 하단 오류 메시지', async ({ page }) => {
+  test('이메일 잘못된 형식 → 필드 하단 오류 메시지', { annotation: tcStep(5) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 잘못된 형식의 이메일 입력 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -615,7 +616,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('전화번호 미입력 → 알럿 "전화번호를 입력해 주세요."', async ({ page }) => {
+  test('전화번호 미입력 → 알럿 "전화번호를 입력해 주세요."', { annotation: tcStep(5, 6) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 이름/소속/문의종류/이메일 입력 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -631,7 +632,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('전화번호 잘못된 형식 → 필드 하단 오류 메시지', async ({ page }) => {
+  test('전화번호 잘못된 형식 → 필드 하단 오류 메시지', { annotation: tcStep(6) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 잘못된 형식의 전화번호 입력 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -647,7 +648,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('제목 미입력 → 알럿 "제목을 입력해 주세요."', async ({ page }) => {
+  test('제목 미입력 → 알럿 "제목을 입력해 주세요."', { annotation: tcStep(6, 7) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 이름/소속/문의종류/이메일/전화번호 입력 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -664,7 +665,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('내용 미입력 → 알럿 "이용 문의 내용이 작성되지 않았습니다."', async ({ page }) => {
+  test('내용 미입력 → 알럿 "이용 문의 내용이 작성되지 않았습니다."', { annotation: tcStep(7) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 이름/소속/문의종류/이메일/전화번호/제목 입력 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -682,7 +683,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('개인정보 미동의 → 알럿 확인', async ({ page }) => {
+  test('개인정보 미동의 → 알럿 확인', { annotation: tcStep(7) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 모든 필드 입력(개인정보 미동의) 후 제출 클릭', async () => {
       await inquiry.navigate();
@@ -701,7 +702,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('파일 업로드 — 파일명 노출 확인', async ({ page }) => {
+  test('파일 업로드 — 파일명 노출 확인', { annotation: tcStep(8) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     const buf = Buffer.from('test file content');
     await test.step('[셋업] 서비스 이용 문의 페이지 이동 후 파일 업로드', async () => {
@@ -713,7 +714,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('파일 업로드 — 1개 초과 업로드 시 알럿', async ({ page }) => {
+  test('파일 업로드 — 1개 초과 업로드 시 알럿', { annotation: tcStep(8) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     const buf = Buffer.from('test file content');
     await test.step('[셋업] 첫 번째 파일 업로드', async () => {
@@ -730,7 +731,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('파일 업로드 — 파일 삭제 후 재업로드', async ({ page }) => {
+  test('파일 업로드 — 파일 삭제 후 재업로드', { annotation: tcStep(8) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     const buf = Buffer.from('test file content');
     await test.step('[셋업] 파일 업로드 후 삭제', async () => {
@@ -748,7 +749,7 @@ test.describe('T414 서비스 이용 문의', () => {
     });
   });
 
-  test('개인정보 동의 체크 확인', async ({ page }) => {
+  test('개인정보 동의 체크 확인', { annotation: tcStep(11) }, async ({ page }) => {
     const inquiry = new CsInquiryPage(page);
     await test.step('[셋업] 서비스 이용 문의 페이지 이동 후 개인정보 동의 체크', async () => {
       await inquiry.navigate();
