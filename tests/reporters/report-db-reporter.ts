@@ -27,6 +27,18 @@ function firstLine(message: string | undefined): string {
   return line.slice(0, 300);
 }
 
+// 테스트가 console.log 로 남긴 확인 내용(예: "✅ 소셜 로그인 버튼 3개 확인") → 결과서 "실제 동작"
+function collectLogs(result: TestResult): string[] {
+  return [...result.stdout, ...result.stderr]
+    .map(chunk => (typeof chunk === 'string' ? chunk : chunk.toString('utf8')))
+    .join('')
+    .replace(/\x1b\[[0-9;]*m/g, '')
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => line && !/injected env|dotenvx|NO_COLOR|trace-warnings|^\(node:\d+\)/i.test(line))
+    .slice(0, 30);
+}
+
 function toStatus(status: TestResult['status']): Status {
   if (status === 'passed') return 'pass';
   if (status === 'skipped') return 'skip';
@@ -56,6 +68,7 @@ interface TestEntry {
   steps: { title: string; status: Status; error?: string }[];
   tcSteps: number[];
   attachments: Evidence[];
+  logs: string[];   // 테스트 출력 로그 (실제 동작)
 }
 
 interface DBShape {
@@ -125,6 +138,7 @@ class ReportDBReporter implements Reporter {
       steps,
       tcSteps,
       attachments: this.saveImages(tcKey, test, result),
+      logs: collectLogs(result),
       ...(status === 'fail' ? { error: firstLine(result.error?.message) } : {}),
     };
 

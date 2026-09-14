@@ -692,6 +692,9 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .act-test .run-err{width:100%;margin-top:0;}
 .act-title{color:var(--tx);font-weight:600;}
 .act-empty{font-size:12px;color:var(--tx3);line-height:1.7;background:var(--s2);border-radius:6px;padding:10px 12px;}
+.act-logs{width:100%;background:#fff;border:1px solid var(--bd);border-radius:6px;padding:6px 10px;margin-top:4px;font-size:12px;color:var(--tx2);line-height:1.6;}
+.act-logs-h{font-size:10px;font-weight:700;color:var(--tx3);margin-bottom:2px;}
+.act-log{word-break:break-word;}
 @media (max-width:1100px){ .tri{grid-template-columns:1fr;} }
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .sg-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
@@ -1068,6 +1071,7 @@ function buildDetail(tc, r) {
           return (s.status === 'fail' ? '✗ ' : '✓ ') + eh(s.title);
         }).join('<br>') + '</div>';
       }
+      html += logList(t, false);
       if (t.error) html += '<div class="run-err">' + eh(t.error) + '</div>';
       if (t.attachments && t.attachments.length) html += evidenceList(t.attachments);
       html += '</div></div>';
@@ -1143,7 +1147,7 @@ function status0(r) { return (r && r.status) || 'pending'; }
 function evidenceList(list) {
   return '<div class="ev-list">' + list.map(function(a) {
     var src = '/' + String(a.path).split('/').map(encodeURIComponent).join('/');
-    return '<figure class="ev"><a href="' + eh(src) + '" target="_blank" rel="noopener"><img src="' + eh(src) + '" alt="' + eh(a.name) + '" loading="lazy"></a>' +
+    return '<figure class="ev"><a href="' + eh(src) + '" target="_blank" rel="noopener"><img src="' + eh(src) + '" alt="" loading="lazy"></a>' +
       '<figcaption>' + (a.status ? badge(a.status) : '') + '<span class="ev-n">' + eh(a.name) + '</span>' +
       (a.testTitle ? '<span class="ev-t">' + eh(a.testTitle) + '</span>' : '') + '</figcaption></figure>';
   }).join('') + '</div>';
@@ -1295,6 +1299,17 @@ function readDataURL(file) {
   });
 }
 
+// 테스트가 남긴 확인 로그(✅ …)를 "실제 동작"으로 표시. 로그가 없으면 검증 단계(test.step) 제목으로 대신 (withSteps)
+function logList(t, withSteps) {
+  var logs = t.logs || [];
+  var steps = withSteps && !logs.length ? (t.steps || []) : [];
+  if (!logs.length && !steps.length) return '';
+  return '<div class="act-logs"><div class="act-logs-h">' + (logs.length ? '실제 동작' : '검증 단계') + '</div>' +
+    logs.map(function(l) { return '<div class="act-log">' + eh(l) + '</div>'; }).join('') +
+    steps.map(function(s) { return '<div class="act-log">' + (s.status === 'fail' ? '✗ ' : '✓ ') + eh(s.title) + '</div>'; }).join('') +
+    '</div>';
+}
+
 // 3분할 오른쪽 "실제" 칸: 이 스텝(tcstep)에 연결된 자동화 테스트 결과 + 캡처
 function actualBlock(r, no, evidence, stepStatus) {
   var tests = (r.tests || []).filter(function(t) { return (t.tcSteps || []).indexOf(no) !== -1; });
@@ -1302,7 +1317,7 @@ function actualBlock(r, no, evidence, stepStatus) {
   if (tests.length) {
     html += '<div class="tri-field"><div class="cmp-lbl">🤖 자동화 결과</div><div class="act-tests">' + tests.map(function(t) {
       return '<div class="act-test">' + badge(t.status) + '<span class="act-title">' + eh(t.title) + '</span>' +
-        (t.error ? '<div class="run-err">' + eh(t.error) + '</div>' : '') + '</div>';
+        logList(t, true) + (t.error ? '<div class="run-err">' + eh(t.error) + '</div>' : '') + '</div>';
     }).join('') + '</div></div>';
   }
   if (evidence && evidence.length) html += '<div class="tri-field">' + evidenceRow(evidence) + '</div>';
