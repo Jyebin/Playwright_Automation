@@ -8,7 +8,9 @@ const path = require('path');
 const PORT = 9998;
 const ROOT = __dirname;
 const DB_FILE = path.join(ROOT, 'test-report-db.json');
-const ASSETS_DIR = path.join(ROOT, 'report-assets');   // 리포터가 저장한 테스트 캡처 이미지
+const ASSETS_DIR = path.join(ROOT, 'report-assets');   // 리포터가 저장한 테스트 캡처 이미지 (실행마다 재생성, git 제외)
+const SPEC_ASSETS_DIR = path.join(ROOT, 'spec-assets'); // 사용자가 올린 기대 화면(정상 스펙) 이미지 (git 포함)
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 // ─── XML 탐색 ──────────────────────────────────────────────────────────────────
 function findXMLFiles() {
@@ -73,6 +75,7 @@ function loadDB() {
   db.specs = db.specs || {};
   db.results = db.results || {};
   db.revisions = db.revisions || {};
+  db.spec_images = db.spec_images || {};   // { TC키: { 스텝index: [{ id, name, path, uploaded_at }] } }
   db.meta = db.meta || { last_sync: null, files: [] };
 
   // 마이그레이션: 수동 판정 필드 제거 (결과는 자동화 실행으로만 판정)
@@ -558,6 +561,17 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .ev figcaption .badge{padding:2px 8px;font-size:11px;}
 .ev-n{font-weight:600;color:var(--tx);}
 .ev-t{color:var(--tx3);}
+
+/* 기대 화면 이미지 업로드 */
+.ev-spec{border-color:#c7d2fe;}
+.drop{margin-top:8px;border:2px dashed var(--bd2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--tx3);display:flex;align-items:center;gap:10px;flex-wrap:wrap;outline:none;cursor:pointer;transition:all .15s;}
+.drop:focus,.drop.over{border-color:var(--ac);background:#eef2ff;color:var(--ac2);}
+.drop.need{border-color:#fca5a5;background:#fef2f2;color:#b91c1c;}
+.drop.need:focus,.drop.need.over{border-color:var(--fail);}
+.img-pick{background:#fff;border:1px solid var(--bd2);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--tx2);}
+.img-pick:hover{border-color:var(--ac);color:var(--ac2);}
+.img-del{margin-left:auto;background:none;border:none;color:var(--tx3);cursor:pointer;font-size:12px;padding:0 2px;}
+.img-del:hover{color:var(--fail);}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .sg-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
 .sg-txt{font-size:13px;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
@@ -709,6 +723,7 @@ ${formatSpecText.toString()}
 var cases = [];
 var results = {};
 var revisions = {};
+var specImages = {};   // 기대 화면 이미지 { TC키: { 스텝index: [...] } }
 var curFilter = 'all';
 var expandedKey = null;
 var editing = {};   // "TC키#스텝index" → 편집 모드
@@ -724,6 +739,10 @@ document.getElementById('tbody').addEventListener('click', function(e) {
   if (saveBtn) { saveRevision(saveBtn.dataset.key, parseInt(saveBtn.dataset.idx, 10), false); return; }
   var resetBtn = e.target.closest('.rev-reset');
   if (resetBtn) { saveRevision(resetBtn.dataset.key, parseInt(resetBtn.dataset.idx, 10), true); return; }
+  var pickBtn = e.target.closest('.img-pick');
+  if (pickBtn) { pickBtn.parentNode.querySelector('.img-input').click(); return; }
+  var delBtn = e.target.closest('.img-del');
+  if (delBtn) { deleteSpecImage(delBtn.dataset.key, parseInt(delBtn.dataset.idx, 10), delBtn.dataset.id); return; }
   var editBtn = e.target.closest('.rev-edit');
   if (editBtn) { startEdit(editBtn.dataset.key, parseInt(editBtn.dataset.idx, 10)); return; }
   var cancelBtn = e.target.closest('.rev-cancel');
@@ -732,6 +751,42 @@ document.getElementById('tbody').addEventListener('click', function(e) {
   var tr = e.target.closest('tr.tr');
   if (tr) toggleRow(tr.dataset.key);
 });
+
+// 기대 화면 이미지: 파일 선택 / 드래그 앤 드롭 / 붙여넣기(업로드 영역 클릭 후 Ctrl+V)
+(function() {
+  var tbody = document.getElementById('tbody');
+  var target = function(e) { var d = e.target.closest && e.target.closest('.drop'); return d ? { el: d, key: d.dataset.key, idx: parseInt(d.dataset.idx, 10) } : null; };
+
+  tbody.addEventListener('change', function(e) {
+    var input = e.target.closest('.img-input');
+    if (!input) return;
+    uploadSpecImages(input.dataset.key, parseInt(input.dataset.idx, 10), Array.prototype.slice.call(input.files));
+    input.value = '';
+  });
+  tbody.addEventListener('dragover', function(e) {
+    var t = target(e);
+    if (t) { e.preventDefault(); t.el.classList.add('over'); }
+  });
+  tbody.addEventListener('dragleave', function(e) {
+    var t = target(e);
+    if (t) t.el.classList.remove('over');
+  });
+  tbody.addEventListener('drop', function(e) {
+    var t = target(e);
+    if (!t) return;
+    e.preventDefault();
+    t.el.classList.remove('over');
+    uploadSpecImages(t.key, t.idx, e.dataTransfer.files);
+  });
+  tbody.addEventListener('paste', function(e) {
+    var t = target(e);
+    if (!t) return;
+    var files = e.clipboardData && e.clipboardData.files;
+    e.preventDefault();
+    if (!files || !files.length) { toast('클립보드에 이미지가 없습니다. 화면을 캡처한 뒤 붙여넣어 주세요.', 'err'); return; }
+    uploadSpecImages(t.key, t.idx, files);
+  });
+})();
 
 loadData();
 
@@ -742,6 +797,7 @@ function loadData() {
       cases     = data.cases     || [];
       results   = data.results   || {};
       revisions = data.revisions || {};
+      specImages = data.spec_images || {};
       updateStats(data.stats || {});
       buildFolderOptions();
       applyFilters();
@@ -911,7 +967,10 @@ function buildDetail(tc, r) {
     html += cmpRow(key, step, rf, 'description', '📋 절차', '', isEditing);
     html += cmpRow(key, step, rf, 'expectedResult', '✅ 기대 결과', ' exp', isEditing);
     html += cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '', isEditing);
-    if (!isEditing) html += evidenceRow(stepEvidence[no]);
+    if (!isEditing) {
+      html += specImageRow(key, step.index, (specImages[key] || {})[step.index], sst);
+      html += evidenceRow(stepEvidence[no]);
+    }
     html += '</div>';
 
     var attrs = ' data-key="' + eh(key) + '" data-idx="' + step.index + '"';
@@ -939,6 +998,88 @@ function evidenceList(list) {
       '<figcaption>' + (a.status ? badge(a.status) : '') + '<span class="ev-n">' + eh(a.name) + '</span>' +
       (a.testTitle ? '<span class="ev-t">' + eh(a.testTitle) + '</span>' : '') + '</figcaption></figure>';
   }).join('') + '</div>';
+}
+
+// 스텝 보기 모드의 "🖼️ 기대 화면" 행: 사용자가 올린 정상 스펙 이미지 + 업로드 영역
+// 실패한 스텝인데 기대 화면이 없으면 업로드 영역을 강조
+function specImageRow(key, idx, list, stepStatus) {
+  var attrs = ' data-key="' + eh(key) + '" data-idx="' + idx + '"';
+  var has = list && list.length;
+  var html = '<div class="cmp-lbl">🖼️ 기대 화면</div><div>';
+  if (has) {
+    html += '<div class="ev-list">' + list.map(function(img) {
+      var src = '/' + String(img.path).split('/').map(encodeURIComponent).join('/');
+      return '<figure class="ev ev-spec"><a href="' + eh(src) + '" target="_blank" rel="noopener"><img src="' + eh(src) + '" alt="' + eh(img.name) + '" loading="lazy"></a>' +
+        '<figcaption><span class="ev-n">' + eh(img.name) + '</span><span class="ev-t">' + fmtDate(img.uploaded_at) + '</span>' +
+        '<button class="img-del"' + attrs + ' data-id="' + eh(img.id) + '">삭제</button></figcaption></figure>';
+    }).join('') + '</div>';
+  }
+  var need = !has && stepStatus === 'fail';
+  html += '<div class="drop' + (need ? ' need' : '') + '" tabindex="0"' + attrs + '>' +
+    '<span>' + (need ? '⚠️ 실패한 스텝입니다. ' : '📎 ') + '정상 화면 이미지를 끌어다 놓거나, 여기를 클릭한 뒤 Ctrl+V로 붙여넣기</span>' +
+    '<button class="img-pick"' + attrs + '>파일 선택</button>' +
+    '<input type="file" class="img-input" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden' + attrs + '></div>';
+  return html + '</div>';
+}
+
+// 기대 화면 이미지 업로드 (파일 선택 / 드래그 / 붙여넣기 공통), 여러 장이면 순서대로
+function uploadSpecImages(key, idx, fileList) {
+  // (템플릿 리터럴 안이라 정규식 백슬래시 대신 목록 비교)
+  var allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+  var files = Array.prototype.filter.call(fileList || [], function(f) { return allowed.indexOf(f.type) !== -1; });
+  if (!files.length) { toast('PNG/JPG/WEBP/GIF 이미지만 올릴 수 있습니다.', 'err'); return Promise.resolve(); }
+  if (files.some(function(f) { return f.size > 10 * 1024 * 1024; })) { toast('10MB 이하 이미지만 올릴 수 있습니다.', 'err'); return Promise.resolve(); }
+
+  toast('이미지 업로드 중… (' + files.length + '개)');
+  return files.reduce(function(p, f) {
+    return p.then(function() { return readDataURL(f); })
+      .then(function(data) {
+        return fetch('/api/spec-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+          body: JSON.stringify({ key: key, index: idx, name: f.name || '붙여넣은 이미지', data: data })
+        });
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.ok) throw new Error(d.error || '업로드 실패');
+        setSpecImages(key, idx, d.images);
+      });
+  }, Promise.resolve())
+    .then(function() { applyFilters(); toast('기대 화면 이미지 ' + files.length + '개 저장', 'ok'); })
+    .catch(function(e) { applyFilters(); toast('오류: ' + e.message, 'err'); });
+}
+
+function deleteSpecImage(key, idx, id) {
+  if (!confirm('이 기대 화면 이미지를 삭제할까요?')) return;
+  fetch('/api/spec-image/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ key: key, index: idx, id: id })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!d.ok) throw new Error(d.error || '삭제 실패');
+      setSpecImages(key, idx, d.images);
+      applyFilters();
+      toast('기대 화면 이미지 삭제', 'ok');
+    })
+    .catch(function(e) { toast('오류: ' + e.message, 'err'); });
+}
+
+function setSpecImages(key, idx, images) {
+  if (!specImages[key]) specImages[key] = {};
+  if (images && images.length) specImages[key][idx] = images;
+  else delete specImages[key][idx];
+}
+
+function readDataURL(file) {
+  return new Promise(function(resolve, reject) {
+    var fr = new FileReader();
+    fr.onload = function() { resolve(fr.result); };
+    fr.onerror = function() { reject(new Error('파일 읽기 실패')); };
+    fr.readAsDataURL(file);
+  });
 }
 
 // 스텝 보기 모드의 "📸 실제 결과" 행 (tcstep으로 연결된 테스트의 캡처)
@@ -1096,12 +1237,18 @@ function sendJSON(res, code, obj) {
 }
 
 // 요청 본문을 Buffer로 모은 뒤 한 번에 UTF-8 디코딩 (청크 경계에서 한글이 잘려 깨지는 문제 방지)
-function readJSON(req) {
+// maxBytes 초과 시 본문을 버리고 오류 (이미지 업로드만 크게 허용)
+function readJSON(req, maxBytes = 1024 * 1024) {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    req.on('data', c => chunks.push(c));
+    let size = 0;
+    req.on('data', c => {
+      size += c.length;
+      if (size <= maxBytes) chunks.push(c);
+    });
     req.on('error', reject);
     req.on('end', () => {
+      if (size > maxBytes) { reject(new Error('요청 크기가 너무 큽니다.')); return; }
       const text = Buffer.concat(chunks).toString('utf8');
       if (text.includes('\uFFFD')) {
         reject(new Error('요청 본문이 UTF-8이 아닙니다. 한글이 깨지므로 저장하지 않았습니다.'));
@@ -1126,12 +1273,14 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // ── GET /report-assets/* ── 테스트 캡처 이미지 (report-assets 폴더 밖 접근 차단)
-  if (req.method === 'GET' && pathname.startsWith('/report-assets/')) {
+  // ── GET /report-assets/*, /spec-assets/* ── 테스트 캡처 / 기대 화면 이미지 (각 폴더 밖 접근 차단)
+  const assetPrefix = ['/report-assets/', '/spec-assets/'].find(p => pathname.startsWith(p));
+  if (req.method === 'GET' && assetPrefix) {
+    const baseDir = assetPrefix === '/report-assets/' ? ASSETS_DIR : SPEC_ASSETS_DIR;
     let file = '';
     try { file = path.resolve(ROOT, '.' + decodeURIComponent(pathname)); } catch (e) {}
-    const type = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' }[path.extname(file).toLowerCase()];
-    if (!file.startsWith(ASSETS_DIR + path.sep) || !type || !fs.existsSync(file)) {
+    const type = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' }[path.extname(file).toLowerCase()];
+    if (!file.startsWith(baseDir + path.sep) || !type || !fs.existsSync(file)) {
       res.writeHead(404);
       res.end('Not found');
       return;
@@ -1148,6 +1297,7 @@ const server = http.createServer(async (req, res) => {
       cases:     Object.values(db.specs),
       results:   db.results,
       revisions: db.revisions,
+      spec_images: db.spec_images,
       stats:     getStats(db),
       meta:      db.meta
     });
@@ -1192,6 +1342,59 @@ const server = http.createServer(async (req, res) => {
       saveDB(db);
 
       sendJSON(res, 200, { ok: true, revision: revs[index] || null, stats: getStats(db) });
+    } catch (e) {
+      sendJSON(res, 400, { ok: false, error: e.message });
+    }
+    return;
+  }
+
+  // ── POST /api/spec-image ── 기대 화면 이미지 업로드 { key, index, name, data: "data:image/png;base64,..." }
+  if (req.method === 'POST' && pathname === '/api/spec-image') {
+    try {
+      const { key, index, name, data } = await readJSON(req, MAX_IMAGE_BYTES * 1.4 + 4096);
+      const db = loadDB();
+      const spec = db.specs[key];   // TC키는 XML 스펙에 있는 것만 허용 (경로에 쓰이므로)
+      if (!spec) { sendJSON(res, 404, { ok: false, error: 'TC를 찾을 수 없습니다: ' + key }); return; }
+      if (!(spec.steps || []).some(s => s.index === index)) { sendJSON(res, 400, { ok: false, error: '스텝을 찾을 수 없습니다: ' + index }); return; }
+
+      const m = /^data:image\/(png|jpeg|webp|gif);base64,([A-Za-z0-9+/=]+)$/.exec(String(data || ''));
+      if (!m) { sendJSON(res, 400, { ok: false, error: 'PNG/JPG/WEBP/GIF 이미지만 올릴 수 있습니다.' }); return; }
+      const buf = Buffer.from(m[2], 'base64');
+      if (!buf.length || buf.length > MAX_IMAGE_BYTES) { sendJSON(res, 400, { ok: false, error: '10MB 이하 이미지만 올릴 수 있습니다.' }); return; }
+
+      const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      const ext = { png: '.png', jpeg: '.jpg', webp: '.webp', gif: '.gif' }[m[1]];
+      const rel = `spec-assets/${key}/step${index + 1}/${id}${ext}`;
+      fs.mkdirSync(path.dirname(path.join(ROOT, rel)), { recursive: true });
+      fs.writeFileSync(path.join(ROOT, rel), buf);
+
+      const byStep = db.spec_images[key] = db.spec_images[key] || {};
+      const list = byStep[index] = byStep[index] || [];
+      list.push({ id, name: String(name || '이미지').slice(0, 100), path: rel, uploaded_at: new Date().toISOString() });
+      saveDB(db);
+      sendJSON(res, 200, { ok: true, images: list });
+    } catch (e) {
+      sendJSON(res, 400, { ok: false, error: e.message });
+    }
+    return;
+  }
+
+  // ── POST /api/spec-image/delete ── 기대 화면 이미지 삭제 { key, index, id }
+  if (req.method === 'POST' && pathname === '/api/spec-image/delete') {
+    try {
+      const { key, index, id } = await readJSON(req);
+      const db = loadDB();
+      const list = (db.spec_images[key] || {})[index] || [];
+      const pos = list.findIndex(img => img.id === id);
+      if (pos === -1) { sendJSON(res, 404, { ok: false, error: '이미지를 찾을 수 없습니다.' }); return; }
+
+      const file = path.resolve(ROOT, list[pos].path);
+      if (file.startsWith(SPEC_ASSETS_DIR + path.sep)) fs.rmSync(file, { force: true });
+      list.splice(pos, 1);
+      if (!list.length) delete db.spec_images[key][index];
+      if (!Object.keys(db.spec_images[key]).length) delete db.spec_images[key];
+      saveDB(db);
+      sendJSON(res, 200, { ok: true, images: list });
     } catch (e) {
       sendJSON(res, 400, { ok: false, error: e.message });
     }
