@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "report": "node report-server.js",
+    "revisions": "node scripts/tc-revisions.js",
     "runner": "node test-runner.js"
   },
   "keywords": [],
