@@ -146,7 +146,8 @@ class ReportDBReporter implements Reporter {
         if (a.path) fs.copyFileSync(a.path, file);
         else fs.writeFileSync(file, a.body!);
         return {
-          name: a.name === 'screenshot' ? '실패 시 화면' : a.name,
+          // 'screenshot' = playwright.config 의 screenshot: 'on' 이 테스트 종료 시 자동으로 찍은 화면
+          name: a.name === 'screenshot' ? (result.status === 'passed' ? '테스트 종료 시 화면' : '실패 시 화면') : a.name,
           path: path.relative(ROOT, file).split(path.sep).join('/'),
         };
       });

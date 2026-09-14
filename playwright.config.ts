@@ -38,7 +38,7 @@ export default defineConfig({
     baseURL: process.env.BASE_URL,
     locale: 'ko-KR',
     trace: 'retain-on-failure',       // 실패 시 trace 저장 (클릭/네트워크 재현)
-    screenshot: 'only-on-failure',   // 실패 시 스크린샷 자동 저장
+    screenshot: 'on',                // 모든 테스트 종료 시 화면 저장 → 결과서 "실제 결과" (report-db-reporter)
     video: 'retain-on-failure',      // 실패 시 영상 자동 저장
     storageState: '.auth/user.json',
   },
