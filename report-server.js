@@ -611,6 +611,30 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .img-pick:hover{border-color:var(--ac);color:var(--ac2);}
 .img-del{margin-left:auto;background:none;border:none;color:var(--tx3);cursor:pointer;font-size:12px;padding:0 2px;}
 .img-del:hover{color:var(--fail);}
+
+/* 보기 모드 3분할: 절차·테스트 데이터 | 기대 | 실제 */
+.tri{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:14px;padding:12px 0;}
+.tri-col{display:flex;flex-direction:column;gap:12px;min-width:0;border-radius:8px;padding:12px;background:#fafbfc;border:1px solid var(--bd);}
+.tri-exp{background:#f8f9ff;border-color:#c7d2fe;}
+.tri-act{background:#fff;}
+.tri-act.st-pass{border-color:#86efac;background:#f7fef9;}
+.tri-act.st-fail{border-color:#fca5a5;background:#fffafa;}
+.tri-act.st-skip{border-color:#fcd34d;background:#fffdf5;}
+.tri-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;color:var(--tx2);padding-bottom:8px;border-bottom:1px solid var(--bd);}
+.tri-h .badge{font-size:12px;padding:3px 10px;}
+.tri-field{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.tri-field > .cmp-lbl{padding-top:0;flex-direction:row;align-items:center;flex-wrap:wrap;}
+.tri .sg-txt{background:#fff;padding:8px 12px;border-radius:6px;min-height:40px;border:1px solid var(--bd);}
+.tri .sg-txt.exp{background:#eef2ff;border-color:#e0e7ff;}
+.tri .sg-txt.missing{background:#fef2f2;color:#b91c1c;border:1px dashed #fca5a5;font-size:13px;}
+.tri .ev{max-width:100%;}
+.act-tests{display:flex;flex-direction:column;gap:8px;}
+.act-test{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;}
+.act-test .badge{padding:2px 8px;font-size:11px;}
+.act-test .run-err{width:100%;margin-top:0;}
+.act-title{color:var(--tx);font-weight:600;}
+.act-empty{font-size:12px;color:var(--tx3);line-height:1.7;background:var(--s2);border-radius:6px;padding:10px 12px;}
+@media (max-width:1100px){ .tri{grid-template-columns:1fr;} }
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .sg-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
 .sg-txt{font-size:13px;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
@@ -1012,16 +1036,26 @@ function buildDetail(tc, r) {
     html += '<div class="step-head"><span class="step-num">Step ' + no + '</span><span class="step-title">' + eh(title) + '</span>';
     html += '<span class="hdr-sp"></span>' + badge(sst, sst === 'unmapped' ? '이 스텝에 연결된 자동화 테스트가 없습니다 (tcstep annotation 필요)' : '') + '</div>';
     var rf = (rev && rev.fields) || {};
-    html += '<div class="step-body"><div class="cmp-grid ' + (isEditing ? 'editing' : 'view') + '">';
-    if (isEditing) html += '<div class="cmp-h"></div><div class="cmp-h">원본 스펙</div><div class="cmp-h">✏️ 수정 (내용을 고친 뒤 저장)</div>';
-    html += cmpRow(key, step, rf, 'description', '📋 절차', '', isEditing);
-    html += cmpRow(key, step, rf, 'expectedResult', '✅ 기대 결과', ' exp', isEditing);
-    html += cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '', isEditing);
-    if (!isEditing) {
-      html += specImageRow(key, step.index, (specImages[key] || {})[step.index], sst);
-      html += evidenceRow(stepEvidence[no]);
+    if (isEditing) {
+      html += '<div class="step-body"><div class="cmp-grid editing">';
+      html += '<div class="cmp-h"></div><div class="cmp-h">원본 스펙</div><div class="cmp-h">✏️ 수정 (내용을 고친 뒤 저장)</div>';
+      html += cmpRow(key, step, rf, 'description', '📋 절차', '', true);
+      html += cmpRow(key, step, rf, 'expectedResult', '✅ 기대 결과', ' exp', true);
+      html += cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '', true);
+      html += '</div>';
+    } else {
+      // 보기 모드 3분할: [절차·테스트 데이터] | [기대: 기대 결과·기대 화면] | [실제: 자동화 결과·캡처]
+      html += '<div class="step-body"><div class="tri">';
+      html += '<div class="tri-col tri-proc"><div class="tri-h">📋 절차 · 테스트 데이터</div>' +
+        '<div class="tri-field">' + cmpRow(key, step, rf, 'description', '📋 절차', '', false) + '</div>' +
+        '<div class="tri-field">' + cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '', false) + '</div></div>';
+      html += '<div class="tri-col tri-exp"><div class="tri-h">✅ 기대</div>' +
+        '<div class="tri-field">' + cmpRow(key, step, rf, 'expectedResult', '기대 결과', ' exp', false) + '</div>' +
+        '<div class="tri-field">' + specImageRow(key, step.index, (specImages[key] || {})[step.index], sst) + '</div></div>';
+      html += '<div class="tri-col tri-act st-' + sst + '"><div class="tri-h">🔍 실제' + badge(sst) + '</div>' +
+        actualBlock(r, no, stepEvidence[no], sst) + '</div>';
+      html += '</div>';
     }
-    html += '</div>';
 
     var attrs = ' data-key="' + eh(key) + '" data-idx="' + step.index + '"';
     html += '<div class="rev-actions">';
@@ -1130,6 +1164,25 @@ function readDataURL(file) {
     fr.onerror = function() { reject(new Error('파일 읽기 실패')); };
     fr.readAsDataURL(file);
   });
+}
+
+// 3분할 오른쪽 "실제" 칸: 이 스텝(tcstep)에 연결된 자동화 테스트 결과 + 캡처
+function actualBlock(r, no, evidence, stepStatus) {
+  var tests = (r.tests || []).filter(function(t) { return (t.tcSteps || []).indexOf(no) !== -1; });
+  var html = '';
+  if (tests.length) {
+    html += '<div class="tri-field"><div class="cmp-lbl">🤖 자동화 결과</div><div class="act-tests">' + tests.map(function(t) {
+      return '<div class="act-test">' + badge(t.status) + '<span class="act-title">' + eh(t.title) + '</span>' +
+        (t.error ? '<div class="run-err">' + eh(t.error) + '</div>' : '') + '</div>';
+    }).join('') + '</div></div>';
+  }
+  if (evidence && evidence.length) html += '<div class="tri-field">' + evidenceRow(evidence) + '</div>';
+  if (!tests.length) {
+    html += '<div class="act-empty">' + (stepStatus === 'pending'
+      ? '아직 실행 기록이 없습니다.'
+      : '이 스텝에 연결된 자동화 테스트가 없습니다.<br>테스트별 결과와 캡처는 위 "자동화 실행 결과"에서 확인하세요.') + '</div>';
+  }
+  return html;
 }
 
 // 스텝 보기 모드의 "📸 실제 결과" 행 (tcstep으로 연결된 테스트의 캡처)
