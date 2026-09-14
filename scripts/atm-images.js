@@ -2,10 +2,13 @@
 'use strict';
 /*
   ATM(Zephyr Scale) 스텝에 첨부된 이미지를 atm-assets/ 로 내려받아 결과서에서 클릭 없이 바로 보이게 한다.
-  ATM 이미지 주소는 로그인(JWT) 없이는 "JWT was not found in cookies or headers" 로 막히므로,
-  브라우저를 띄워 Jira에 로그인한 세션으로 받는다. (로그인 정보는 .auth/atm-browser 에 저장, git 제외)
 
-    npm run atm-images      브라우저가 열리면 Jira 로그인 → ATM 테스트 케이스 하나를 열면 자동으로 전체 다운로드
+  ATM 이미지 주소는 JWT가 없으면 "JWT was not found in cookies or headers" 로 막힌다.
+  Jira에 로그인한 브라우저에서 ATM 테스트 케이스 화면을 한 번 열면 ATM 앱(서비스 워커)이 인증을 준비하고,
+  그 뒤로는 같은 세션에서 이미지 주소를 직접 받을 수 있다.
+
+    npm run atm-images      저장된 로그인 세션(.auth/atm-browser)으로 창 없이 받기
+                            세션이 없거나 만료됐으면 브라우저 창을 띄워 로그인 요청 → 로그인 후 자동 진행
                             이미 받은 이미지는 건너뜀 (XML이 바뀌면 새 이미지만 추가로 받음)
 */
 const fs = require('fs');
@@ -19,10 +22,11 @@ require('dotenv').config({ path: path.join(ROOT, '.env'), quiet: true });
 const OUT_DIR = path.join(ROOT, 'atm-assets');
 const MANIFEST = path.join(OUT_DIR, 'manifest.json');
 const PROFILE = path.join(ROOT, '.auth', 'atm-browser');
-const LOGIN_TIMEOUT_MS = 10 * 60 * 1000;
+const JIRA_URL = (process.env.JIRA_URL || '').replace(/\/$/, '');
 const EXT = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp', 'image/gif': '.gif' };
 
 const baseUrl = u => u.split('?')[0];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // XML 전체에서 ATM 이미지 주소 수집 (주소 → 처음 나온 TC 키)
 function collectImages() {
@@ -53,7 +57,46 @@ function save(manifest, url, body, contentType) {
   manifest[url] = { file: 'atm-assets/' + file, downloaded_at: new Date().toISOString() };
 }
 
+// ATM 테스트 케이스 화면 열기 (여기서 ATM 앱이 이미지 인증을 준비)
+async function openTestCase(context, key) {
+  const page = context.pages()[0] || await context.newPage();
+  const project = key.split('-')[0];
+  await page.goto(`${JIRA_URL}/projects/${project}?selectedItem=com.atlassian.plugins.atlassian-connect-plugin:com.kanoah.test-manager__main-project-page#!/testCase/${key}`, { timeout: 60000 })
+    .catch(() => {});
+  return page;
+}
+
+const onLoginPage = page => /id\.atlassian\.com|\/login/.test(page.url());
+
+async function tryFetch(context, url) {
+  try {
+    const r = await context.request.get(url, { timeout: 30000 });
+    if (r.ok() && String(r.headers()['content-type'] || '').startsWith('image/')) return r;
+  } catch (e) {}
+  return null;
+}
+
+// 이미지 주소를 직접 받을 수 있을 때까지 대기 (창이 닫히면 중단)
+async function waitForAccess(context, probe, timeoutMs, { reopenKey } = {}) {
+  const started = Date.now();
+  let reopened = false;
+  while (Date.now() - started < timeoutMs) {
+    if (context.pages().length === 0) return false;
+    if (await tryFetch(context, probe)) return true;
+    // 로그인 직후 Jira로 돌아왔는데 아직 인증 전이면 ATM 화면을 다시 열어 인증 준비
+    const page = context.pages()[0];
+    if (reopenKey && !reopened && page && !onLoginPage(page) && page.url().startsWith(JIRA_URL) && Date.now() - started > 15000) {
+      await openTestCase(context, reopenKey);
+      reopened = true;
+    }
+    await sleep(3000);
+  }
+  return false;
+}
+
 (async () => {
+  if (!JIRA_URL) throw new Error('.env 에 JIRA_URL 이 필요합니다.');
+
   const images = collectImages();
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const manifest = loadManifest();
@@ -61,77 +104,53 @@ function save(manifest, url, body, contentType) {
   console.log(`ATM 이미지 ${images.size}개 중 받을 이미지 ${pending.length}개`);
   if (!pending.length) return;
 
-  const pendingByBase = new Map(pending.map(u => [baseUrl(u), u]));
-  let authQuery = '';   // ATM 화면이 이미지 주소에 붙여 쓰는 인증 쿼리가 있으면 재사용
-
-  const context = await chromium.launchPersistentContext(PROFILE, { headless: false, viewport: null });
-
-  // ATM 화면이 불러오는 이미지 응답을 그대로 저장 (인증 방식과 무관하게 동작)
-  context.on('response', async res => {
-    const original = pendingByBase.get(baseUrl(res.url()));
-    if (!original || manifest[original] || !res.ok()) return;
-    try {
-      save(manifest, original, await res.body(), res.headers()['content-type']);
-      const q = res.url().slice(baseUrl(res.url()).length);
-      if (q) authQuery = q;
-    } catch (e) {}
-  });
-
-  const tryFetch = async url => {
-    for (const candidate of [url, authQuery && baseUrl(url) + authQuery].filter(Boolean)) {
-      try {
-        const r = await context.request.get(candidate, { timeout: 30000 });
-        if (r.ok() && String(r.headers()['content-type'] || '').startsWith('image/')) return r;
-      } catch (e) {}
-    }
-    return null;
-  };
-
-  // 1) 이미 로그인된 세션이면 바로 받기, 아니면 로그인 안내 후 대기
   const probe = pending[0];
-  if (!(await tryFetch(probe))) {
-    const page = context.pages()[0] || await context.newPage();
-    const jira = (process.env.JIRA_URL || 'https://id.atlassian.com').replace(/\/$/, '');
-    const firstKey = images.get(probe);
-    const project = firstKey.split('-')[0];
-    await page.goto(`${jira}/projects/${project}?selectedItem=com.atlassian.plugins.atlassian-connect-plugin:com.kanoah.test-manager__main-project-page#!/testCase/${firstKey}`).catch(() => {});
-    console.log('\n브라우저에서 Jira에 로그인한 뒤, ATM 테스트 케이스(예: ' + firstKey + ')가 이미지와 함께 보이면 자동으로 다운로드를 시작합니다.');
-    console.log('(최대 10분 대기, 창을 닫으면 중단)\n');
+  const probeKey = images.get(probe);
 
-    const started = Date.now();
-    let ok = false;
-    while (Date.now() - started < LOGIN_TIMEOUT_MS) {
-      await new Promise(r => setTimeout(r, 5000));
-      if (context.pages().length === 0) break;
-      if (manifest[probe] || await tryFetch(probe)) { ok = true; break; }
-    }
+  // 1) 저장된 세션으로 창 없이 시도
+  let context = await chromium.launchPersistentContext(PROFILE, { headless: true, viewport: { width: 1600, height: 1000 } });
+  let page = await openTestCase(context, probeKey);
+  let ok = !onLoginPage(page) && await waitForAccess(context, probe, 60000);
+
+  // 2) 세션 없음/만료 → 창을 띄워 로그인 요청
+  if (!ok) {
+    await context.close();
+    context = await chromium.launchPersistentContext(PROFILE, { headless: false, viewport: null });
+    page = await openTestCase(context, probeKey);
+    console.log(`\n브라우저에서 Jira에 로그인해 주세요. 로그인 후 ATM 테스트 케이스(${probeKey}) 화면이 열리면 자동으로 다운로드를 시작합니다.`);
+    console.log('(최대 10분 대기, 창을 닫으면 중단)\n');
+    ok = await waitForAccess(context, probe, 10 * 60 * 1000, { reopenKey: probeKey });
     if (!ok) {
-      console.log('로그인 세션으로 이미지를 받지 못했습니다. ATM 테스트 케이스 화면에서 이미지가 보이는지 확인 후 다시 실행해 주세요.');
-      fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
-      await context.close();
+      await context.close().catch(() => {});
+      console.log('이미지 접근 권한을 얻지 못했습니다. ATM 테스트 케이스 화면에서 이미지가 보이는지 확인 후 다시 실행해 주세요.');
       process.exitCode = 1;
       return;
     }
   }
 
-  // 2) 남은 이미지 병렬 다운로드
-  const queue = pending.filter(u => !manifest[u]);
-  let failed = [];
-  await Promise.all(Array.from({ length: 4 }, async () => {
+  // 3) 병렬 다운로드
+  console.log('인증 확인 — 다운로드 시작');
+  const queue = [...pending];
+  const failed = [];
+  let done = 0;
+  await Promise.all(Array.from({ length: 6 }, async () => {
     while (queue.length) {
       const url = queue.shift();
-      const r = await tryFetch(url);
-      if (r) save(manifest, url, await r.body(), r.headers()['content-type']);
-      else failed.push(url);
+      const r = await tryFetch(context, url);
+      if (r) {
+        save(manifest, url, await r.body(), r.headers()['content-type']);
+        if (++done % 50 === 0) console.log(`  ${done}/${pending.length}`);
+      } else {
+        failed.push(url);
+      }
     }
   }));
 
   fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
   await context.close();
-  const done = pending.length - failed.length;
   console.log(`\n✅ 다운로드 ${done}개, 실패 ${failed.length}개 → atm-assets/ (결과서 새로고침하면 바로 보입니다)`);
   if (failed.length) {
-    console.log('실패한 이미지 (TC):', failed.slice(0, 10).map(u => images.get(u)).join(', '), failed.length > 10 ? '…' : '');
+    console.log('실패한 이미지의 TC:', [...new Set(failed.map(u => images.get(u)))].join(', '));
     process.exitCode = 1;
   }
 })().catch(e => { console.error('오류:', e.message); process.exit(1); });
