@@ -44,9 +44,13 @@ function findXMLFiles() {
         run_at, updated_at, auto_synced
       }
     },
-    revisions: {                      // 사용자가 입력한 수정결과 (XML 동기화에도 유지)
+    revisions: {                      // 결과서에서 수정한 스펙 (XML 동기화에도 유지)
       "TCMETA-T416": {
-        "0": { expectedResult, original, updated_at, code_applied, applied_at }   // 키는 스텝 index(0부터)
+        "0": {                        // 키는 스텝 index(0부터)
+          fields:   { description?, expectedResult?, testData? },   // 원본과 달라진 항목만
+          original: { ...같은 항목의 XML 원본 },
+          updated_at, code_applied, applied_at
+        }
       }
     },
     meta: { last_sync, files }
@@ -75,8 +79,21 @@ function loadDB() {
     delete r.step_results;
     delete r.notes;
   }
+
+  // 마이그레이션: 수정결과 v1 { expectedResult, original: "..." } → v2 { fields, original: {...} }
+  for (const revs of Object.values(db.revisions)) {
+    for (const rev of Object.values(revs)) {
+      if (rev.fields) continue;
+      rev.fields = { expectedResult: rev.expectedResult };
+      rev.original = { expectedResult: rev.original || '' };
+      delete rev.expectedResult;
+    }
+  }
   return db;
 }
+
+// 결과서에서 수정 가능한 스텝 항목
+const REV_FIELDS = ['description', 'expectedResult', 'testData'];
 
 function saveDB(db) {
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
@@ -351,7 +368,13 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .step-title{font-size:13px;font-weight:600;color:var(--tx);}
 .step-body{padding:4px 16px 14px;}
 
-.spec-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding:12px 0 4px;}
+.cmp-grid{display:grid;grid-template-columns:120px 1fr 1fr;gap:10px 16px;padding:12px 0;align-items:start;}
+.cmp-h{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.4px;}
+.cmp-lbl{font-size:12px;font-weight:700;color:var(--tx2);padding-top:8px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
+.cmp-grid .sg-txt{background:var(--s2);padding:8px 12px;border-radius:6px;min-height:40px;}
+.cmp-grid .sg-txt.exp{background:#dcfce7;}
+.cmp-grid .sg-txt.old{background:var(--s2);color:var(--tx3);text-decoration:line-through;}
+.none{color:var(--tx3);font-style:italic;}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .sg-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
 .sg-txt{font-size:13px;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
@@ -362,8 +385,11 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 /* 수정결과 */
 .rev-ta{background:#fff;border:2px solid var(--bd);color:var(--tx);padding:10px 12px;border-radius:var(--r);font-size:13px;line-height:1.6;resize:vertical;min-height:84px;font-family:inherit;outline:none;width:100%;transition:border-color .15s;}
 .rev-ta:focus{border-color:var(--ac);}
-.rev-ta::placeholder{color:var(--tx3);}
-.rev-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.rev-ta.changed{border-color:#f59e0b;background:#fffbeb;}
+.rev-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--bd);padding-top:12px;}
+.rev-reset{background:#fff;color:var(--tx2);border:1px solid var(--bd2);padding:8px 14px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;}
+.rev-reset:hover{border-color:var(--fail);color:var(--fail);}
+.rev-reset:disabled{opacity:.45;cursor:not-allowed;}
 .rev-save{background:var(--ac);color:#fff;border:none;padding:8px 18px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;}
 .rev-save:hover{background:var(--ac2);}
 .rev-save:disabled{opacity:.45;cursor:not-allowed;}
@@ -396,7 +422,8 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .prog{height:3px;background:var(--ac);width:0%;transition:width .4s;position:fixed;top:0;left:0;z-index:1000;}
 
 @media (max-width:900px){
-  .spec-grid{grid-template-columns:1fr;}
+  .cmp-grid{grid-template-columns:1fr;}
+  .cmp-h{display:none;}
   .dc{padding:0 12px 20px;}
 }
 </style>
@@ -468,7 +495,7 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
       <th style="width:130px">TC 번호</th>
       <th>테스트 케이스 / 목적</th>
       <th style="width:240px">자동화 결과</th>
-      <th style="width:90px">수정결과</th>
+      <th style="width:90px">스펙 수정</th>
       <th style="width:170px">폴더</th>
       <th style="width:54px;text-align:center">스텝</th>
     </tr></thead>
@@ -492,7 +519,9 @@ var ICON  = { pass:'✓', fail:'✗', pending:'○', skip:'–', unmapped:'·' }
 // 행 토글 / 수정결과 저장 (이벤트 위임 — 인라인 onclick에 TC 키를 넣지 않음)
 document.getElementById('tbody').addEventListener('click', function(e) {
   var saveBtn = e.target.closest('.rev-save');
-  if (saveBtn) { saveRevision(saveBtn.dataset.key, parseInt(saveBtn.dataset.idx, 10)); return; }
+  if (saveBtn) { saveRevision(saveBtn.dataset.key, parseInt(saveBtn.dataset.idx, 10), false); return; }
+  var resetBtn = e.target.closest('.rev-reset');
+  if (resetBtn) { saveRevision(resetBtn.dataset.key, parseInt(resetBtn.dataset.idx, 10), true); return; }
   if (e.target.closest('textarea, button, a, .dr')) return;
   var tr = e.target.closest('tr.tr');
   if (tr) toggleRow(tr.dataset.key);
@@ -662,21 +691,20 @@ function buildDetail(tc, r) {
     html += '<div class="step">';
     html += '<div class="step-head"><span class="step-num">Step ' + no + '</span><span class="step-title">' + eh(title) + '</span>';
     html += '<span class="hdr-sp"></span>' + badge(sst, sst === 'unmapped' ? '이 스텝에 연결된 자동화 테스트가 없습니다 (tcstep annotation 필요)' : '') + '</div>';
-    html += '<div class="step-body"><div class="spec-grid">';
-
-    html += '<div class="sg-col"><div class="sg-lbl">📋 절차</div><div class="sg-txt">' + enl(step.description || '—') + '</div>';
-    if (step.testData) html += '<div class="test-data">📌 테스트 데이터: ' + eh(step.testData) + '</div>';
+    var rf = (rev && rev.fields) || {};
+    html += '<div class="step-body"><div class="cmp-grid">';
+    html += '<div class="cmp-h"></div><div class="cmp-h">원본 스펙</div><div class="cmp-h">✏️ 수정 (내용을 고친 뒤 저장)</div>';
+    html += cmpRow(key, step, rf, 'description', '📋 절차', '');
+    html += cmpRow(key, step, rf, 'expectedResult', '✅ 기대 결과', ' exp');
+    html += cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '');
     html += '</div>';
 
-    html += '<div class="sg-col"><div class="sg-lbl">✅ 기대 결과' + (rev ? ' <span class="tag tag-old">수정 전</span>' : '') + '</div>';
-    html += '<div class="sg-txt exp' + (rev ? ' old' : '') + '">' + enl(step.expectedResult || '—') + '</div></div>';
+    var attrs = ' data-key="' + eh(key) + '" data-idx="' + step.index + '"';
+    html += '<div class="rev-actions"><button class="rev-save"' + attrs + '>💾 저장</button>';
+    if (rev) html += '<button class="rev-reset"' + attrs + '>↺ 원래대로</button>';
+    html += revState(rev) + '</div>';
 
-    html += '<div class="sg-col"><div class="sg-lbl">✏️ 수정 결과</div>';
-    html += '<textarea class="rev-ta" id="rev-' + eh(key) + '-' + step.index + '" placeholder="기대 결과를 바꿔야 하면 수정할 내용을 입력하고 저장하세요. 비우고 저장하면 원래 기대 결과로 돌아갑니다.">' + eh(rev ? rev.expectedResult : '') + '</textarea>';
-    html += '<div class="rev-actions"><button class="rev-save" data-key="' + eh(key) + '" data-idx="' + step.index + '">💾 저장</button>' + revState(rev) + '</div>';
-    html += '</div>';
-
-    html += '</div></div></div>';
+    html += '</div></div>';
   });
   html += '</div>';
 
@@ -685,6 +713,16 @@ function buildDetail(tc, r) {
 }
 
 function status0(r) { return (r && r.status) || 'pending'; }
+
+// 한 항목의 [라벨 | 원본 | 수정 입력] 행. 수정 칸에는 현재 유효한 값(수정본 또는 원본)을 채움
+function cmpRow(key, step, rf, field, label, cls) {
+  var orig    = step[field] || '';
+  var changed = Object.prototype.hasOwnProperty.call(rf, field);
+  var val     = changed ? rf[field] : orig;
+  return '<div class="cmp-lbl">' + label + (changed ? '<span class="tag tag-wait">수정됨</span>' : '') + '</div>' +
+    '<div class="sg-txt' + cls + (changed ? ' old' : '') + '">' + (orig ? enl(orig) : '<span class="none">없음</span>') + '</div>' +
+    '<textarea class="rev-ta' + (changed ? ' changed' : '') + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(val) + '</textarea>';
+}
 
 function badge(status, tip) {
   var s = LABEL[status] ? status : 'pending';
@@ -710,16 +748,23 @@ function toggleRow(key) {
 }
 
 // ── 수정결과 저장 ─────────────────────────────────────────
-function saveRevision(key, idx) {
-  var ta = document.getElementById('rev-' + key + '-' + idx);
-  if (!ta) return;
-  var btn = document.querySelector('.rev-save[data-key="' + key + '"][data-idx="' + idx + '"]');
-  if (btn) btn.disabled = true;
+// reset=true 이면 이 스텝의 수정 내용을 지우고 원본 스펙으로 되돌림
+function saveRevision(key, idx, reset) {
+  var sel = '[data-key="' + key + '"][data-idx="' + idx + '"]';
+  if (reset && !confirm('이 스텝의 수정 내용을 지우고 원본 스펙으로 되돌릴까요?')) return;
+
+  // 세 항목을 항상 함께 전송 (보내지 않은 항목은 수정 없음으로 처리됨)
+  var fields = {};
+  if (!reset) {
+    document.querySelectorAll('.rev-ta' + sel).forEach(function(ta) { fields[ta.dataset.field] = ta.value; });
+  }
+  var btns = document.querySelectorAll('.rev-save' + sel + ', .rev-reset' + sel);
+  btns.forEach(function(b) { b.disabled = true; });
 
   fetch('/api/revision', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
-    body: JSON.stringify({ key: key, index: idx, expectedResult: ta.value })
+    body: JSON.stringify({ key: key, index: idx, fields: fields })
   })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -729,10 +774,10 @@ function saveRevision(key, idx) {
       else delete revisions[key][idx];
       updateStats(data.stats);
       applyFilters();
-      toast(data.revision ? '수정 결과 저장됨 — 코드 반영 대기' : '수정 결과 삭제 — 원래 기대 결과 사용', 'ok');
+      toast(data.revision ? '스펙 수정 저장됨 — 코드 반영 대기' : (reset ? '원본 스펙으로 되돌림' : '원본과 같음 — 저장할 수정 없음'), 'ok');
     })
     .catch(function(e) { toast('오류: ' + e.message, 'err'); })
-    .finally(function() { if (btn) btn.disabled = false; });
+    .finally(function() { btns.forEach(function(b) { b.disabled = false; }); });
 }
 
 // ── XML 동기화 ──────────────────────────────────────────────
@@ -819,25 +864,33 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // ── POST /api/revision ── 스텝 기대결과 수정 (비우거나 원본과 같으면 수정 취소)
+  // ── POST /api/revision ── 스텝 스펙 수정 { key, index, fields: { description, expectedResult, testData } }
+  //    원본과 달라진 항목만 저장. 달라진 항목이 없으면(fields: {} 포함) 수정 취소
   if (req.method === 'POST' && pathname === '/api/revision') {
     try {
-      const { key, index, expectedResult } = await readJSON(req);
+      const { key, index, fields } = await readJSON(req);
       const db = loadDB();
       const spec = db.specs[key];
       if (!spec) { sendJSON(res, 404, { ok: false, error: 'TC를 찾을 수 없습니다: ' + key }); return; }
       const step = (spec.steps || []).find(s => s.index === index);
       if (!step) { sendJSON(res, 400, { ok: false, error: '스텝을 찾을 수 없습니다: ' + index }); return; }
 
-      const text = String(expectedResult || '').trim();
-      const revs = db.revisions[key] || {};
+      const changed = {};
+      for (const f of REV_FIELDS) {
+        if (!fields || typeof fields[f] !== 'string') continue;
+        const text = fields[f].trim();
+        if (text !== (step[f] || '').trim()) changed[f] = text;
+      }
 
-      if (!text || text === (step.expectedResult || '').trim()) {
+      const revs = db.revisions[key] || {};
+      const prev = revs[index];
+      if (!Object.keys(changed).length) {
         delete revs[index];
-      } else if (!revs[index] || revs[index].expectedResult !== text) {
+      } else if (!prev || JSON.stringify(prev.fields) !== JSON.stringify(changed)) {
+        // 내용이 바뀌었을 때만 갱신 → 코드 반영 상태도 다시 "대기"
         revs[index] = {
-          expectedResult: text,
-          original: step.expectedResult || '',
+          fields: changed,
+          original: Object.fromEntries(Object.keys(changed).map(f => [f, step[f] || ''])),
           updated_at: new Date().toISOString(),
           code_applied: false,
           applied_at: null

@@ -18,6 +18,9 @@ const db = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
 db.revisions = db.revisions || {};
 const args = process.argv.slice(2);
 
+const FIELD_LABELS = { description: '절차', expectedResult: '기대결과', testData: '테스트 데이터' };
+const indent = s => (s ? String(s) : '(없음)').replace(/\n/g, '\n            ');
+
 function normalizeKey(k) {
   return /^TCMETA-/.test(k) ? k : 'TCMETA-' + (/^T/i.test(k) ? k.toUpperCase() : 'T' + k);
 }
@@ -69,8 +72,14 @@ for (const [key, revs] of Object.entries(db.revisions)) {
   for (const [idx, r] of items) {
     count++;
     console.log(`  - Step ${Number(idx) + 1} [${r.code_applied ? '반영 완료' : '반영 대기'}] ${r.updated_at}`);
-    console.log(`    원래 기대결과: ${String(r.original).replace(/\n/g, '\n                   ')}`);
-    console.log(`    수정 결과    : ${String(r.expectedResult).replace(/\n/g, '\n                   ')}`);
+    // v1 형식 { expectedResult, original: "..." } 도 읽을 수 있게 처리
+    const fields = r.fields || { expectedResult: r.expectedResult };
+    const original = r.fields ? (r.original || {}) : { expectedResult: r.original };
+    for (const [f, value] of Object.entries(fields)) {
+      console.log(`    [${FIELD_LABELS[f] || f}]`);
+      console.log(`      원본: ${indent(original[f])}`);
+      console.log(`      수정: ${indent(value)}`);
+    }
   }
 }
 console.log(count ? `\n총 ${count}건` : (showAll ? '수정결과가 없습니다.' : '코드 반영 대기 중인 수정결과가 없습니다.'));
