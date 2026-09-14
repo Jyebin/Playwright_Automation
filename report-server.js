@@ -322,8 +322,9 @@ function formatSpecText(text, opts) {
   if (opts.cell) return src ? valueHtml(src, opts.headCol || '', opts.rowKey || '') : '';
   if (!src) return '<span class="none">없음</span>';
 
-  // 문장 뒤에 붙은 번호 항목을 새 줄로: "변경된다.4. 구분" / "진행 2. 로그인" / "[제목] 1. 내용"
-  src = src.replace(/([^\d\s-])[ \t]*(?=\d{1,2}(?:-\d{1,2})?\.\s)/g, '$1\n');
+  // 문장 뒤에 붙은 번호 항목을 새 줄로: "변경된다.4. 구분" / "진행 2. 로그인" / "[제목] 1. 내용" / "있다.3.[필수]" / "1.계정"
+  // (점 뒤가 공백이거나 숫자·점이 아닌 글자일 때만 — "2.5", "v3.0.2" 같은 숫자는 나누지 않음)
+  src = src.replace(/([^\d\s-])[ \t]*(?=\d{1,2}(?:-\d{1,2})?\.(?:\s|[^\d.\s]))/g, '$1\n');
 
   var HEADER = /^(항목|구분|필드명|No|검색탭|탭 항목)$/;
 
@@ -659,6 +660,7 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .rich th{background:var(--s2);font-weight:700;color:var(--tx2);white-space:nowrap;}
 .rich td{color:var(--tx);}
 .rich table table{margin:0;}
+.rich > .fx{margin:4px 0;}
 .rich td .mock{max-width:100%;}
 .rich td .mock-input{min-width:140px;}
 /* 칸 속 이미지: 삭제 버튼은 이미지 위에 겹치지 않게 오른쪽 옆에 (작은 캡처가 가려지지 않도록) */
@@ -1402,6 +1404,26 @@ function richHtml(html, key, step, field, readonly) {
     });
     keep.forEach(function(n) { td.appendChild(n); });
   });
+
+  // 표 밖 글자(번호 항목 등)는 목록 형식으로 정리: "1." "2." 가 줄 맨 앞에 오도록
+  var run = [];
+  var flushRun = function() {
+    if (!run.length) return;
+    var text = run.map(function(n) { return n.nodeName === 'BR' ? String.fromCharCode(10) : n.textContent; }).join('');
+    if (text.trim()) {
+      var box = document.createElement('div');
+      box.innerHTML = formatSpecText(text);
+      root.insertBefore(box.firstChild, run[0]);
+    }
+    run.forEach(function(n) { root.removeChild(n); });
+    run = [];
+  };
+  Array.prototype.slice.call(root.childNodes).forEach(function(n) {
+    var block = n.nodeType === 1 && (/^(TABLE|UL|OL)$/.test(n.nodeName) || n.classList.contains('rich-img') || n.classList.contains('rich-hidden'));
+    if (block) flushRun();
+    else run.push(n);
+  });
+  flushRun();
 
   return '<div class="rich">' + tpl.innerHTML + '</div>';
 }
