@@ -10,6 +10,21 @@ const ROOT = __dirname;
 const DB_FILE = path.join(ROOT, 'test-report-db.json');
 const ASSETS_DIR = path.join(ROOT, 'report-assets');   // 리포터가 저장한 테스트 캡처 이미지 (실행마다 재생성, git 제외)
 const SPEC_ASSETS_DIR = path.join(ROOT, 'spec-assets'); // 사용자가 올린 기대 화면(정상 스펙) 이미지 (git 포함)
+const ATM_ASSETS_DIR = path.join(ROOT, 'atm-assets');   // ATM 첨부 이미지 로컬 사본 (npm run atm-images, git 제외)
+
+// ATM 이미지 원래 주소 → 로컬 파일 경로 (실제로 파일이 있는 것만)
+function loadAtmImages() {
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(ATM_ASSETS_DIR, 'manifest.json'), 'utf-8'));
+    const map = {};
+    for (const [url, info] of Object.entries(manifest)) {
+      if (info && info.file && fs.existsSync(path.join(ROOT, info.file))) map[url] = info.file;
+    }
+    return map;
+  } catch (e) {
+    return {};
+  }
+}
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 // ─── XML 탐색 ──────────────────────────────────────────────────────────────────
@@ -538,8 +553,9 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .rev-ta.invalid{border-color:var(--fail);background:#fef2f2;}
 .xml-imgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .xml-img{display:inline-flex;align-items:center;padding:4px 10px;border:1px dashed var(--bd2);border-radius:6px;background:#fff;font-size:12px;color:var(--tx2);text-decoration:none;}
-.xml-img:hover{border-color:var(--ac);color:var(--ac2);}
-.sg-txt.old .xml-img{opacity:.6;}
+.xml-thumb{display:block;max-width:min(520px,100%);}
+.xml-thumb img{display:block;max-width:100%;max-height:420px;border:1px solid var(--bd);border-radius:6px;background:#fff;}
+.sg-txt.old .xml-img,.sg-txt.old .xml-thumb img{opacity:.6;}
 .cmp-grid .sg-txt.old{background:var(--s2);color:var(--tx3);text-decoration:line-through;}
 .none{color:var(--tx3);font-style:italic;}
 
@@ -756,6 +772,7 @@ var cases = [];
 var results = {};
 var revisions = {};
 var specImages = {};   // 기대 화면 이미지 { TC키: { 스텝index: [...] } }
+var atmImages = {};    // ATM 이미지 원래 주소 → 로컬 사본 경로 (npm run atm-images)
 var curFilter = 'all';
 var expandedKey = null;
 var editing = {};   // "TC키#스텝index" → 편집 모드
@@ -830,6 +847,7 @@ function loadData() {
       results   = data.results   || {};
       revisions = data.revisions || {};
       specImages = data.spec_images || {};
+      atmImages  = data.atm_images || {};
       updateStats(data.stats || {});
       buildFolderOptions();
       applyFilters();
@@ -1151,12 +1169,18 @@ function cmpRow(key, step, rf, field, label, cls, isEditing) {
     '<div class="rev-cell"><textarea class="rev-ta' + (changed ? ' changed' : '') + '" rows="' + taRows(cur) + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(cur) + '</textarea></div>';
 }
 
-// XML(ATM)에 첨부된 이미지: ATM 로그인이 필요해 결과서에서 불러올 수 없으므로 링크 카드로 표시
+// XML(ATM)에 첨부된 이미지: 로컬 사본(npm run atm-images)이 있으면 바로 보이게, 없으면 안내 카드
+// (ATM 원래 주소는 로그인 JWT가 필요해 결과서에서 직접 열 수 없음)
 function xmlImages(step, field) {
   var list = (step.images && step.images[field]) || [];
   if (!list.length) return '';
   return '<div class="xml-imgs">' + list.map(function(src, i) {
-    return '<a class="xml-img" href="' + eh(src) + '" target="_blank" rel="noopener" title="ATM에 로그인된 브라우저에서 열립니다">🖼️ ATM 첨부 이미지' + (list.length > 1 ? ' ' + (i + 1) : '') + '</a>';
+    var local = atmImages[src];
+    if (local) {
+      var href = '/' + String(local).split('/').map(encodeURIComponent).join('/');
+      return '<a class="xml-thumb" href="' + eh(href) + '" target="_blank" rel="noopener"><img src="' + eh(href) + '" alt="ATM 첨부 이미지" loading="lazy"></a>';
+    }
+    return '<span class="xml-img" title="터미널에서 npm run atm-images 를 실행해 내려받으면 여기서 바로 보입니다">🖼️ ATM 첨부 이미지' + (list.length > 1 ? ' ' + (i + 1) : '') + ' · 미다운로드 (npm run atm-images)</span>';
   }).join('') + '</div>';
 }
 
@@ -1341,9 +1365,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   // ── GET /report-assets/*, /spec-assets/* ── 테스트 캡처 / 기대 화면 이미지 (각 폴더 밖 접근 차단)
-  const assetPrefix = ['/report-assets/', '/spec-assets/'].find(p => pathname.startsWith(p));
+  const assetDirs = { '/report-assets/': ASSETS_DIR, '/spec-assets/': SPEC_ASSETS_DIR, '/atm-assets/': ATM_ASSETS_DIR };
+  const assetPrefix = Object.keys(assetDirs).find(p => pathname.startsWith(p));
   if (req.method === 'GET' && assetPrefix) {
-    const baseDir = assetPrefix === '/report-assets/' ? ASSETS_DIR : SPEC_ASSETS_DIR;
+    const baseDir = assetDirs[assetPrefix];
     let file = '';
     try { file = path.resolve(ROOT, '.' + decodeURIComponent(pathname)); } catch (e) {}
     const type = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' }[path.extname(file).toLowerCase()];
@@ -1365,6 +1390,7 @@ const server = http.createServer(async (req, res) => {
       results:   db.results,
       revisions: db.revisions,
       spec_images: db.spec_images,
+      atm_images: loadAtmImages(),
       stats:     getStats(db),
       meta:      db.meta
     });

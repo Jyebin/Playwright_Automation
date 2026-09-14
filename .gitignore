@@ -10,6 +10,9 @@ node_modules/
 # 결과서용 테스트 캡처 이미지 (report-db-reporter가 실행마다 재생성)
 report-assets/
 
+# ATM 첨부 이미지 로컬 사본 (npm run atm-images 로 재생성)
+atm-assets/
+
 # 인증 세션 (로그인 후 저장되는 토큰)
 .auth/
 
