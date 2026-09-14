@@ -8,6 +8,7 @@ const path = require('path');
 const PORT = 9998;
 const ROOT = __dirname;
 const DB_FILE = path.join(ROOT, 'test-report-db.json');
+const ASSETS_DIR = path.join(ROOT, 'report-assets');   // 리포터가 저장한 테스트 캡처 이미지
 
 // ─── XML 탐색 ──────────────────────────────────────────────────────────────────
 function findXMLFiles() {
@@ -547,6 +548,16 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .mock-alert{display:inline-flex;flex-direction:column;gap:2px;background:#fff;border:1px solid var(--bd2);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:8px 12px;margin:3px 0;font-size:13px;color:var(--tx);max-width:440px;vertical-align:top;}
 .mock-alert-k{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;}
 .sg-txt.old .mock-input,.sg-txt.old .mock-alert{opacity:.6;}
+
+/* 테스트 캡처 (📸 실제 결과) */
+.ev-list{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;}
+.ev{margin:0;border:1px solid var(--bd);border-radius:8px;background:#fff;overflow:hidden;max-width:min(460px,100%);box-shadow:var(--shadow);}
+.ev a{display:block;background:var(--s2);}
+.ev img{display:block;max-width:100%;max-height:280px;margin:0 auto;object-fit:contain;}
+.ev figcaption{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;font-size:12px;color:var(--tx2);border-top:1px solid var(--bd);}
+.ev figcaption .badge{padding:2px 8px;font-size:11px;}
+.ev-n{font-weight:600;color:var(--tx);}
+.ev-t{color:var(--tx3);}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .sg-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
 .sg-txt{font-size:13px;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
@@ -862,6 +873,7 @@ function buildDetail(tc, r) {
         }).join('<br>') + '</div>';
       }
       if (t.error) html += '<div class="run-err">' + eh(t.error) + '</div>';
+      if (t.attachments && t.attachments.length) html += evidenceList(t.attachments);
       html += '</div></div>';
     });
   } else if (r.actual_result) {
@@ -873,6 +885,7 @@ function buildDetail(tc, r) {
 
   // 스텝별: 절차 / 기대결과 / 수정결과 + 통과 여부
   var stepStatus = r.step_status || {};
+  var stepEvidence = r.step_evidence || {};
   var revs = revisions[key] || {};
   var ran = status0(r) !== 'pending';
 
@@ -898,6 +911,7 @@ function buildDetail(tc, r) {
     html += cmpRow(key, step, rf, 'description', '📋 절차', '', isEditing);
     html += cmpRow(key, step, rf, 'expectedResult', '✅ 기대 결과', ' exp', isEditing);
     html += cmpRow(key, step, rf, 'testData', '📌 테스트 데이터', '', isEditing);
+    if (!isEditing) html += evidenceRow(stepEvidence[no]);
     html += '</div>';
 
     var attrs = ' data-key="' + eh(key) + '" data-idx="' + step.index + '"';
@@ -916,6 +930,22 @@ function buildDetail(tc, r) {
 }
 
 function status0(r) { return (r && r.status) || 'pending'; }
+
+// 테스트 캡처 썸네일 목록 (클릭 시 원본 새 탭)
+function evidenceList(list) {
+  return '<div class="ev-list">' + list.map(function(a) {
+    var src = '/' + String(a.path).split('/').map(encodeURIComponent).join('/');
+    return '<figure class="ev"><a href="' + eh(src) + '" target="_blank" rel="noopener"><img src="' + eh(src) + '" alt="' + eh(a.name) + '" loading="lazy"></a>' +
+      '<figcaption>' + (a.status ? badge(a.status) : '') + '<span class="ev-n">' + eh(a.name) + '</span>' +
+      (a.testTitle ? '<span class="ev-t">' + eh(a.testTitle) + '</span>' : '') + '</figcaption></figure>';
+  }).join('') + '</div>';
+}
+
+// 스텝 보기 모드의 "📸 실제 결과" 행 (tcstep으로 연결된 테스트의 캡처)
+function evidenceRow(list) {
+  if (!list || !list.length) return '';
+  return '<div class="cmp-lbl">📸 실제 결과</div><div>' + evidenceList(list) + '</div>';
+}
 
 // 한 항목 행.
 //  보기 모드: [라벨 | 현재 유효한 값(수정본 우선)], 수정된 항목은 원본을 "원본 보기"로 접어 둠
@@ -1093,6 +1123,21 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && pathname === '/') {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(HTML);
+    return;
+  }
+
+  // ── GET /report-assets/* ── 테스트 캡처 이미지 (report-assets 폴더 밖 접근 차단)
+  if (req.method === 'GET' && pathname.startsWith('/report-assets/')) {
+    let file = '';
+    try { file = path.resolve(ROOT, '.' + decodeURIComponent(pathname)); } catch (e) {}
+    const type = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' }[path.extname(file).toLowerCase()];
+    if (!file.startsWith(ASSETS_DIR + path.sep) || !type || !fs.existsSync(file)) {
+      res.writeHead(404);
+      res.end('Not found');
+      return;
+    }
+    res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache' });
+    fs.createReadStream(file).pipe(res);
     return;
   }
 

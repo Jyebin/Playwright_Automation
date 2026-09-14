@@ -7,6 +7,9 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
+# 결과서용 테스트 캡처 이미지 (report-db-reporter가 실행마다 재생성)
+report-assets/
+
 # 인증 세션 (로그인 후 저장되는 토큰)
 .auth/
 

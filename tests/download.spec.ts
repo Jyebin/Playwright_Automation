@@ -1,8 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { DownloadPage } from './pages/DownloadPage';
 import { GuidePage, MANUAL_TABS } from './pages/GuidePage';
+import { captureEvidence } from './utils/evidence';
 
 const BASE = process.env.BASE_URL ?? '';
+
+// 결과서 TC 스텝 번호 연결 (report-db-reporter)
+const tcStep = (n: number) => ({ type: 'tcstep', description: String(n) });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // T470 - 클라이언트 다운로드
@@ -13,14 +17,14 @@ test.describe('T470 - 클라이언트 다운로드', () => {
     await page.waitForLoadState('load');
   });
 
-  test('다운로드 페이지 이동 확인', async ({ page }) => {
+  test('다운로드 페이지 이동 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const dlPage = new DownloadPage(page);
     await test.step('[검증] 다운로드 페이지 URL 확인', async () => {
       await dlPage.verifyUrl();
     });
   });
 
-  test('다운로드 페이지 안내문구 확인 - 메인/서브 문구', async ({ page }) => {
+  test('다운로드 페이지 안내문구 확인 - 메인/서브 문구', { annotation: tcStep(2) }, async ({ page }) => {
     const dlPage = new DownloadPage(page);
     await test.step('[검증] 페이지 타이틀 확인', async () => {
       await dlPage.verifyPageTitle();
@@ -30,17 +34,18 @@ test.describe('T470 - 클라이언트 다운로드', () => {
     });
   });
 
-  test('Windows OS 기본 선택 및 사양 카드 노출 확인', async ({ page }) => {
+  test('Windows OS 기본 선택 및 사양 카드 노출 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const dlPage = new DownloadPage(page);
     await test.step('[검증] Windows OS 기본 선택 확인', async () => {
       await dlPage.verifyWindowsOsDefaultSelected();
     });
     await test.step('[검증] 사양 카드 노출 확인', async () => {
       await dlPage.verifySpecCardsShown();
+      await captureEvidence(dlPage.specSection(), '진입 시 기본 선택(Windows OS) 사양');
     });
   });
 
-  test('MacOS 탭 클릭 시 Mac 사양으로 변경 확인', async ({ page }) => {
+  test('MacOS 탭 클릭 시 Mac 사양으로 변경 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const dlPage = new DownloadPage(page);
     await test.step('[검증] 초기 사양 카드 노출 확인', async () => {
       await dlPage.verifySpecCardsShown();
@@ -50,10 +55,11 @@ test.describe('T470 - 클라이언트 다운로드', () => {
     });
     await test.step('[검증] Mac 사양으로 변경 확인', async () => {
       await dlPage.verifyMacSpecsShown();
+      await captureEvidence(dlPage.specSection(), 'MacOS 클릭 후 사양');
     });
   });
 
-  test('Windows OS 탭 클릭 시 Windows 사양으로 변경 확인', async ({ page }) => {
+  test('Windows OS 탭 클릭 시 Windows 사양으로 변경 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const dlPage = new DownloadPage(page);
     // MacOS 탭 먼저 클릭 후 Windows로 되돌아오기
     await test.step('[셋업] MacOS 탭 클릭', async () => {
@@ -67,20 +73,22 @@ test.describe('T470 - 클라이언트 다운로드', () => {
     });
     await test.step('[검증] Windows 사양으로 변경 확인', async () => {
       await dlPage.verifyWindowsSpecsShown();
+      await captureEvidence(dlPage.specSection(), 'Windows OS 다시 클릭 후 사양');
     });
   });
 
-  test('권장 사양 카드 보라색 테두리 확인', async ({ page }) => {
+  test('권장 사양 카드 보라색 테두리 확인', { annotation: tcStep(4) }, async ({ page }) => {
     const dlPage = new DownloadPage(page);
     await test.step('[검증] 사양 카드 노출 확인', async () => {
       await dlPage.verifySpecCardsShown();
     });
     await test.step('[검증] 권장 사양 카드 보라색 테두리 확인', async () => {
       await dlPage.verifyRecommendedSpecPurpleBorder();
+      await captureEvidence(dlPage.specSection(), '권장 사양 카드 테두리');
     });
   });
 
-  test('클라이언트 다운로드 버튼 클릭 및 파일 다운로드 확인', async ({ page }) => {
+  test('클라이언트 다운로드 버튼 클릭 및 파일 다운로드 확인', { annotation: tcStep(3) }, async ({ page }) => {
     const dlPage = new DownloadPage(page);
     let download: Awaited<ReturnType<typeof dlPage.clickDownloadButton>>;
     await test.step('[셋업] 다운로드 버튼 클릭', async () => {

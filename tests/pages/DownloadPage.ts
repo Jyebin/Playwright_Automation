@@ -8,6 +8,14 @@ const BASE = process.env.BASE_URL ?? '';
 export class DownloadPage {
   constructor(private page: Page) {}
 
+  /** 결과서 캡처용: OS 탭(Windows OS/macOS) + 최저/권장 사양 카드를 모두 포함하는 가장 작은 영역
+   *  ("Windows OS"는 탭 이름에만 있음 — 사양 카드의 "macOS 13", "Windows 10이상"에 걸리지 않게) */
+  specSection() {
+    return this.page
+      .getByText('최저 사양', { exact: false }).first()
+      .locator('xpath=ancestor::*[contains(normalize-space(.), "권장 사양") and contains(normalize-space(.), "Windows OS")][1]');
+  }
+
   async navigate() {
     await this.page.goto(`${BASE}/downloads`);
     await this.page.waitForLoadState('load');
