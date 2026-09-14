@@ -661,9 +661,11 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .rich table table{margin:0;}
 .rich td .mock{max-width:100%;}
 .rich td .mock-input{min-width:140px;}
-.rich-img{position:relative;display:inline-block;max-width:100%;}
+/* 칸 속 이미지: 삭제 버튼은 이미지 위에 겹치지 않게 오른쪽 옆에 (작은 캡처가 가려지지 않도록) */
+.rich-img{display:inline-flex;align-items:flex-start;gap:6px;max-width:100%;margin-top:4px;}
+.rich-img > a{min-width:0;}
 .rich-img img{display:block;max-width:100%;max-height:320px;border:1px solid var(--bd);border-radius:4px;background:#fff;}
-.rich-img .img-del{position:absolute;top:4px;right:4px;margin:0;background:rgba(255,255,255,.95);border:1px solid var(--bd2);border-radius:4px;padding:1px 6px;}
+.rich-img .img-del{flex-shrink:0;margin:0;background:#fff;border:1px solid var(--bd2);border-radius:4px;padding:1px 6px;}
 .rich-hidden{font-size:11px;color:var(--tx3);}
 
 /* 보기 모드 3분할: 절차·테스트 데이터 | 기대 | 실제 */
