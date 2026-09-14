@@ -151,6 +151,37 @@ function stripHtml(html) {
     .trim();
 }
 
+// Zephyr 표 구조를 결과서에 그대로 보여주기 위한 최소 HTML
+// 표·줄바꿈·굵게·목록·이미지(https 주소)만 남기고 속성·스타일·스크립트·링크 등은 제거
+function sanitizeRichHtml(html) {
+  const ALLOWED = new Set(['table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'br', 'strong', 'b', 'em', 'i', 'u', 'ul', 'ol', 'li']);
+  const ZWSP = new RegExp(String.fromCharCode(0x200B), 'g');
+  return String(html || '')
+    .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b([^>]*)>/g, (tag, name, attrs) => {
+      const n = name.toLowerCase();
+      const closing = tag.startsWith('</');
+      if (n === 'img') {
+        const m = attrs.match(/\bsrc="([^"]+)"/i);
+        const src = m ? m[1].replace(/&amp;/g, '&') : '';
+        return /^https:\/\//.test(src) ? `<img src="${src.replace(/"/g, '&quot;')}">` : '';
+      }
+      if (n === 'p' || n === 'div') return closing ? '<br>' : '';
+      if (!ALLOWED.has(n)) return '';
+      if (n === 'br') return closing ? '' : '<br>';
+      if (closing) return `</${n}>`;
+      if (n === 'td' || n === 'th') {
+        const span = (attrs.match(/\b(?:colspan|rowspan)="\d+"/gi) || []).join(' ');
+        return `<${n}${span ? ' ' + span : ''}>`;
+      }
+      return `<${n}>`;
+    })
+    .replace(ZWSP, '')
+    .replace(/(<br>\s*){3,}/g, '<br><br>')
+    .trim();
+}
+
 function getCDATA(xml, tag) {
   const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i');
   const m = xml.match(re);
@@ -204,15 +235,19 @@ function parseTestCases(xmlContent) {
 
         // ATM에 첨부된 이미지(기대 화면 등): stripHtml 에서 사라지므로 주소를 따로 보존
         const images = {};
-        for (const [field, html] of Object.entries(raw)) {
-          const srcs = [...html.matchAll(/<img[^>]*\bsrc="([^"]+)"/gi)].map(m => m[1].replace(/&amp;/g, '&'));
+        // 표가 있는 필드는 표 구조를 살린 안전한 HTML 도 보존 (평문으로 풀면 표 안의 표·칸 속 이미지가 뒤섞임)
+        const html = {};
+        for (const [field, fieldHtml] of Object.entries(raw)) {
+          const srcs = [...fieldHtml.matchAll(/<img[^>]*\bsrc="([^"]+)"/gi)].map(m => m[1].replace(/&amp;/g, '&'));
           if (srcs.length) images[field] = srcs;
+          if (/<table[\s>]/i.test(fieldHtml)) html[field] = sanitizeRichHtml(fieldHtml);
         }
 
         if (description || expectedResult || images.expectedResult) {
           steps.push({
             index: parseInt(idx, 10), description, expectedResult, testData: testData || '',
             ...(Object.keys(images).length ? { images } : {}),
+            ...(Object.keys(html).length ? { html } : {}),
           });
         }
       }
@@ -283,6 +318,8 @@ function formatSpecText(text, opts) {
   var invisible = new RegExp('[' + String.fromCharCode(0x200B, 0xA0) + ']', 'g');
   var src = String(text || '').replace(/\r/g, '').replace(invisible, ' ').trim();
   if (opts.dropTitle) src = src.replace(/^\[[^\]\n]*\]\s*/, '');
+  // 표 칸 하나 변환 (richHtml 에서 사용): 빨간 안내 문구·마스킹·placeholder 미리보기 적용
+  if (opts.cell) return src ? valueHtml(src, opts.headCol || '', opts.rowKey || '') : '';
   if (!src) return '<span class="none">없음</span>';
 
   // 문장 뒤에 붙은 번호 항목을 새 줄로: "변경된다.4. 구분" / "진행 2. 로그인" / "[제목] 1. 내용"
@@ -614,6 +651,20 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .img-del:hover{color:var(--fail);}
 .atm-restore{align-self:flex-start;margin-top:6px;background:#fff;border:1px dashed var(--bd2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--tx2);cursor:pointer;}
 .atm-restore:hover{border-color:var(--ac);color:var(--ac2);}
+
+/* Zephyr 표 그대로 보여주기 (richHtml) */
+.rich{overflow-x:auto;font-size:13px;line-height:1.6;color:var(--tx2);}
+.rich table{border-collapse:collapse;width:100%;margin:6px 0;background:#fff;font-size:12.5px;}
+.rich th,.rich td{border:1px solid var(--bd2);padding:6px 8px;vertical-align:top;text-align:left;}
+.rich th{background:var(--s2);font-weight:700;color:var(--tx2);white-space:nowrap;}
+.rich td{color:var(--tx);}
+.rich table table{margin:0;}
+.rich td .mock{max-width:100%;}
+.rich td .mock-input{min-width:140px;}
+.rich-img{position:relative;display:inline-block;max-width:100%;}
+.rich-img img{display:block;max-width:100%;max-height:320px;border:1px solid var(--bd);border-radius:4px;background:#fff;}
+.rich-img .img-del{position:absolute;top:4px;right:4px;margin:0;background:rgba(255,255,255,.95);border:1px solid var(--bd2);border-radius:4px;padding:1px 6px;}
+.rich-hidden{font-size:11px;color:var(--tx3);}
 
 /* 보기 모드 3분할: 절차·테스트 데이터 | 기대 | 실제 */
 .tri{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:14px;padding:12px 0;}
@@ -1100,6 +1151,20 @@ function visibleAtmImages(key, step) {
   return ((step.images && step.images.expectedResult) || []).filter(function(src) { return hidden.indexOf(src) === -1; });
 }
 
+// 표(html) 칸 안에 들어 있는 이미지 주소 — richHtml 이 칸 안에 표시하므로 목록에서는 제외
+function inlineSrcs(step, field) {
+  var html = step.html && step.html[field];
+  var out = [];
+  if (html) html.replace(/<img src="([^"]+)">/g, function(m, s) { out.push(s.split('&quot;').join('"')); return m; });
+  return out;
+}
+
+// 기대 결과 이미지 목록에 따로 보여줄 ATM 이미지 (삭제 안 함 + 표 칸 밖)
+function galleryAtmImages(key, step) {
+  var inline = inlineSrcs(step, 'expectedResult');
+  return visibleAtmImages(key, step).filter(function(src) { return inline.indexOf(src) === -1; });
+}
+
 function expectedImageCount(key, step) {
   return visibleAtmImages(key, step).length + ((specImages[key] || {})[step.index] || []).length;
 }
@@ -1111,7 +1176,7 @@ function expectedGallery(key, step, stepStatus) {
   var attrs = ' data-key="' + eh(key) + '" data-idx="' + idx + '"';
   var figs = [];
 
-  visibleAtmImages(key, step).forEach(function(src) {
+  galleryAtmImages(key, step).forEach(function(src) {
     var local = atmImages[src];
     var href = local ? '/' + String(local).split('/').map(encodeURIComponent).join('/') : '';
     figs.push('<figure class="ev ev-spec">' +
@@ -1254,6 +1319,91 @@ function evidenceRow(list) {
 // 한 항목 행.
 //  보기 모드: [라벨 | 현재 유효한 값(수정본 우선)], 수정된 항목은 원본을 "원본 보기"로 접어 둠
 //  편집 모드: [라벨 | 원본 | 수정 입력], 입력 칸에는 작성 중인 값 → 수정본 → 원본 순으로 채움
+// Zephyr 표 구조 그대로 표시 (서버에서 정리한 HTML)
+//  - 칸 속 ATM 이미지: 로컬 사본으로 표시, 기대 결과(보기 모드)는 칸 안에서 바로 삭제 가능
+//  - 글자만 있는 칸: 빨간 안내 문구·마스킹·placeholder 미리보기 적용
+function richHtml(html, key, step, field, readonly) {
+  var tpl = document.createElement('template');
+  tpl.innerHTML = html;
+  var root = tpl.content;
+
+  if (field === 'description') {   // 첫 줄 [제목]은 스텝 머리에 있으므로 제거
+    var first = root.firstChild;
+    var title = first && first.nodeName === 'STRONG' ? first.textContent.trim() : '';
+    if (title.charAt(0) === '[' && title.charAt(title.length - 1) === ']') {
+      root.removeChild(first);
+      while (root.firstChild && (root.firstChild.nodeName === 'BR' || (root.firstChild.nodeType === 3 && !root.firstChild.textContent.trim()))) {
+        root.removeChild(root.firstChild);
+      }
+    }
+  }
+
+  var hidden = (hiddenAtm[key] || {})[step.index] || [];
+  Array.prototype.slice.call(root.querySelectorAll('img')).forEach(function(img) {
+    var src = img.getAttribute('src') || '';
+    var wrap = document.createElement('span');
+    if (hidden.indexOf(src) !== -1) {
+      wrap.className = 'rich-hidden';
+      wrap.textContent = '🗑️ 삭제한 이미지';
+    } else {
+      wrap.className = 'rich-img';
+      var local = atmImages[src];
+      var a = document.createElement('a');
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener');
+      if (local) {
+        a.setAttribute('href', '/' + String(local).split('/').map(encodeURIComponent).join('/'));
+        var im = document.createElement('img');
+        im.setAttribute('src', a.getAttribute('href'));
+        im.setAttribute('loading', 'lazy');
+        a.appendChild(im);
+      } else {
+        a.className = 'xml-img';
+        a.setAttribute('href', src);
+        a.textContent = '🖼️ 미다운로드 (npm run atm-images)';
+      }
+      wrap.appendChild(a);
+      if (!readonly && field === 'expectedResult') {
+        var del = document.createElement('button');
+        del.className = 'img-del';
+        del.setAttribute('data-kind', 'atm');
+        del.setAttribute('data-key', key);
+        del.setAttribute('data-idx', String(step.index));
+        del.setAttribute('data-src', src);
+        del.textContent = '삭제';
+        wrap.appendChild(del);
+      }
+    }
+    img.parentNode.replaceChild(wrap, img);
+  });
+
+  Array.prototype.slice.call(root.querySelectorAll('td')).forEach(function(td) {
+    if (td.querySelector('table')) return;   // 안에 표가 또 있는 칸은 그대로
+    // 칸의 글자(굵게·줄바꿈 포함)만 모아 미리보기로 바꾸고, 칸 속 이미지(삭제 버튼 포함)는 뒤에 그대로 둠
+    var keep = [];
+    var text = '';
+    Array.prototype.slice.call(td.childNodes).forEach(function(n) {
+      if (n.nodeType === 1 && (n.classList.contains('rich-img') || n.classList.contains('rich-hidden'))) keep.push(n);
+      else text += n.nodeName === 'BR' ? ' ' : n.textContent;
+    });
+    text = text.trim();
+    if (!text) return;
+    var row = td.parentNode;
+    var cells = Array.prototype.slice.call(row.children);
+    var table = row.closest('table');
+    var headRow = table ? table.querySelector('tr') : null;
+    var headCell = headRow && headRow !== row ? headRow.children[cells.indexOf(td)] : null;
+    td.innerHTML = formatSpecText(text, {
+      cell: true,
+      headCol: headCell && headCell.nodeName === 'TH' ? headCell.textContent.trim() : '',
+      rowKey: cells[0] && cells[0] !== td ? cells[0].textContent.trim() : ''
+    });
+    keep.forEach(function(n) { td.appendChild(n); });
+  });
+
+  return '<div class="rich">' + tpl.innerHTML + '</div>';
+}
+
 function cmpRow(key, step, rf, field, label, cls, isEditing) {
   var orig    = step[field] || '';
   var changed = Object.prototype.hasOwnProperty.call(rf, field);
@@ -1267,29 +1417,35 @@ function cmpRow(key, step, rf, field, label, cls, isEditing) {
   var imgs    = gallery ? '' : xmlImages(step, field, key);   // XML(ATM) 첨부 이미지 — 텍스트가 없어도 내용으로 인정
   var NONE    = '<span class="none">없음</span>';
 
+  var origHtml = step.html && step.html[field];   // Zephyr 표 구조 (수정본이 있으면 수정본 글을 우선 표시)
+
   if (!isEditing) {
-    var body      = formatSpecText(val, opts);
+    var body      = !changed && origHtml ? richHtml(origHtml, key, step, field, false) : formatSpecText(val, opts);
     var hasImages = !!imgs || (gallery && expectedImageCount(key, step) > 0);
     var missing   = required && body === NONE && !hasImages;
     if (body === NONE && hasImages) body = gallery ? '<span class="none">아래 이미지 참고</span>' : '';
     html += '<div>';
     html += '<div class="sg-txt fxw' + cls + (missing ? ' missing' : '') + '">' +
       (missing ? '⚠️ 필수 항목이 비어 있습니다. ✏️ 수정을 눌러 입력하거나 아래에 이미지를 올려 주세요.' : body + imgs) + '</div>';
-    if (changed) html += '<details class="orig-d"><summary>원본 보기</summary><div class="sg-txt fxw old">' + formatSpecText(orig, opts) + '</div></details>';
+    if (changed) html += '<details class="orig-d"><summary>원본 보기</summary><div class="sg-txt fxw old">' +
+      (origHtml ? richHtml(origHtml, key, step, field, true) : formatSpecText(orig, opts)) + '</div></details>';
     return html + '</div>';
   }
 
   var draft = drafts[key + '#' + step.index + '#' + field];
   var cur   = draft != null ? draft : val;
   return html +
-    '<div class="sg-txt fxw' + cls + (changed ? ' old' : '') + '">' + formatSpecText(orig, opts) + imgs + '</div>' +
+    '<div class="sg-txt fxw' + cls + (changed ? ' old' : '') + '">' +
+      (origHtml ? richHtml(origHtml, key, step, field, true) : formatSpecText(orig, opts)) + imgs + '</div>' +
     '<div class="rev-cell"><textarea class="rev-ta' + (changed ? ' changed' : '') + '" rows="' + taRows(cur) + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(cur) + '</textarea></div>';
 }
 
 // XML(ATM)에 첨부된 이미지: 로컬 사본(npm run atm-images)이 있으면 바로 보이게, 없으면 안내 카드
 // (ATM 원래 주소는 로그인 JWT가 필요해 결과서에서 직접 열 수 없음)
 function xmlImages(step, field, key) {
-  var list = field === 'expectedResult' && key ? visibleAtmImages(key, step) : ((step.images && step.images[field]) || []);
+  var inline = inlineSrcs(step, field);   // 표 칸 안 이미지는 richHtml 에서 표시
+  var list = (field === 'expectedResult' && key ? visibleAtmImages(key, step) : ((step.images && step.images[field]) || []))
+    .filter(function(src) { return inline.indexOf(src) === -1; });
   if (!list.length) return '';
   return '<div class="xml-imgs">' + list.map(function(src, i) {
     var local = atmImages[src];
