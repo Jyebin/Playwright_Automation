@@ -519,8 +519,8 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .tr.open .arrow{transform:rotate(90deg);}
 
 /* Detail row */
-.dc{padding:0 20px 24px 48px;background:#f8faff;border-bottom:3px solid var(--bd);}
-.di{max-width:1400px;}
+.dc{padding:0 16px 24px 16px;background:#f8faff;border-bottom:3px solid var(--bd);}
+.di{max-width:none;width:100%;}   /* 스텝 3분할이 화면 폭을 꽉 채우도록 */
 
 /* Precondition / 실행 결과 */
 .pre-box{background:#f0f4ff;border:1px solid #c7d2fe;border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--ac2);margin:14px 0 18px;}
