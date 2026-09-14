@@ -177,11 +177,27 @@ function parseTestCases(xmlContent) {
       let sm;
       while ((sm = stepRe.exec(stepsBlock[1])) !== null) {
         const [, idx, sc] = sm;
-        const description   = stripHtml(getCDATA(sc, 'description'));
-        const expectedResult = stripHtml(getCDATA(sc, 'expectedResult'));
-        const testData       = stripHtml(getCDATA(sc, 'testData'));
-        if (description || expectedResult) {
-          steps.push({ index: parseInt(idx, 10), description, expectedResult, testData: testData || '' });
+        const raw = {
+          description:    getCDATA(sc, 'description'),
+          expectedResult: getCDATA(sc, 'expectedResult'),
+          testData:       getCDATA(sc, 'testData'),
+        };
+        const description    = stripHtml(raw.description);
+        const expectedResult = stripHtml(raw.expectedResult);
+        const testData       = stripHtml(raw.testData);
+
+        // ATM에 첨부된 이미지(기대 화면 등): stripHtml 에서 사라지므로 주소를 따로 보존
+        const images = {};
+        for (const [field, html] of Object.entries(raw)) {
+          const srcs = [...html.matchAll(/<img[^>]*\bsrc="([^"]+)"/gi)].map(m => m[1].replace(/&amp;/g, '&'));
+          if (srcs.length) images[field] = srcs;
+        }
+
+        if (description || expectedResult || images.expectedResult) {
+          steps.push({
+            index: parseInt(idx, 10), description, expectedResult, testData: testData || '',
+            ...(Object.keys(images).length ? { images } : {}),
+          });
         }
       }
     }
@@ -516,7 +532,14 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .cmp-h{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.4px;}
 .cmp-lbl{font-size:12px;font-weight:700;color:var(--tx2);padding-top:8px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
 .cmp-grid .sg-txt{background:var(--s2);padding:8px 12px;border-radius:6px;min-height:40px;}
-.cmp-grid .sg-txt.exp{background:#dcfce7;}
+.cmp-grid .sg-txt.exp{background:#eef2ff;}
+.cmp-grid .sg-txt.missing{background:#fef2f2;color:#b91c1c;border:1px dashed #fca5a5;font-size:13px;}
+.req{font-size:10px;font-weight:700;color:#b91c1c;background:#fee2e2;border-radius:8px;padding:1px 6px;}
+.rev-ta.invalid{border-color:var(--fail);background:#fef2f2;}
+.xml-imgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.xml-img{display:inline-flex;align-items:center;padding:4px 10px;border:1px dashed var(--bd2);border-radius:6px;background:#fff;font-size:12px;color:var(--tx2);text-decoration:none;}
+.xml-img:hover{border-color:var(--ac);color:var(--ac2);}
+.sg-txt.old .xml-img{opacity:.6;}
 .cmp-grid .sg-txt.old{background:var(--s2);color:var(--tx3);text-decoration:line-through;}
 .none{color:var(--tx3);font-style:italic;}
 
@@ -575,7 +598,7 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .sg-lbl{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
 .sg-txt{font-size:13px;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
-.sg-txt.exp{color:#166534;background:#dcfce7;padding:8px 12px;border-radius:6px;}
+.sg-txt.exp{color:#312e81;background:#eef2ff;padding:8px 12px;border-radius:6px;}   /* 기대 결과: 중립색 (초록은 통과 전용) */
 .sg-txt.exp.old{color:var(--tx3);background:var(--s2);text-decoration:line-through;}
 .test-data{background:var(--s2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--tx3);margin-top:4px;white-space:pre-wrap;border:1px solid var(--bd);}
 
@@ -590,6 +613,15 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .cmp-grid .rev-cell{display:flex;align-self:stretch;min-height:72px;}
 .cmp-grid .rev-cell .rev-ta{flex:1;min-height:0;resize:vertical;}
 .step.editing{border-color:var(--ac);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
+/* 스텝 결과별 색: 왼쪽 띠 + 머리 배경 (통과 초록 / 실패 빨강 / 스킵 주황 / 미실행·미연결 회색) */
+.step{border-left:5px solid var(--bd2);}
+.step.st-pass{border-left-color:var(--pass);}
+.step.st-pass .step-head{background:#f0fdf4;}
+.step.st-fail{border-left-color:var(--fail);}
+.step.st-fail .step-head{background:#fef2f2;}
+.step.st-skip{border-left-color:var(--skip);}
+.step.st-skip .step-head{background:#fffbeb;}
+.step-head .badge{font-size:13px;padding:5px 14px;}
 .orig-d{margin-top:6px;font-size:12px;color:var(--tx3);}
 .orig-d summary{cursor:pointer;user-select:none;width:max-content;}
 .orig-d .sg-txt{margin-top:6px;}
@@ -958,7 +990,7 @@ function buildDetail(tc, r) {
       if (title.length > 70) title = title.substring(0, 70) + '…';
     }
 
-    html += '<div class="step' + (isEditing ? ' editing' : '') + '">';
+    html += '<div class="step st-' + sst + (isEditing ? ' editing' : '') + '">';
     html += '<div class="step-head"><span class="step-num">Step ' + no + '</span><span class="step-title">' + eh(title) + '</span>';
     html += '<span class="hdr-sp"></span>' + badge(sst, sst === 'unmapped' ? '이 스텝에 연결된 자동화 테스트가 없습니다 (tcstep annotation 필요)' : '') + '</div>';
     var rf = (rev && rev.fields) || {};
@@ -1096,11 +1128,18 @@ function cmpRow(key, step, rf, field, label, cls, isEditing) {
   var changed = Object.prototype.hasOwnProperty.call(rf, field);
   var val     = changed ? rf[field] : orig;
   var opts    = { dropTitle: field === 'description' };
-  var html    = '<div class="cmp-lbl">' + label + (changed ? '<span class="tag tag-wait">수정됨</span>' : '') + '</div>';
+  var required = field === 'expectedResult' || field === 'testData';   // 필수 항목
+  var html    = '<div class="cmp-lbl">' + label + (required ? '<span class="req">필수</span>' : '') + (changed ? '<span class="tag tag-wait">수정됨</span>' : '') + '</div>';
+
+  var imgs   = xmlImages(step, field);   // XML(ATM) 첨부 이미지 — 텍스트가 없어도 내용으로 인정
+  var NONE   = '<span class="none">없음</span>';
 
   if (!isEditing) {
+    var body    = formatSpecText(val, opts);
+    var missing = required && body === NONE && !imgs;
     html += '<div>';
-    html += '<div class="sg-txt fxw' + cls + '">' + formatSpecText(val, opts) + '</div>';
+    html += '<div class="sg-txt fxw' + cls + (missing ? ' missing' : '') + '">' +
+      (missing ? '⚠️ 필수 항목이 비어 있습니다. ✏️ 수정을 눌러 입력해 주세요.' : (body === NONE && imgs ? '' : body) + imgs) + '</div>';
     if (changed) html += '<details class="orig-d"><summary>원본 보기</summary><div class="sg-txt fxw old">' + formatSpecText(orig, opts) + '</div></details>';
     return html + '</div>';
   }
@@ -1108,8 +1147,23 @@ function cmpRow(key, step, rf, field, label, cls, isEditing) {
   var draft = drafts[key + '#' + step.index + '#' + field];
   var cur   = draft != null ? draft : val;
   return html +
-    '<div class="sg-txt fxw' + cls + (changed ? ' old' : '') + '">' + formatSpecText(orig, opts) + '</div>' +
+    '<div class="sg-txt fxw' + cls + (changed ? ' old' : '') + '">' + formatSpecText(orig, opts) + imgs + '</div>' +
     '<div class="rev-cell"><textarea class="rev-ta' + (changed ? ' changed' : '') + '" rows="' + taRows(cur) + '" data-field="' + field + '" data-key="' + eh(key) + '" data-idx="' + step.index + '">' + eh(cur) + '</textarea></div>';
+}
+
+// XML(ATM)에 첨부된 이미지: ATM 로그인이 필요해 결과서에서 불러올 수 없으므로 링크 카드로 표시
+function xmlImages(step, field) {
+  var list = (step.images && step.images[field]) || [];
+  if (!list.length) return '';
+  return '<div class="xml-imgs">' + list.map(function(src, i) {
+    return '<a class="xml-img" href="' + eh(src) + '" target="_blank" rel="noopener" title="ATM에 로그인된 브라우저에서 열립니다">🖼️ ATM 첨부 이미지' + (list.length > 1 ? ' ' + (i + 1) : '') + '</a>';
+  }).join('') + '</div>';
+}
+
+function stepHasImages(key, idx, field) {
+  var tc = cases.filter(function(c) { return c.key === key; })[0];
+  var st = tc && (tc.steps || []).filter(function(s) { return s.index === idx; })[0];
+  return !!(st && st.images && st.images[field] && st.images[field].length);
 }
 
 function startEdit(key, idx) {
@@ -1171,6 +1225,19 @@ function saveRevision(key, idx, reset) {
   var fields = {};
   if (!reset) {
     document.querySelectorAll('.rev-ta' + sel).forEach(function(ta) { fields[ta.dataset.field] = ta.value; });
+
+    // 필수 항목(기대 결과, 테스트 데이터) 비어 있으면 저장 안 함
+    var ZWSP = String.fromCharCode(0x200B);
+    var missingFields = ['expectedResult', 'testData'].filter(function(f) {
+      return !String(fields[f] || '').split(ZWSP).join('').trim() && !stepHasImages(key, idx, f);
+    });
+    document.querySelectorAll('.rev-ta' + sel).forEach(function(ta) {
+      ta.classList.toggle('invalid', missingFields.indexOf(ta.dataset.field) !== -1);
+    });
+    if (missingFields.length) {
+      toast(missingFields.map(function(f) { return f === 'expectedResult' ? '기대 결과' : '테스트 데이터'; }).join(', ') + '은(는) 필수 항목입니다.', 'err');
+      return;
+    }
   }
   var btns = document.querySelectorAll('.rev-save' + sel + ', .rev-reset' + sel);
   btns.forEach(function(b) { b.disabled = true; });
@@ -1322,6 +1389,18 @@ const server = http.createServer(async (req, res) => {
         if (text !== (step[f] || '').trim()) changed[f] = text;
       }
 
+      // 필수 항목: 수정 후 유효값(수정본 또는 원본)의 기대 결과·테스트 데이터가 비어 있으면 거부 (되돌리기는 허용)
+      if (Object.keys(changed).length) {
+        const ZWSP = String.fromCharCode(0x200B);
+        const blank = f => !String(f in changed ? changed[f] : (step[f] || '')).split(ZWSP).join('').trim()
+          && !((step.images || {})[f] || []).length;   // XML 첨부 이미지만 있어도 내용으로 인정
+        const missingReq = ['expectedResult', 'testData'].filter(blank);
+        if (missingReq.length) {
+          sendJSON(res, 400, { ok: false, error: '필수 항목이 비어 있습니다: ' + missingReq.map(f => (f === 'expectedResult' ? '기대 결과' : '테스트 데이터')).join(', ') });
+          return;
+        }
+      }
+
       const revs = db.revisions[key] || {};
       const prev = revs[index];
       if (!Object.keys(changed).length) {
@@ -1448,4 +1527,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { formatSpecText };
+module.exports = { formatSpecText, parseTestCases, stripHtml };
