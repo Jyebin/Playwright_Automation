@@ -198,11 +198,42 @@ export interface ExistingVerificationToken {
   expiresAt: Date | null;
 }
 
+/** 메일함에 받은 회원가입 인증 메일 (제목·보낸 사람·본문·인증 링크) */
+export interface ReceivedVerificationEmail {
+  subject: string;
+  fromName: string;
+  fromAddress: string;
+  toAddress: string;
+  html: string;
+  text: string;
+  receivedAt: Date | null;
+  /** 메일 언어 — html lang="en" 또는 영문 제목이면 en */
+  lang: 'ko' | 'en';
+  /** 메일 버튼의 회원가입 링크 (…/regist_data?token=<JWT>) */
+  link: string;
+  token: string;
+  /** JWT payload 의 email (없으면 null) */
+  tokenEmail: string | null;
+  /** JWT exp (없으면 null) */
+  expiresAt: Date | null;
+}
+
+// 메일 본문의 회원가입 링크 전체 (…/regist_data?token=<JWT>)
+const REGIST_LINK_REGEX = /https?:\/\/[^\s"'<>]+?\/regist_data\?token=([\w.\-]+)/;
+
+function decodeJwtPayload(token: string): { email?: string; exp?: number } {
+  try {
+    return JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
+  } catch {
+    return {}; // JWT 형식이 아니면 이메일·만료 정보 없음
+  }
+}
+
 /**
- * 새 메일 발송 없이, 메일함에 이미 받은 가장 최근 회원가입 인증 메일의 토큰을 반환 (없으면 null).
- * 약관 모달처럼 토큰 유효성과 무관한 화면 검증에서 메일 발송(reCAPTCHA 차단)을 피하기 위해 사용.
+ * 새 메일 발송 없이, 메일함에 이미 받은 회원가입 인증 메일을 최신순으로 반환 (최대 max 개).
+ * 메일 내용 검증·인증 링크 재사용에서 메일 발송(reCAPTCHA 차단)을 피하기 위해 사용.
  */
-export async function findLatestVerificationToken(lookBackDays = 180): Promise<ExistingVerificationToken | null> {
+export async function findVerificationEmails(lookBackDays = 180, max = 10): Promise<ReceivedVerificationEmail[]> {
   const { host, port, secure, user, pass } = getImapConfig();
   const client = new ImapFlow({
     host, port, secure,
@@ -215,30 +246,54 @@ export async function findLatestVerificationToken(lookBackDays = 180): Promise<E
   const lock = await client.getMailboxLock('INBOX');
   try {
     const since = new Date(Date.now() - lookBackDays * 24 * 60 * 60 * 1000);
-    const uids = ((await client.search({ since }, { uid: true })) || []) as number[];
+    // 보낸 사람 주소가 바뀌어도(metademy@raoncorp.com → metademy@raon.com) 모두 'metademy' 포함
+    const uids = ((await client.search({ since, from: 'metademy' }, { uid: true })) || []) as number[];
+    const found: ReceivedVerificationEmail[] = [];
     for (const uid of [...uids].reverse().slice(0, 50)) {
+      if (found.length >= max) break;
       const msg = await client.fetchOne(`${uid}`, { source: true }, { uid: true }).catch(() => null);
       const source = (msg as any)?.source as Buffer | undefined;
       if (!source) continue;
 
       const parsed = await simpleParser(source);
-      const body = ((parsed.html as string) || '') + ((parsed.text as string) || '');
-      const match = body.match(TOKEN_REGEX);
+      const html = typeof parsed.html === 'string' ? parsed.html : '';
+      const text = parsed.text ?? '';
+      const match = (html + text).match(REGIST_LINK_REGEX);
       if (!match) continue;
 
-      let expiresAt: Date | null = null;
-      try {
-        const payload = JSON.parse(Buffer.from(match[1].split('.')[1], 'base64url').toString());
-        if (payload.exp) expiresAt = new Date(payload.exp * 1000);
-      } catch { /* JWT 형식이 아니면 만료 정보 없음 */ }
-
-      return { token: match[1], receivedAt: parsed.date ?? null, expiresAt };
+      const subject = parsed.subject ?? '';
+      const from = parsed.from?.value?.[0];
+      const to = (Array.isArray(parsed.to) ? parsed.to[0] : parsed.to)?.value?.[0];
+      const payload = decodeJwtPayload(match[1]);
+      found.push({
+        subject,
+        fromName: from?.name ?? '',
+        fromAddress: from?.address ?? '',
+        toAddress: to?.address ?? '',
+        html,
+        text,
+        receivedAt: parsed.date ?? null,
+        lang: /\blang="en/i.test(html) || /verification link/i.test(subject) ? 'en' : 'ko',
+        link: match[0],
+        token: match[1],
+        tokenEmail: payload.email ?? null,
+        expiresAt: payload.exp ? new Date(payload.exp * 1000) : null,
+      });
     }
-    return null;
+    return found;
   } finally {
     lock.release();
     await client.logout();
   }
+}
+
+/**
+ * 새 메일 발송 없이, 메일함에 이미 받은 가장 최근 회원가입 인증 메일의 토큰을 반환 (없으면 null).
+ * 약관 모달처럼 토큰 유효성과 무관한 화면 검증에서 메일 발송(reCAPTCHA 차단)을 피하기 위해 사용.
+ */
+export async function findLatestVerificationToken(lookBackDays = 180): Promise<ExistingVerificationToken | null> {
+  const [latest] = await findVerificationEmails(lookBackDays, 1);
+  return latest ? { token: latest.token, receivedAt: latest.receivedAt, expiresAt: latest.expiresAt } : null;
 }
 
 /**

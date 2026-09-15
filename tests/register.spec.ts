@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from './pages/RegisterPage';
 import { tcStep } from './utils/evidence';
-import { waitForVerificationToken, waitForVerificationEmail, generateTestEmail } from './helpers/emailHelper';
+import { waitForVerificationToken } from './helpers/emailHelper';
 
 // 회원가입 테스트는 세션 없이 실행
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -212,106 +212,10 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     await register.verifyEmailRequiredMessageGone();
   });
 
-  // 수동 확인 항목 (발신자/제목 검증은 UI가 아닌 메일 클라이언트에서 확인)
-  test.skip('[수동 확인] 인증 이메일 제목·발신자 확인 — 제목: "[라온 메타데미] 이메일 인증 링크입니다.", 발신자: metademy@raon.com', { annotation: tcStep(2) }, async () => {});
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// T421 Step 2-4 — IMAP으로 JWT 토큰 취득 후 /regist_data 페이지 검증
-//
-// 필수 .env 설정:
-//   EMAIL_IMAP_HOST  (예: imap.gmail.com)
-//   EMAIL_IMAP_USER  (테스트용 이메일 주소)
-//   EMAIL_IMAP_PASS  (앱 비밀번호)
-// ─────────────────────────────────────────────────────────────────────────────
-test.describe('T421 - 이메일 인증 → /regist_data 페이지 검증', () => {
-  test.use({ storageState: { cookies: [], origins: [] } });
-
-  // IMAP 설정 확인 (더미값이면 skip)
-  const IMAP_READY =
-    !!process.env.EMAIL_IMAP_HOST &&
-    !!process.env.EMAIL_IMAP_USER &&
-    !process.env.EMAIL_IMAP_USER?.includes('your_test_email');
-
-  let token = '';
-  let testEmail = '';
-  let emailFrom = '';
-  let emailSubject = '';
-
-  test.beforeAll(async ({ browser }) => {
-    test.setTimeout(120_000); // 브라우저 조작 + IMAP 폴링(최대 90s) 합산
-    if (!IMAP_READY) {
-      console.log('[T421] IMAP 미설정 — .env의 EMAIL_IMAP_* 확인 후 실행하세요');
-      return;
-    }
-    // plus-addressing(yenbin+timestamp@)은 서버 거절 → 기본 이메일 주소 사용
-    testEmail = process.env.EMAIL_IMAP_USER ?? '';
-    console.log(`[T421] 테스트 이메일: ${testEmail}`);
-
-    const page = await browser.newPage();
-    const register = new RegisterPage(page);
-    await register.goto();
-    try {
-      await register.submitEmailForVerification(testEmail);
-    } catch (e: any) {
-      console.warn(`[T421] 이메일 발송 실패 → 테스트 skip: ${e.message}`);
-      await page.close();
-      return; // token = '' → beforeEach의 test.skip 조건 충족 → 전체 skip
-    }
-    await page.close();
-
-    try {
-      const info = await waitForVerificationEmail(90_000);
-      token = info.token ?? '';
-      emailFrom = info.from;
-      emailSubject = info.subject;
-      console.log(`[T421] 인증 메일 수신 완료 — 발신자: ${emailFrom}, 제목: ${emailSubject}`);
-    } catch (e: any) {
-      console.warn(`[T421] IMAP 수신 실패 → 테스트 skip: ${e.message}`);
-    }
-  });
-
-  test.beforeEach(async ({ page }) => {
-    test.skip(!IMAP_READY || !token, '⚠️ IMAP 미설정 또는 인증 토큰 미취득 — .env의 EMAIL_IMAP_* 입력 필요');
-    const base = process.env.BASE_URL ?? '';
-    await page.goto(`${base}/regist_data?token=${token}`);
-    await page.waitForLoadState('load');
-  });
-
-  test('인증 이메일 발신자 확인 — 보낸사람: 라온메타데미', { annotation: tcStep(2) }, async () => {
-    expect(emailFrom).toMatch(/라온|metademy|raon/i);
-    console.log(`✅ 발신자 확인: ${emailFrom}`);
-  });
-
-  test('인증 이메일 제목 확인 — [라온 메타데미] 이메일 인증 링크입니다.', { annotation: tcStep(2) }, async () => {
-    expect(emailSubject).toContain('[라온 메타데미] 이메일 인증 링크입니다.');
-    console.log(`✅ 제목 확인: ${emailSubject}`);
-  });
-
-  test('/regist_data 페이지 URL 및 접속 확인', { annotation: tcStep(3) }, async ({ page }) => {
-    const register = new RegisterPage(page);
-    await register.verifyRegistDataUrl();
-  });
-
-  test('/regist_data 페이지 - E-mail/비밀번호/비밀번호 재확인 placeholder 확인', { annotation: tcStep(4) }, async ({ page }) => {
-    const register = new RegisterPage(page);
-    await register.verifyRegistDataPlaceholders();
-  });
-
-  test('/regist_data 페이지 - 이메일 자동입력 확인 (인증 이메일 주소)', async ({ page }) => {
-    const register = new RegisterPage(page);
-    await register.verifyEmailAutofilled(testEmail);
-  });
-
-  test('/regist_data 페이지 - 취소 버튼 클릭 → 경고 모달 → [확인] 시 메인 페이지 이동', { annotation: tcStep(5) }, async ({ page }) => {
-    const register = new RegisterPage(page);
-    await register.clickRegistDataCancelButton();
-    await register.verifyRegistDataCancelModal();
-    await register.clickRegistDataCancelModalConfirm();
-    await expect(page).toHaveURL(/^\/?(?:$|main|home|\?)/);
-    console.log(`✅ 취소 확인 후 메인 페이지 이동: ${page.url()}`);
-  });
-});
+// T421 Step 2~5 (인증 메일 내용·메일 버튼·가입 화면 입력 항목·[취소]) → tests/register-email.spec.ts
+//   새 인증 메일을 보내지 않고 메일함에 받은 인증 메일로 검증 (이 파일의 serial 모드·실제 메일 발송과 분리)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // T758 - [Front][PC][회원가입] 003. 개인 회원 - 이용약관 동의
