@@ -191,6 +191,56 @@ export async function waitForVerificationEmail(maxWaitMs = MAX_WAIT_MS): Promise
   throw new Error(`[emailHelper] 인증 메일을 ${maxWaitMs / 1000}초 내에 찾지 못했습니다.`);
 }
 
+export interface ExistingVerificationToken {
+  token: string;
+  receivedAt: Date | null;
+  /** JWT exp (없으면 null) — 만료돼도 /regist_data 화면 자체는 렌더링됨 (이메일 자동입력만 안 됨) */
+  expiresAt: Date | null;
+}
+
+/**
+ * 새 메일 발송 없이, 메일함에 이미 받은 가장 최근 회원가입 인증 메일의 토큰을 반환 (없으면 null).
+ * 약관 모달처럼 토큰 유효성과 무관한 화면 검증에서 메일 발송(reCAPTCHA 차단)을 피하기 위해 사용.
+ */
+export async function findLatestVerificationToken(lookBackDays = 180): Promise<ExistingVerificationToken | null> {
+  const { host, port, secure, user, pass } = getImapConfig();
+  const client = new ImapFlow({
+    host, port, secure,
+    auth: { user, pass },
+    logger: false,
+    tls: { rejectUnauthorized: false },
+  });
+
+  await client.connect();
+  const lock = await client.getMailboxLock('INBOX');
+  try {
+    const since = new Date(Date.now() - lookBackDays * 24 * 60 * 60 * 1000);
+    const uids = ((await client.search({ since }, { uid: true })) || []) as number[];
+    for (const uid of [...uids].reverse().slice(0, 50)) {
+      const msg = await client.fetchOne(`${uid}`, { source: true }, { uid: true }).catch(() => null);
+      const source = (msg as any)?.source as Buffer | undefined;
+      if (!source) continue;
+
+      const parsed = await simpleParser(source);
+      const body = ((parsed.html as string) || '') + ((parsed.text as string) || '');
+      const match = body.match(TOKEN_REGEX);
+      if (!match) continue;
+
+      let expiresAt: Date | null = null;
+      try {
+        const payload = JSON.parse(Buffer.from(match[1].split('.')[1], 'base64url').toString());
+        if (payload.exp) expiresAt = new Date(payload.exp * 1000);
+      } catch { /* JWT 형식이 아니면 만료 정보 없음 */ }
+
+      return { token: match[1], receivedAt: parsed.date ?? null, expiresAt };
+    }
+    return null;
+  } finally {
+    lock.release();
+    await client.logout();
+  }
+}
+
 /**
  * Gmail plus addressing 방식으로 테스트용 고유 이메일 생성
  * 예) base = "test@gmail.com" → "test+1749600000000@gmail.com"
