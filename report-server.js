@@ -577,6 +577,7 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 details.run-box[open] > .run-sum{margin-bottom:8px;}
 .run-hint{font-size:12px;color:var(--tx3);padding-bottom:6px;}
 .run-map.unlinked{color:var(--skip);}
+.run-map.old-run{color:var(--tx3);font-weight:600;}
 
 /* Steps */
 .steps{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
@@ -1078,7 +1079,7 @@ function buildDetail(tc, r) {
     tests.forEach(function(t) {
       var linked = t.tcSteps && t.tcSteps.length;
       html += '<div class="run-item">' + badge(t.status) + '<div class="run-body">';
-      html += '<div class="run-title">' + eh(t.title) +
+      html += '<div class="run-title">' + eh(t.title) + previousRunTag(t, r) +
         (linked ? '<span class="run-map">→ Step ' + t.tcSteps.join(', ') + '</span>' : '<span class="run-map unlinked">스텝 미연결</span>') + '</div>';
       if (t.error) html += '<div class="run-err">' + eh(t.error) + '</div>';
       if (!linked) {
@@ -1310,6 +1311,12 @@ function readDataURL(file) {
   });
 }
 
+// 마지막 실행 회차에 포함되지 않고 이전 실행 결과를 유지 중인 테스트 표시 (일부만 실행한 경우)
+function previousRunTag(t, r) {
+  if (!r.run_id || t.run_id === r.run_id) return '';
+  return '<span class="run-map old-run">이전 실행' + (t.ran_at ? ' · ' + fmtDate(t.ran_at) : '') + '</span>';
+}
+
 // 테스트가 남긴 확인 로그(✅ …)를 "실제 동작"으로 표시. 로그가 없으면 검증 단계(test.step) 제목으로 대신 (withSteps)
 function logList(t, withSteps) {
   var logs = t.logs || [];
@@ -1327,7 +1334,7 @@ function actualBlock(r, no, evidence, stepStatus) {
   var html = '';
   if (tests.length) {
     html += '<div class="tri-field"><div class="cmp-lbl">🤖 자동화 결과</div><div class="act-tests">' + tests.map(function(t) {
-      return '<div class="act-test">' + badge(t.status) + '<span class="act-title">' + eh(t.title) + '</span>' +
+      return '<div class="act-test">' + badge(t.status) + '<span class="act-title">' + eh(t.title) + '</span>' + previousRunTag(t, r) +
         logList(t, true) + (t.error ? '<div class="run-err">' + eh(t.error) + '</div>' : '') + '</div>';
     }).join('') + '</div></div>';
   }

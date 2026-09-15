@@ -61,6 +61,10 @@ interface Evidence {
 }
 
 interface TestEntry {
+  id?: string;       // Playwright test.id (파일·제목 기반, 실행 간 동일) — 일부만 실행해도 기존 결과와 맞추는 기준
+  file?: string;     // 테스트 파일 (ROOT 기준)
+  run_id?: string;   // 이 결과를 만든 실행 회차
+  ran_at?: string;   // 이 테스트가 실행된 시각
   title: string;
   status: Status;
   duration: number;
@@ -100,8 +104,8 @@ function saveDB(db: DBShape): void {
 class ReportDBReporter implements Reporter {
   // TC 키 → (test.id → 마지막 실행 결과). 재시도 시 마지막 결과로 덮어씀
   private tcTests: Map<string, Map<string, TestEntry>> = new Map();
-  // 이번 실행에서 캡처 폴더를 비운 TC (이전 실행 캡처 제거)
-  private clearedTCs: Set<string> = new Set();
+  // 이번 실행 회차 (결과서에서 이전 실행 결과와 구분)
+  private runId = new Date().toISOString();
 
   onTestEnd(test: TestCase, result: TestResult): void {
     // titlePath: ['', 'chromium', 'login.spec.ts', 'T416 간편인증 로그인', '테스트 제목'] 형태
@@ -132,6 +136,10 @@ class ReportDBReporter implements Reporter {
 
     const status = toStatus(result.status);
     const entry: TestEntry = {
+      id: test.id,
+      file: path.relative(ROOT, test.location.file).split(path.sep).join('/'),
+      run_id: this.runId,
+      ran_at: new Date().toISOString(),
       title: test.title,
       status,
       duration: result.duration,
@@ -149,10 +157,13 @@ class ReportDBReporter implements Reporter {
   // 이미지 첨부(captureEvidence, 실패 스크린샷)를 report-assets/<TC>/ 로 복사
   private saveImages(tcKey: string, test: TestCase, result: TestResult): Evidence[] {
     const dir = path.join(ASSETS_DIR, tcKey);
+    const safeId = test.id.replace(/[^\w-]/g, '_');
     try {
-      if (!this.clearedTCs.has(tcKey)) {
-        fs.rmSync(dir, { recursive: true, force: true });
-        this.clearedTCs.add(tcKey);
+      // 이 테스트의 이전 캡처만 삭제 (이번에 실행하지 않은 다른 테스트의 캡처는 유지)
+      if (fs.existsSync(dir)) {
+        for (const f of fs.readdirSync(dir)) {
+          if (f.startsWith(`${safeId}-`)) fs.rmSync(path.join(dir, f), { force: true });
+        }
       }
       // 스킵된 테스트의 자동 캡처는 검증 결과가 아니므로 저장하지 않음 ("실패 시 화면"으로 잘못 표시되던 문제)
       if (result.status === 'skipped') return [];
@@ -160,7 +171,6 @@ class ReportDBReporter implements Reporter {
       if (!images.length) return [];
 
       fs.mkdirSync(dir, { recursive: true });
-      const safeId = test.id.replace(/[^\w-]/g, '_');
       return images.map((a, i) => {
         const file = path.join(dir, `${safeId}-r${result.retry}-${i}${a.contentType === 'image/jpeg' ? '.jpg' : '.png'}`);
         if (a.path) fs.copyFileSync(a.path, file);
@@ -190,7 +200,30 @@ class ReportDBReporter implements Reporter {
 
     const now = new Date().toISOString();
     for (const [tcKey, testMap] of this.tcTests) {
-      const tests = [...testMap.values()];
+      // 기존 결과와 합치기: 이번에 실행한 테스트만 교체하고, 실행하지 않은 테스트 결과는 유지
+      // (일부 파일/테스트만 실행해도 같은 TC 의 다른 테스트 결과·캡처가 사라지지 않도록)
+      const ranNow = [...testMap.values()];
+      const prevResult = (db.results[tcKey] || {}) as { tests?: TestEntry[]; run_at?: string };
+      const byId = new Map(ranNow.map(t => [t.id, t]));
+      const used = new Set<string>();
+      const tests: TestEntry[] = (prevResult.tests || []).map(prev => {
+        const hit = prev.id
+          ? byId.get(prev.id)
+          : ranNow.find(t => t.title === prev.title && !used.has(t.id!));   // id 없는 옛 기록은 제목으로 비교
+        if (hit && !used.has(hit.id!)) {
+          used.add(hit.id!);
+          return hit;
+        }
+        return {
+          ...prev,
+          ran_at: prev.ran_at || prevResult.run_at,
+          attachments: (prev.attachments || []).filter(a => fs.existsSync(path.join(ROOT, a.path))),
+          logs: prev.logs || [],
+          tcSteps: prev.tcSteps || [],
+          steps: prev.steps || [],
+        };
+      });
+      ranNow.forEach(t => { if (!used.has(t.id!)) tests.push(t); });
       const counts = { pass: 0, fail: 0, skip: 0 };
       tests.forEach(t => { if (t.status !== 'pending') counts[t.status]++; });
 
@@ -223,6 +256,7 @@ class ReportDBReporter implements Reporter {
         tests,
         step_status: stepStatus,
         step_evidence: stepEvidence,
+        run_id: this.runId,
         run_at: now,
         updated_at: now,
         auto_synced: true,
