@@ -1,85 +1,59 @@
 import { Page, expect } from '@playwright/test';
-
-const BASE = process.env.BASE_URL ?? '';
+import { MyPage } from './MyPage';
 
 export class MyPagePurchasePage {
   constructor(private page: Page) {}
 
-  private async handleSessionExpiry(): Promise<boolean> {
-    // 세션이 끊기면 화면 대신 "비정상적인 접근" 알럿이 비동기로 뜸 → 프로필 표/알럿 중 하나가 뜰 때까지 대기 후 판정
-    const expiredMsg = this.page.getByText('비정상적인 접근', { exact: false }).first();
-    await expiredMsg.or(this.page.locator('#ProfileTable')).first().waitFor({ timeout: 10000 }).catch(() => {});
-    const expired = await expiredMsg.isVisible().catch(() => false);
-    if (!expired) return false;
-
-    console.log('⚠️ 세션 만료 감지 — 재로그인 시도');
-    const confirmBtn = this.page.getByRole('button', { name: '확인' }).first();
-    if (await confirmBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await confirmBtn.click({ force: true });
-      await this.page.waitForTimeout(500);
-    }
-
-    const username = process.env.TEST_USERNAME ?? '';
-    const password = process.env.TEST_PASSWORD ?? '';
-    await this.page.goto(`${BASE}/login`);
-    await this.page.waitForLoadState('load');
-    await this.page.getByPlaceholder('아이디 또는 이메일을 입력해 주세요.').fill(username);
-    await this.page.getByPlaceholder('비밀번호를 입력해 주세요.').fill(password);
-    await this.page.getByRole('button', { name: '로그인' }).click();
-    await this.page.waitForURL(url => !url.href.includes('/login'), { timeout: 15000 }).catch(() => {});
-    await this.page.goto(`${BASE}/mypage`);
-    await this.page.waitForLoadState('load');
-    console.log('✅ 재로그인 완료 → 마이페이지 재이동');
-    return true;
-  }
-
+  /** 마이페이지 진입(세션 만료 시 재로그인은 MyPage.navigate 가 처리) → [구매 및 결제 관리] 탭 */
   async navigate() {
-    await this.page.goto(`${BASE}/mypage`);
-    await this.page.waitForLoadState('load');
-    await this.handleSessionExpiry();
-    const tab = this.page.getByText('구매 및 결제 관리', { exact: true }).first();
-    await tab.scrollIntoViewIfNeeded();
-    await this.page.evaluate(() => window.scrollBy(0, -120));
-    await tab.click({ force: true });
-    await this.page.waitForTimeout(600);
+    const myPage = new MyPage(this.page);
+    await myPage.navigate();
+    await myPage.clickTab('구매 및 결제 관리');
+    await expect(
+      this.page.locator('#MyPurchaseHistory').first(),
+      '[UI/셀렉터] 구매 및 결제 관리 화면(#MyPurchaseHistory)이 표시되지 않음 — 로그인 세션 또는 셀렉터 확인',
+    ).toBeVisible({ timeout: 15000 });
     console.log('✅ 마이페이지 > 구매 및 결제 관리 탭 이동');
   }
 
+  /** 구매내역 표(#PurchaseHistoryTable)가 그려질 때까지 기다린 뒤 판정 — 빈 목록이면 .no-data 클래스가 붙음 */
   async hasPurchaseHistory(): Promise<boolean> {
-    await this.page.waitForTimeout(1000);
-    const emptyEl = this.page.getByText('구매 내역이 없습니다', { exact: false }).first();
-    const isEmpty = await emptyEl.isVisible({ timeout: 5000 }).catch(() => false);
+    const table = this.page.locator('#PurchaseHistoryTable');
+    await expect(table, '[UI/셀렉터] 구매내역 표(#PurchaseHistoryTable)를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 15000 });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+    const isEmpty = await table.evaluate(el => el.classList.contains('no-data'));
+    console.log(`✅ 구매내역 유무: ${isEmpty ? '없음 (#PurchaseHistoryTable.no-data)' : '있음'}`);
     return !isEmpty;
   }
 
   async verifyEmptyState() {
+    // 구조: #PurchaseHistoryTable.no-data > .top > h5 "구매 내역이 없습니다." + p "아직 구매한 콘텐츠가 없습니다."
+    const emptyBox = this.page.locator('#PurchaseHistoryTable.no-data .top');
     await expect(
-      this.page.getByText('구매 내역이 없습니다', { exact: false }).first(),
-      '[앱오류] "구매 내역이 없습니다" 안내 문구가 표시되지 않음'
-    ).toBeVisible({ timeout: 8000 });
-    console.log('✅ "구매 내역이 없습니다." 안내 문구 확인');
+      emptyBox.locator('h5'),
+      '[앱오류] "구매 내역이 없습니다." 안내 문구가 표시되지 않음'
+    ).toHaveText(/구매 내역이 없습니다/, { timeout: 8000 });
+    const title = (await emptyBox.locator('h5').innerText()).trim();
+    const desc = (await emptyBox.locator('p').allInnerTexts()).map(s => s.trim()).filter(Boolean).join(' ');
+    console.log(`✅ 구매내역 없음 문구: "${title}" / "${desc}"`);
+    expect.soft(desc, '[앱오류] 보조 문구 "아직 구매한 콘텐츠가 없습니다."가 표시되지 않음').toContain('아직 구매한 콘텐츠가 없습니다');
+  }
+
+  /** 구매 및 결제 관리 상단 타이틀 옆 [문의하기] 링크 (구조: #MyPurchaseHistory .list-group > .title > h5 + a.link) */
+  private get topInquiryLink() {
+    return this.page.locator('#MyPurchaseHistory .list-group .title a.link').filter({ hasText: '문의하기' }).first();
   }
 
   async verifyTopInquiryButtonExists() {
-    // 구매내역 페이지 상단 [문의하기] (button 또는 a 태그)
-    const el = this.page.locator('a, button').filter({ hasText: /문의하기/ }).first();
-    const isVisible = await el.isVisible({ timeout: 5000 }).catch(() => false);
-    if (isVisible) {
-      console.log('✅ 상단 [문의하기] 요소 확인');
-    } else {
-      console.log('ℹ️  상단 [문의하기] 요소 없음 — 구매내역 없는 계정에서 미노출 가능');
-    }
+    await expect(this.topInquiryLink, '[UI/셀렉터] 구매 및 결제 관리 상단 [문의하기] 링크를 찾을 수 없음 — 셀렉터 변경 여부 확인').toBeVisible({ timeout: 15000 });
+    const href = await this.topInquiryLink.getAttribute('href');
+    console.log(`✅ 상단 [문의하기] 링크 확인 (href="${href}")`);
   }
 
   async clickTopInquiryButton() {
-    const el = this.page.locator('a, button').filter({ hasText: /문의하기/ }).first();
-    if (await el.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await el.click({ force: true });
-      await this.page.waitForURL(/\/cs\/inquiry/, { timeout: 8000 });
-      console.log('🖱️ 상단 [문의하기] 클릭 → /cs/inquiry 이동');
-    } else {
-      console.log('ℹ️  상단 [문의하기] 없음 — 이동 건너뜀');
-    }
+    await this.topInquiryLink.click();
+    await this.page.waitForURL(/\/cs\/inquiry/, { timeout: 10000, waitUntil: 'commit' }).catch(() => {});
+    console.log(`🖱️ 상단 [문의하기] 클릭 → URL ${new URL(this.page.url()).pathname}`);
   }
 
   async verifyPurchaseItemStructure() {

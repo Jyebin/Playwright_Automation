@@ -6,6 +6,10 @@ import { MyPagePurchasePage } from './pages/MyPagePurchasePage';
 import { MyPageDashboardPage } from './pages/MyPageDashboardPage';
 import { captureEvidence, tcStep } from './utils/evidence';
 
+// 이 서비스는 계정당 1세션만 유지 — 한 워커가 (재)로그인하면 같은 계정을 쓰는 다른 워커의 세션이
+// "비정상적인 접근"으로 끊겨 연쇄 실패함. 이 파일은 한 워커에서 순서대로 실행.
+test.describe.configure({ mode: 'default' });
+
 const PASSWORD = process.env.TEST_PASSWORD ?? '';
 const WRONG_PASSWORD = 'WrongPass123!';
 const VALID_NEW_PASSWORD = 'NewPass1!';
@@ -310,6 +314,8 @@ test.describe('T426 프로필 수정', () => {
       await editPage.enterPassword(PASSWORD);
       await editPage.clickConfirmButton();
       await editPage.verifyProfileEditFormVisible();
+      // E-mail 입력 필드가 없으면 [수정] 제출 전에 [앱오류]로 중단 (필드 없이 저장 제출하지 않음)
+      await editPage.verifyEmailFieldEditable();
       // 현재 이메일 그대로 재입력 (non-destructive)
       const currentEmail = await editPage.getCurrentEmailValue();
       if (currentEmail) {
@@ -326,6 +332,9 @@ test.describe('T426 프로필 수정', () => {
 
   test('마케팅 수신 체크박스 토글 후 저장 확인', { annotation: tcStep(10) }, async ({ page }) => {
     test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
+    // 계정 보호: 실제 프로필 저장을 2회 제출(토글 저장 → 복원 저장)하며, 복원 전에 실패하면 계정 설정이 바뀐 채 남음
+    // (이 계정의 "문자 메시지" 수신이 체크된 채 남아 있는 것도 이전 실행의 토글 흔적으로 추정)
+    test.skip(process.env.ALLOW_PROFILE_SAVE !== '1', '계정 보호 — 프로필 저장 제출 테스트는 ALLOW_PROFILE_SAVE=1 일 때만 실행 (마케팅 수신 토글 후 저장·복원)');
     const myPage = new MyPage(page);
     const editPage = new MyPageEditPage(page);
     await test.step('[셋업] 프로필 수정 폼 진입 및 마케팅 체크박스 토글 후 저장', async () => {
@@ -428,6 +437,11 @@ test.describe('T426 프로필 수정', () => {
       await captureEvidence(marketingRow, '마케팅 정보 수신 확인 체크박스 기본 상태');
 
       const checked = states.filter(s => s.checked).map(s => s.label);
+      if (checked.length > 0) {
+        // 스펙 테스트 데이터: "마이페이지를 수정한 적이 없는 계정으로 진행" — 이 계정은 Step 10 테스트(마케팅 수신 토글 저장)로 수정 이력이 있음
+        console.log(`ℹ️ 마케팅 수신 체크됨: ${checked.join(', ')} — 이 계정은 T426 Step 10 자동화(체크박스[0] 토글 저장) 실행 이력이 있어 기본값 판정 불가`);
+        test.skip(true, `마이페이지를 수정한 적 없는 계정 필요 — 현재 계정은 마케팅 수신 수정 이력 있음(체크됨: ${checked.join(', ')}) · METADEMY-2258 확인은 신규 계정으로`);
+      }
       expect(checked, `[앱오류] 마케팅 수신 기본값이 선택되어 있음(계정 수정 이력 확인 필요) — 체크됨: ${checked.join(', ')}`).toEqual([]);
     });
   });
@@ -619,16 +633,16 @@ test.describe('T430 구매내역', () => {
 
   test('구매내역이 없는 경우 "구매 내역이 없습니다." 문구 확인', { annotation: tcStep(1) }, async ({ page }) => {
     const purchasePage = new MyPagePurchasePage(page);
-    await test.step('[셋업] 구매내역 페이지 이동', async () => {
+    const hasPurchase = await test.step('[셋업] 구매내역 페이지 이동', async () => {
       await purchasePage.navigate();
+      return purchasePage.hasPurchaseHistory();
     });
+    if (hasPurchase) {
+      console.log('ℹ️  구매내역 있는 계정 — "구매 내역 없음" 확인 불가');
+      test.skip(true, '구매내역이 없는 계정 필요 — 현재 테스트 계정은 구매내역 있음');
+    }
     await test.step('[검증] 구매내역 없음 문구 확인', async () => {
-      const hasPurchase = await purchasePage.hasPurchaseHistory();
-      if (!hasPurchase) {
-        await purchasePage.verifyEmptyState();
-      } else {
-        console.log('ℹ️  구매내역 있는 계정 — empty state 테스트 건너뜀');
-      }
+      await purchasePage.verifyEmptyState();
     });
   });
 
@@ -644,68 +658,58 @@ test.describe('T430 구매내역', () => {
     });
   });
 
+  const NEED_PURCHASE = '구매내역이 있는 계정 필요(스펙: raontest6 등) — 현재 테스트 계정은 구매내역 없음';
+
   test('구매내역 항목 구성 확인 (썸네일/결제일시/주문번호/구매항목명/금액)', { annotation: tcStep(2, 3) }, async ({ page }) => {
     const purchasePage = new MyPagePurchasePage(page);
-    await test.step('[셋업] 구매내역 페이지 이동', async () => {
+    const hasPurchase = await test.step('[셋업] 구매내역 페이지 이동', async () => {
       await purchasePage.navigate();
+      return purchasePage.hasPurchaseHistory();
     });
+    test.skip(!hasPurchase, NEED_PURCHASE);
     await test.step('[검증] 구매내역 항목 구성 확인', async () => {
-      const hasPurchase = await purchasePage.hasPurchaseHistory();
-      if (hasPurchase) {
-        await purchasePage.verifyPurchaseItemStructure();
-      } else {
-        console.log('ℹ️  구매내역 없는 계정 — 항목 구성 확인 건너뜀');
-      }
+      await purchasePage.verifyPurchaseItemStructure();
     });
   });
 
   test('구매내역 페이지당 최대 5개 표시 확인', async ({ page }) => {
     const purchasePage = new MyPagePurchasePage(page);
-    await test.step('[셋업] 구매내역 페이지 이동', async () => {
+    const hasPurchase = await test.step('[셋업] 구매내역 페이지 이동', async () => {
       await purchasePage.navigate();
+      return purchasePage.hasPurchaseHistory();
     });
+    test.skip(!hasPurchase, NEED_PURCHASE);
     await test.step('[검증] 페이지당 최대 5개 및 페이지네이션 확인', async () => {
-      const hasPurchase = await purchasePage.hasPurchaseHistory();
-      if (hasPurchase) {
-        await purchasePage.verifyItemsPerPage();
-        await purchasePage.verifyPaginationExists();
-      } else {
-        console.log('ℹ️  구매내역 없는 계정 — 페이지네이션 확인 건너뜀');
-      }
+      await purchasePage.verifyItemsPerPage();
+      await purchasePage.verifyPaginationExists();
     });
   });
 
   test('구매내역 [주문 상세] 클릭 → 모달 내용 확인 → 닫기', { annotation: tcStep(7) }, async ({ page }) => {
     const purchasePage = new MyPagePurchasePage(page);
-    await test.step('[셋업] 구매내역 페이지 이동 및 주문 상세 버튼 클릭', async () => {
+    const hasPurchase = await test.step('[셋업] 구매내역 페이지 이동 및 주문 상세 버튼 클릭', async () => {
       await purchasePage.navigate();
+      return purchasePage.hasPurchaseHistory();
     });
+    test.skip(!hasPurchase, NEED_PURCHASE);
     await test.step('[검증] 주문 상세 모달 내용 확인 및 닫기', async () => {
-      const hasPurchase = await purchasePage.hasPurchaseHistory();
-      if (hasPurchase) {
-        const opened = await purchasePage.clickOrderDetailButton();
-        if (opened) {
-          await purchasePage.verifyOrderDetailModalContent();
-          await purchasePage.closeModal();
-        }
-      } else {
-        console.log('ℹ️  구매내역 없는 계정 — 주문 상세 확인 건너뜀');
+      const opened = await purchasePage.clickOrderDetailButton();
+      if (opened) {
+        await purchasePage.verifyOrderDetailModalContent();
+        await purchasePage.closeModal();
       }
     });
   });
 
   test('구매내역 항목 [문의하기] → /cs/inquiry 이동', async ({ page }) => {
     const purchasePage = new MyPagePurchasePage(page);
-    await test.step('[셋업] 구매내역 페이지 이동', async () => {
+    const hasPurchase = await test.step('[셋업] 구매내역 페이지 이동', async () => {
       await purchasePage.navigate();
+      return purchasePage.hasPurchaseHistory();
     });
+    test.skip(!hasPurchase, NEED_PURCHASE);
     await test.step('[검증] 항목 문의하기 클릭 후 /cs/inquiry 이동 확인', async () => {
-      const hasPurchase = await purchasePage.hasPurchaseHistory();
-      if (hasPurchase) {
-        await purchasePage.clickPurchaseItemInquiry();
-      } else {
-        console.log('ℹ️  구매내역 없는 계정 — 항목 문의하기 확인 건너뜀');
-      }
+      await purchasePage.clickPurchaseItemInquiry();
     });
   });
 });

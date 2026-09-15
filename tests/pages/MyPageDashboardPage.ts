@@ -1,6 +1,15 @@
-import { Page, expect } from '@playwright/test';
+import { Page, expect, test } from '@playwright/test';
 
 const BASE = process.env.BASE_URL ?? '';
+
+/**
+ * 실습 대시보드 (/dashboard)
+ *  #DashboardView > .dashboard-wrapper > .left(실습 캘린더) + .right > #Practice
+ *  #Practice > .tabs-group > #Tab(.title "진행 중"/"완료"/"AI 취업 준비" + .count) / .tab-content > ul > li(콘텐츠 1개)
+ *  li > .list-title(.lecture-label 상태 + .lecture-title 이름 + .recent-date + #BaseProgressbar[role=progressbar] + .percent)
+ *     > .list-content(커리큘럼별 진행률)
+ */
+type PracticeTab = '진행 중' | '완료';
 
 export class MyPageDashboardPage {
   constructor(private page: Page) {}
@@ -101,34 +110,73 @@ export class MyPageDashboardPage {
     }
   }
 
+  // ── 진행 중 / 완료 탭 콘텐츠 상태 ─────────────────────────────────────────
+
+  /** #Practice 의 "진행 중"/"완료" 탭을 선택하고 콘텐츠(li)별 상태 라벨·진행률을 읽음 */
+  private async readPracticeTab(tabName: PracticeTab) {
+    const practice = this.page.locator('#Practice');
+    await expect(practice, '[UI/셀렉터] 실습 내역 영역(#Practice)을 찾을 수 없음 — 로그인 세션 또는 셀렉터 확인').toBeVisible({ timeout: 15000 });
+    const tab = practice.locator('.tabs-group #Tab').filter({ has: this.page.locator('.title', { hasText: new RegExp(`^\\s*${tabName}\\s*$`) }) });
+    await expect(tab, `[UI/셀렉터] 실습 내역 "${tabName}" 탭을 찾을 수 없음`).toBeVisible({ timeout: 10000 });
+    // 탭 배지(.count)는 처음 0 으로 그려지고 실습 내역 API 응답 후 채워짐 → 진행 중+완료 합계가 0 보다 커질 때까지 대기
+    // (실제로 내역이 없는 계정이면 대기 후 0 그대로 진행)
+    const loaded = await expect.poll(async () => {
+      const counts = await practice.locator('.tabs-group #Tab .count').allInnerTexts();
+      return counts.reduce((sum, c) => sum + (Number(c.trim()) || 0), 0);
+    }, { timeout: 15000 }).toBeGreaterThan(0).then(() => true, () => false);
+    if (!loaded) console.log('ℹ️  15초 대기 후에도 실습 내역 탭 배지 합계 0 — 내역 없는 계정으로 판단');
+    await expect(async () => {
+      if (!(await tab.evaluate(el => el.classList.contains('active')))) await tab.click({ timeout: 2000 });
+      await expect(tab).toHaveClass(/\bactive\b/, { timeout: 2000 });
+    }, `[UI/셀렉터] 실습 내역 "${tabName}" 탭이 선택되지 않음`).toPass({ timeout: 15000 });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+
+    const badge = (await tab.locator('.count').innerText().catch(() => '')).trim();
+    const items = await practice.locator('.tab-content > ul > li').evaluateAll(lis => lis.map(li => {
+      const head = li.querySelector('.list-title');
+      const bar = head?.querySelector('[role="progressbar"]');
+      const percentText = (head?.querySelector('.percent') as HTMLElement | null)?.innerText.replace(/\s+/g, '') ?? '';
+      return {
+        title: head?.querySelector('.lecture-title')?.textContent?.trim() ?? '',
+        label: head?.querySelector('.lecture-label')?.textContent?.trim() ?? '',
+        percent: percentText ? Number(percentText.replace('%', '')) : NaN,
+        ariaNow: bar ? Number(bar.getAttribute('aria-valuenow')) : NaN,
+      };
+    }));
+    console.log(`✅ 실습 내역 [${tabName}] 탭 (배지 ${badge || '-'}, 콘텐츠 ${items.length}개): ${items.map(i => `${i.title}[${i.label}] ${i.percent}%`).join(' / ') || '없음'}`);
+    return { badge, items };
+  }
+
   async verifyCompletedItemHas100Percent() {
-    // 완료된 항목의 진행률이 100%로 표시되는지 확인
-    const full = this.page.locator('text=/100/').first();
-    const isVisible = await full.isVisible({ timeout: 5000 }).catch(() => false);
-    if (isVisible) {
-      console.log('✅ 완료 항목 진행률 100% 확인');
-    } else {
-      console.log('ℹ️  100% 진행률 미노출 — 완료된 실습 없는 계정이거나 셀렉터 변경 가능성');
-    }
+    const { items } = await this.readPracticeTab('완료');
+    if (items.length === 0) test.skip(true, '완료된 실습 콘텐츠가 있는 계정 필요 — 현재 테스트 계정은 완료 내역 없음');
+    const notFull = items.filter(i => i.percent !== 100 || i.ariaNow !== 100);
+    expect(
+      notFull.map(i => `${i.title}(${i.percent}%, bar ${i.ariaNow})`),
+      '[앱오류] 완료 탭 콘텐츠의 진행률이 100%가 아님',
+    ).toEqual([]);
+    console.log(`✅ 완료 콘텐츠 ${items.length}개 모두 진행률 100% 확인`);
   }
 
   async verifyNoInProgressItemInCompleted() {
-    // 완료 섹션에 '진행중' 상태 항목이 없는지 확인
-    const inProgressBadge = this.page.locator(
-      '[class*="complete"] [class*="progress"], [class*="complete"] [class*="inProgress"]'
-    );
-    const count = await inProgressBadge.count();
-    expect(count, '[앱오류] 완료 섹션에 진행중 항목이 존재함').toBe(0);
-    console.log('✅ 완료 섹션에 진행중 항목 없음 확인');
+    const { items } = await this.readPracticeTab('완료');
+    if (items.length === 0) test.skip(true, '완료된 실습 콘텐츠가 있는 계정 필요 — 현재 테스트 계정은 완료 내역 없음');
+    const inProgress = items.filter(i => i.label === '진행 중' || (Number.isFinite(i.percent) && i.percent < 100));
+    expect(
+      inProgress.map(i => `${i.title}[${i.label}] ${i.percent}%`),
+      '[앱오류] 완료 탭에 진행 중(라벨 "진행 중" 또는 진행률 100% 미만) 콘텐츠가 표시됨',
+    ).toEqual([]);
+    console.log(`✅ 완료 탭에 진행 중 콘텐츠 없음 (라벨: ${[...new Set(items.map(i => i.label))].join(', ')})`);
   }
 
   async verifyNoCompletedItemInProgress() {
-    // 진행중 섹션에 '완료' 상태 항목이 없는지 확인
-    const completedBadge = this.page.locator(
-      '[class*="ongoing"] [class*="complete"], [class*="inProgress"] [class*="done"]'
-    );
-    const count = await completedBadge.count();
-    expect(count, '[앱오류] 진행중 섹션에 완료 항목이 존재함').toBe(0);
-    console.log('✅ 진행중 섹션에 완료 항목 없음 확인');
+    const { items } = await this.readPracticeTab('진행 중');
+    if (items.length === 0) test.skip(true, '진행 중인 실습 콘텐츠가 있는 계정 필요 — 현재 테스트 계정은 진행 중 내역 없음');
+    const completed = items.filter(i => i.label === '완료' || i.percent === 100);
+    expect(
+      completed.map(i => `${i.title}[${i.label}] ${i.percent}%`),
+      '[앱오류] 진행 중 탭에 완료(라벨 "완료" 또는 진행률 100%) 콘텐츠가 표시됨',
+    ).toEqual([]);
+    console.log(`✅ 진행 중 탭에 완료 콘텐츠 없음 (라벨: ${[...new Set(items.map(i => i.label))].join(', ')})`);
   }
 }
