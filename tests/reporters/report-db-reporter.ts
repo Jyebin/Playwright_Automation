@@ -154,6 +154,8 @@ class ReportDBReporter implements Reporter {
         fs.rmSync(dir, { recursive: true, force: true });
         this.clearedTCs.add(tcKey);
       }
+      // 스킵된 테스트의 자동 캡처는 검증 결과가 아니므로 저장하지 않음 ("실패 시 화면"으로 잘못 표시되던 문제)
+      if (result.status === 'skipped') return [];
       const images = result.attachments.filter(a => a.contentType.startsWith('image/') && (a.path || a.body));
       if (!images.length) return [];
 
