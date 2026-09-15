@@ -5,6 +5,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+// .env 의 JIRA_URL (이슈 링크용 사이트 주소) 사용 — dotenv 가 없어도 서버는 동작
+try { require('dotenv').config({ path: path.join(__dirname, '.env'), quiet: true }); } catch (e) {}
+
 const PORT = 9998;
 const ROOT = __dirname;
 const DB_FILE = path.join(ROOT, 'test-report-db.json');
@@ -760,8 +763,14 @@ details.run-box[open] > .run-sum{margin-bottom:8px;}
 .upd-time{font-size:12px;color:var(--tx3);}
 
 /* Issues */
-.issue-row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}
-.itag{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;border-radius:6px;font-size:11px;padding:3px 10px;font-weight:600;}
+.issue-box{margin:14px 0;background:#fff7f7;border:1px solid #fecaca;border-radius:var(--r);padding:10px 14px;}
+.issue-sum{cursor:pointer;font-size:12px;font-weight:700;color:#991b1b;user-select:none;}
+.issue-box[open] > .issue-sum{margin-bottom:8px;}
+.issue-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+.issue-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.6;}
+.issue-key{flex-shrink:0;font-size:12px;font-weight:700;color:#b91c1c;background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:1px 8px;text-decoration:none;white-space:nowrap;}
+a.issue-key:hover{background:#fecaca;}
+.issue-summary{color:var(--tx);word-break:break-word;}
 
 /* Empty */
 .empty{display:none;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center;gap:14px;}
@@ -875,6 +884,7 @@ var revisions = {};
 var specImages = {};   // 기대 화면 이미지 { TC키: { 스텝index: [...] } }
 var atmImages = {};    // ATM 이미지 원래 주소 → 로컬 사본 경로 (npm run atm-images)
 var hiddenAtm = {};    // 결과서에서 삭제한 ATM 기대 결과 이미지 { TC키: { 스텝index: [원래 주소] } }
+var jiraUrl = '';      // Jira 사이트 주소 (.env JIRA_URL) — 이슈 링크용
 var curFilter = 'all';
 var expandedKey = null;
 var editing = {};   // "TC키#스텝index" → 편집 모드
@@ -963,6 +973,7 @@ function loadData() {
       specImages = data.spec_images || {};
       atmImages  = data.atm_images || {};
       hiddenAtm  = data.hidden_atm_images || {};
+      jiraUrl    = data.jira_url || '';
       updateStats(data.stats || {});
       buildFolderOptions();
       applyFilters();
@@ -1081,12 +1092,17 @@ function buildDetail(tc, r) {
     html += '<div class="pre-box"><div class="pre-lbl">전제조건</div>' + formatSpecText(tc.precondition) + '</div>';
   }
 
+  // 연결된 Jira 이슈: 제목 전체 표시(줄바꿈), 이슈 번호는 Jira 링크. 4개 이상이면 접어서 표시
   if (tc.issues && tc.issues.length) {
-    html += '<div class="issue-row">';
+    html += '<details class="issue-box"' + (tc.issues.length <= 3 ? ' open' : '') + '>' +
+      '<summary class="issue-sum">🐛 연결된 Jira 이슈 ' + tc.issues.length + '개</summary><ul class="issue-list">';
     tc.issues.forEach(function(i) {
-      html += '<span class="itag">🐛 ' + eh(i.key) + (i.summary ? ' — ' + eh(i.summary.substring(0, 60)) : '') + '</span>';
+      var keyHtml = jiraUrl
+        ? '<a class="issue-key" href="' + eh(jiraUrl + '/browse/' + encodeURIComponent(i.key)) + '" target="_blank" rel="noopener">' + eh(i.key) + '</a>'
+        : '<span class="issue-key">' + eh(i.key) + '</span>';
+      html += '<li class="issue-item">' + keyHtml + '<span class="issue-summary">' + eh(i.summary || '') + '</span></li>';
     });
-    html += '</div>';
+    html += '</ul></details>';
   }
 
   // 자동화 실행 결과: 기본은 접힌 한 줄 요약.
@@ -1762,6 +1778,7 @@ const server = http.createServer(async (req, res) => {
       spec_images: db.spec_images,
       atm_images: loadAtmImages(),
       hidden_atm_images: db.hidden_atm_images,
+      jira_url: String(process.env.JIRA_URL || '').replace(/\/+$/, ''),
       stats:     getStats(db),
       meta:      db.meta
     });
