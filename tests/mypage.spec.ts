@@ -1,14 +1,48 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { MyPage, MYPAGE_TABS } from './pages/MyPage';
 import { MyPageEditPage } from './pages/MyPageEditPage';
 import { MyPagePasswordPage } from './pages/MyPagePasswordPage';
 import { MyPagePurchasePage } from './pages/MyPagePurchasePage';
 import { MyPageDashboardPage } from './pages/MyPageDashboardPage';
-import { tcStep } from './utils/evidence';
+import { captureEvidence, tcStep } from './utils/evidence';
 
 const PASSWORD = process.env.TEST_PASSWORD ?? '';
 const WRONG_PASSWORD = 'WrongPass123!';
 const VALID_NEW_PASSWORD = 'NewPass1!';
+
+/** 마이페이지 > 프로필 화면(#MyProfileView) 진입. 세션 끊김("비정상적인 접근")은 MyPage.navigate()가 재로그인 처리 */
+async function openProfileView(page: Page) {
+  await new MyPage(page).navigate();
+  await expect(
+    page.locator('#MyProfileView #ProfileTable').first(),
+    '[UI/셀렉터] 마이페이지 프로필 화면(#MyProfileView)이 표시되지 않음 — 로그인 세션 또는 셀렉터 확인',
+  ).toBeVisible({ timeout: 15000 });
+  // 표가 먼저 그려지고 소속 정보·하단 버튼(클릭 핸들러)은 데이터 로드 후 완성됨 → 렌더 완료까지 대기
+  await expect(page.locator('#MyProfileView .bottom button').first(), '[UI/셀렉터] 프로필 하단 버튼을 찾을 수 없음').toBeVisible({ timeout: 10000 });
+  await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+}
+
+/** 프로필 수정 폼(#EditForm) 진입 — 비밀번호 확인 단계만 통과하고 수정 제출은 하지 않음 */
+async function openProfileEditForm(page: Page) {
+  await openProfileView(page);
+  const editButton = page.locator('#MyProfileView .bottom button', { hasText: '프로필 수정' });
+  const pwInput = page.locator('#CheckPassword input[type="password"]');
+  // 화면 준비 전 클릭이 무시되는 경우가 있어, 비밀번호 확인 화면이 뜰 때까지 클릭 재시도
+  await expect(async () => {
+    // 진입 중 알럿(예: "비밀번호가 입력되지 않았습니다.")이 떠 있으면 내용을 기록하고 [확인]으로 닫은 뒤 재시도
+    const alertOk = page.getByRole('button', { name: '확인', exact: true }).first();
+    if (!(await pwInput.isVisible()) && await alertOk.isVisible()) {
+      const alertText = await page.locator('#CommonAlert .modal-body').innerText().catch(() => '');
+      console.log(`ℹ️ [프로필 수정] 진입 중 알럿 노출 → 닫고 재시도: "${alertText.trim()}" (URL ${new URL(page.url()).pathname})`);
+      await alertOk.click({ timeout: 2000 });
+    }
+    if (!(await pwInput.isVisible())) await editButton.click({ timeout: 2000 });
+    await expect(pwInput).toBeVisible({ timeout: 3000 });
+  }, '[UI/셀렉터] [프로필 수정] 클릭 후 비밀번호 확인 입력 필드를 찾을 수 없음').toPass({ timeout: 20000 });
+  await pwInput.fill(PASSWORD);
+  await page.locator('#CheckPassword').getByRole('button', { name: '확인', exact: true }).click();
+  await expect(page.locator('#EditForm'), '[앱오류] 비밀번호 확인 후 프로필 수정 폼으로 이동하지 않음').toBeVisible({ timeout: 10000 });
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // T425 마이페이지 프로필
@@ -64,6 +98,75 @@ test.describe('T425 마이페이지 프로필', () => {
       await myPage.verifyAccountEmailDisplayed();
       await myPage.verifyMarketingCheckboxesVisible();
     });
+  });
+
+  test('소속 정보(소속/학부·학과/학번) 노출 확인', { annotation: tcStep(4) }, async ({ page }) => {
+    // 구조: #MyProfileView > .info-form(h5 "소속 정보") > table#ProfileTable > tr > th(항목) + td(값)
+    const affiliation = page.locator('#MyProfileView .info-form')
+      .filter({ has: page.locator('h5', { hasText: /^소속 정보$/ }) });
+
+    const sectionCount = await test.step('[셋업] 마이페이지 프로필 화면 이동', async () => {
+      await openProfileView(page);
+      const count = await affiliation.count();
+      console.log(`✅ 소속 정보 영역 유무: ${count > 0 ? '있음' : '없음'} (${count}개)`);
+      return count;
+    });
+    if (sectionCount === 0) {
+      await captureEvidence(page.locator('#MyProfileView'), '프로필 화면 (소속 정보 영역 없음)');
+      test.skip(true, '스펙은 소속 정보가 있는 계정(raontest6 등) 기준 — 현재 테스트 계정은 소속 정보 없음');
+    }
+
+    await test.step('[검증] 소속/학부·학과/학번 항목 및 값 노출', async () => {
+      await expect(affiliation, '[앱오류] 소속 정보 영역이 표시되지 않음').toBeVisible();
+      const rows = await affiliation.locator('tr').evaluateAll(trs => trs.map(tr => ({
+        label: tr.querySelector('th')?.textContent?.trim() ?? '',
+        value: ((tr.querySelector('td') as HTMLElement | null)?.innerText ?? '').replace(/\s+/g, ' ').trim(),
+      })));
+      console.log(`✅ 소속 정보 항목: ${rows.map(r => `${r.label}="${r.value}"`).join(', ')}`);
+      await captureEvidence(affiliation, '소속 정보 (소속/학부·학과/학번)');
+
+      for (const label of ['소속', '학부/학과', '학번']) {
+        const row = rows.find(r => r.label === label);
+        expect.soft(row, `[앱오류] 소속 정보에 "${label}" 항목이 없음`).toBeTruthy();
+        expect.soft(row?.value ?? '', `[앱오류] 소속 정보 "${label}" 값이 비어 있음`).not.toBe('');
+      }
+    });
+  });
+
+  test('하단 버튼 [비밀번호 변경]/[프로필 수정]/[회원 탈퇴] 클릭 시 각 페이지 이동 확인', { annotation: tcStep(5) }, async ({ page }) => {
+    // 구조: #MyProfileView .bottom > .button-group > button.ReButton(비밀번호 변경 / 프로필 수정) + div.link(회원탈퇴)
+    // 이동만 확인 — 이동한 페이지에서 입력·제출하지 않음
+    const bottom = page.locator('#MyProfileView .bottom');
+    const targets = [
+      { name: '비밀번호 변경', button: bottom.locator('button', { hasText: '비밀번호 변경' }), url: /\/mypage\/change-password/, heading: '비밀번호 변경하기' },
+      { name: '프로필 수정', button: bottom.locator('button', { hasText: '프로필 수정' }), url: /\/mypage\/edit/, heading: '프로필 수정' },
+      { name: '회원 탈퇴', button: bottom.locator('.link', { hasText: '회원탈퇴' }), url: /\/delete-account/, heading: '회원탈퇴' },
+    ];
+
+    await test.step('[셋업] 마이페이지 프로필 화면 이동', async () => {
+      await openProfileView(page);
+      await expect(bottom, '[UI/셀렉터] 프로필 하단 버튼 영역(.bottom)을 찾을 수 없음').toBeVisible();
+      const labels = (await bottom.locator('button, .link').allInnerTexts()).map(s => s.trim());
+      console.log(`✅ 프로필 하단 버튼: ${labels.join(' / ')}`);
+      await captureEvidence(bottom, '프로필 하단 버튼 (비밀번호 변경/프로필 수정/회원탈퇴)');
+    });
+
+    for (const t of targets) {
+      await test.step(`[검증] [${t.name}] 클릭 → ${t.name} 페이지 이동`, async () => {
+        await openProfileView(page);
+        await expect(t.button, `[UI/셀렉터] 프로필 하단 [${t.name}] 버튼을 찾을 수 없음`).toBeVisible();
+        await t.button.click();
+        await expect.soft(page, `[앱오류] [${t.name}] 클릭 후 ${t.name} 페이지로 이동하지 않음`).toHaveURL(t.url, { timeout: 10000 });
+        await expect.soft(
+          page.getByRole('heading', { name: t.heading, exact: true }).first(),
+          `[앱오류] [${t.name}] 클릭 후 "${t.heading}" 페이지 제목이 표시되지 않음`,
+        ).toBeVisible({ timeout: 8000 });
+        const headings = (await page.locator('#ReMainView').locator('h1, h2, h3, h4, h5').allInnerTexts())
+          .map(h => h.trim()).filter(Boolean);
+        console.log(`✅ [${t.name}] 클릭 → URL ${new URL(page.url()).pathname}, 페이지 제목 ${JSON.stringify(headings)}`);
+        await captureEvidence(page, `[${t.name}] 클릭 후 이동한 페이지`);
+      });
+    }
   });
 });
 
@@ -274,6 +377,58 @@ test.describe('T426 프로필 수정', () => {
     });
     await test.step('[검증] 마이페이지 복귀 확인', async () => {
       await editPage.verifyReturnedToMyPage();
+    });
+  });
+
+  test('프로필 수정 [수정] 버튼 색상 — 주황색이 아닌지 확인', { annotation: tcStep(7) }, async ({ page }) => {
+    test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
+    // 구조: #MyProfileEditView > #EditForm > .button-group > button.ReButton(취소) + button.ReButton(수정)
+    const buttonGroup = page.locator('#EditForm .button-group');
+    const saveButton = buttonGroup.locator('button', { hasText: /^\s*수정\s*$/ });
+    // 주황색 판정: 빨강 높고 초록 중간, 파랑 낮음
+    const isOrange = (color: string) => {
+      const [r, g, b] = (color.match(/\d+/g) || []).map(Number);
+      return r >= 200 && g >= 80 && g <= 190 && b <= 100;
+    };
+
+    await test.step('[셋업] 프로필 수정 폼 진입 (비밀번호 확인만 통과, 수정 제출 안 함)', async () => {
+      await openProfileEditForm(page);
+    });
+
+    await test.step('[검증] [수정] 버튼 배경색이 주황색이 아님', async () => {
+      await expect(saveButton, '[UI/셀렉터] 프로필 수정 폼 [수정] 버튼을 찾을 수 없음').toBeVisible();
+      const style = await saveButton.evaluate(b => {
+        const s = getComputedStyle(b);
+        return { bg: s.backgroundColor, color: s.color, border: s.borderColor, cls: b.className };
+      });
+      console.log(`✅ [수정] 버튼 배경색 ${style.bg}, 글자색 ${style.color}, 테두리 ${style.border} (class "${style.cls}")`);
+      await captureEvidence(buttonGroup, '프로필 수정 폼 [취소]/[수정] 버튼');
+      expect(isOrange(style.bg), `[앱오류] [수정] 버튼 배경색이 주황색임 (${style.bg}) — METADEMY-2314`).toBe(false);
+    });
+  });
+
+  test('마케팅 정보 수신 확인 체크박스 기본값 — 미선택 상태 확인', { annotation: tcStep(9) }, async ({ page }) => {
+    test.skip(!PASSWORD, 'TEST_PASSWORD 환경변수 미설정');
+    // 구조: #EditForm tr(th "마케팅 정보 수신 확인") > td > #Checkbox > input#marketingSMS / input#marketingEmail + label.checkbox
+    // 상태 확인만 — 체크박스 클릭·[수정] 제출 하지 않음
+    const marketingRow = page.locator('#EditForm tr')
+      .filter({ has: page.locator('th', { hasText: '마케팅 정보 수신 확인' }) });
+
+    await test.step('[셋업] 프로필 수정 폼 진입 (비밀번호 확인만 통과, 수정 제출 안 함)', async () => {
+      await openProfileEditForm(page);
+    });
+
+    await test.step('[검증] 문자메시지/E-mail 체크박스 기본 미선택', async () => {
+      await expect(marketingRow.locator('input[type="checkbox"]'), '[UI/셀렉터] 마케팅 정보 수신 체크박스(문자메시지/E-mail) 2개를 찾을 수 없음').toHaveCount(2);
+      const states = await marketingRow.locator('#Checkbox').evaluateAll(list => list.map(c => {
+        const input = c.querySelector('input') as HTMLInputElement;
+        return { label: (c.querySelector('label') as HTMLElement | null)?.innerText.trim() ?? '', id: input.id, checked: input.checked };
+      }));
+      console.log(`✅ 마케팅 정보 수신 체크박스 상태: ${states.map(s => `${s.label}(#${s.id})=${s.checked ? '체크됨' : '미체크'}`).join(', ')}`);
+      await captureEvidence(marketingRow, '마케팅 정보 수신 확인 체크박스 기본 상태');
+
+      const checked = states.filter(s => s.checked).map(s => s.label);
+      expect(checked, `[앱오류] 마케팅 수신 기본값이 선택되어 있음(계정 수정 이력 확인 필요) — 체크됨: ${checked.join(', ')}`).toEqual([]);
     });
   });
 });

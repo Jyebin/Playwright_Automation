@@ -9,8 +9,10 @@ export class MyPage {
   constructor(private page: Page) {}
 
   private async handleSessionExpiry(): Promise<boolean> {
-    const expired = await this.page.getByText('비정상적인 접근', { exact: false })
-      .first().isVisible({ timeout: 2000 }).catch(() => false);
+    // 세션이 끊기면 화면 대신 "비정상적인 접근" 알럿이 비동기로 뜸 → 프로필 표/알럿 중 하나가 뜰 때까지 대기 후 판정
+    const expiredMsg = this.page.getByText('비정상적인 접근', { exact: false }).first();
+    await expiredMsg.or(this.page.locator('#ProfileTable')).first().waitFor({ timeout: 10000 }).catch(() => {});
+    const expired = await expiredMsg.isVisible().catch(() => false);
     if (!expired) return false;
 
     console.log('⚠️ 세션 만료 감지 — 재로그인 시도');
@@ -24,7 +26,7 @@ export class MyPage {
     const password = process.env.TEST_PASSWORD ?? '';
     await this.page.goto(`${BASE}/login`);
     await this.page.waitForLoadState('load');
-    await this.page.getByPlaceholder('아이디를 입력해 주세요.').fill(username);
+    await this.page.getByPlaceholder('아이디 또는 이메일을 입력해 주세요.').fill(username);
     await this.page.getByPlaceholder('비밀번호를 입력해 주세요.').fill(password);
     await this.page.getByRole('button', { name: '로그인' }).click();
     await this.page.waitForURL(url => !url.href.includes('/login'), { timeout: 15000 }).catch(() => {});
