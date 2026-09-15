@@ -581,8 +581,19 @@ details.run-box[open] > .run-sum{margin-bottom:8px;}
 
 /* Steps */
 .steps{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
-.step{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
-.step-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--s2);border-bottom:1px solid var(--bd);}
+/* overflow:clip — hidden 은 안쪽 sticky(스텝 머리 고정)를 막음 */
+.step{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:clip;box-shadow:var(--shadow);}
+.step-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--s2);border-bottom:1px solid var(--bd);
+  position:sticky;top:calc(var(--thead-h, 41px) + var(--tcbar-h));z-index:6;}
+
+/* 펼친 TC 상단 고정 바: 스크롤해도 어느 TC 의 스텝인지 표시 */
+:root{--tcbar-h:48px;}
+.tc-bar{position:sticky;top:var(--thead-h, 41px);z-index:7;height:var(--tcbar-h);margin:0 -16px 8px;padding:0 16px;
+  display:flex;align-items:center;gap:10px;background:#eef2ff;border-bottom:2px solid #c7d2fe;box-shadow:0 2px 6px rgba(15,23,42,.06);}
+.tc-bar-nm{flex:1;min-width:0;font-size:14px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tc-bar-cnt{font-size:12px;color:var(--tx3);white-space:nowrap;}
+.tc-bar-btn{background:#fff;border:1px solid var(--bd2);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;color:var(--tx2);cursor:pointer;white-space:nowrap;}
+.tc-bar-btn:hover{border-color:var(--ac);color:var(--ac2);}
 .step-num{background:var(--ac);color:#fff;border-radius:6px;font-size:11px;font-weight:700;padding:3px 10px;white-space:nowrap;}
 .step-title{font-size:13px;font-weight:600;color:var(--tx);}
 .step-body{padding:4px 16px 14px;}
@@ -879,6 +890,12 @@ document.getElementById('tbody').addEventListener('click', function(e) {
   if (saveBtn) { saveRevision(saveBtn.dataset.key, parseInt(saveBtn.dataset.idx, 10), false); return; }
   var resetBtn = e.target.closest('.rev-reset');
   if (resetBtn) { saveRevision(resetBtn.dataset.key, parseInt(resetBtn.dataset.idx, 10), true); return; }
+  var barBtn = e.target.closest('.tc-bar-btn');
+  if (barBtn) {
+    if (barBtn.dataset.act === 'close') toggleRow(barBtn.dataset.key);
+    else scrollToTcRow(barBtn.dataset.key);
+    return;
+  }
   var pickBtn = e.target.closest('.img-pick');
   if (pickBtn) { pickBtn.parentNode.querySelector('.img-input').click(); return; }
   var delBtn = e.target.closest('.img-del');
@@ -1010,6 +1027,7 @@ function applyFilters() {
   document.getElementById('rcnt').textContent = vis.length;
   document.getElementById('empty').classList.toggle('show', cases.length === 0);
   document.getElementById('tbl').style.display = cases.length === 0 ? 'none' : '';
+  syncStickyOffsets();
 }
 
 // ── 테이블 렌더 ────────────────────────────────────────────
@@ -1049,6 +1067,15 @@ function renderTable(list) {
 function buildDetail(tc, r) {
   var key  = tc.key;
   var html = '<div class="di">';
+
+  // 스크롤해도 어느 TC인지 보이도록 상세 상단에 고정되는 TC 바
+  var attrs = ' data-key="' + eh(key) + '"';
+  html += '<div class="tc-bar">' + badge(status0(r)) +
+    '<span class="tc-key">' + eh(key) + '</span>' +
+    '<span class="tc-bar-nm" title="' + eh(tc.name) + '">' + eh(tc.name) + '</span>' +
+    '<span class="tc-bar-cnt">스텝 ' + (tc.steps || []).length + '개</span>' +
+    '<button class="tc-bar-btn" data-act="top"' + attrs + '>▲ TC 위로</button>' +
+    '<button class="tc-bar-btn" data-act="close"' + attrs + '>접기</button></div>';
 
   if (tc.precondition) {
     html += '<div class="pre-box"><div class="pre-lbl">전제조건</div>' + formatSpecText(tc.precondition) + '</div>';
@@ -1557,14 +1584,25 @@ function revState(rev) {
 }
 
 // ── 행 토글 ───────────────────────────────────────────────
+// 고정 표 헤더 높이를 CSS 변수로 기록 → TC 바·스텝 머리가 헤더 바로 아래에 붙음
+function syncStickyOffsets() {
+  var head = document.querySelector('#tbl thead');
+  if (head && head.offsetHeight) document.documentElement.style.setProperty('--thead-h', head.offsetHeight + 'px');
+}
+window.addEventListener('resize', syncStickyOffsets);
+
 // 펼친 TC 행의 윗부분이 목록 맨 위(고정 헤더 바로 아래)에 오도록 스크롤
 function toggleRow(key) {
-  expandedKey = expandedKey === key ? null : key;
+  var closing = expandedKey === key;
+  expandedKey = closing ? null : key;
   applyFilters();
-  if (!expandedKey) return;
+  scrollToTcRow(key);
+}
 
+// TC 행 윗부분이 목록 맨 위(고정 헤더 바로 아래)에 오도록 스크롤
+function scrollToTcRow(key) {
   var tw   = document.getElementById('tw');
-  var row  = document.querySelector('tr.tr.open');
+  var row  = document.querySelector('tr.tr[data-key="' + key + '"]');
   var head = tw.querySelector('thead');
   if (!row) return;
   var top = row.getBoundingClientRect().top - tw.getBoundingClientRect().top + tw.scrollTop - (head ? head.offsetHeight : 0);
