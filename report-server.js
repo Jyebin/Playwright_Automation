@@ -573,6 +573,10 @@ thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:
 .run-steps{font-size:12px;color:var(--tx2);margin-top:4px;line-height:1.6;}
 .run-err{font-family:Consolas,'D2Coding',monospace;font-size:12px;color:var(--fail);background:var(--fail-bg);border-radius:6px;padding:6px 10px;margin-top:6px;white-space:pre-wrap;word-break:break-word;}
 .run-empty{font-size:13px;color:var(--tx3);white-space:pre-wrap;line-height:1.6;}
+.run-sum{cursor:pointer;font-size:12px;font-weight:700;color:var(--ac);user-select:none;}
+details.run-box[open] > .run-sum{margin-bottom:8px;}
+.run-hint{font-size:12px;color:var(--tx3);padding-bottom:6px;}
+.run-map.unlinked{color:var(--skip);}
 
 /* Steps */
 .steps{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
@@ -1057,23 +1061,30 @@ function buildDetail(tc, r) {
     html += '</div>';
   }
 
-  // 자동화 실행 결과 (실제 동작)
+  // 자동화 실행 결과: 기본은 접힌 한 줄 요약.
+  // 스텝에 연결된 테스트의 실제 동작·캡처는 아래 각 스텝 "실제" 칸에 있으므로 여기서는 한 줄 목록만,
+  // 스텝에 연결되지 않은 테스트만 실제 동작·캡처를 함께 표시 (다른 곳에 나오지 않으므로)
   var tests = r.tests || [];
-  html += '<div class="run-box"><div class="pre-lbl">🤖 자동화 실행 결과 (실제 동작)' + (r.run_at ? ' · ' + fmtDate(r.run_at) : '') + '</div>';
+  var count = { pass: 0, fail: 0, skip: 0 };
+  tests.forEach(function(t) { if (count[t.status] != null) count[t.status]++; });
+  var unlinkedCount = tests.filter(function(t) { return !(t.tcSteps && t.tcSteps.length); }).length;
+
+  html += '<details class="run-box"' + (tests.length ? '' : ' open') + '><summary class="run-sum">🤖 자동화 실행 결과' +
+    (tests.length ? ' · 테스트 ' + tests.length + '개 (통과 ' + count.pass + ' / 실패 ' + count.fail + ' / 스킵 ' + count.skip + ')' : '') +
+    (unlinkedCount ? ' · 스텝 미연결 ' + unlinkedCount + '개' : '') +
+    (r.run_at ? ' · ' + fmtDate(r.run_at) : '') + '</summary>';
   if (tests.length) {
+    html += '<div class="run-hint">스텝에 연결된 테스트의 실제 동작과 캡처는 아래 각 스텝의 "🔍 실제" 칸에 있습니다.</div>';
     tests.forEach(function(t) {
+      var linked = t.tcSteps && t.tcSteps.length;
       html += '<div class="run-item">' + badge(t.status) + '<div class="run-body">';
-      html += '<div class="run-title">' + eh(t.title);
-      if (t.tcSteps && t.tcSteps.length) html += '<span class="run-map">→ Step ' + t.tcSteps.join(', ') + '</span>';
-      html += '</div>';
-      if (t.steps && t.steps.length) {
-        html += '<div class="run-steps">' + t.steps.map(function(s) {
-          return (s.status === 'fail' ? '✗ ' : '✓ ') + eh(s.title);
-        }).join('<br>') + '</div>';
-      }
-      html += logList(t, false);
+      html += '<div class="run-title">' + eh(t.title) +
+        (linked ? '<span class="run-map">→ Step ' + t.tcSteps.join(', ') + '</span>' : '<span class="run-map unlinked">스텝 미연결</span>') + '</div>';
       if (t.error) html += '<div class="run-err">' + eh(t.error) + '</div>';
-      if (t.attachments && t.attachments.length) html += evidenceList(t.attachments);
+      if (!linked) {
+        html += logList(t, true);
+        if (t.attachments && t.attachments.length) html += evidenceList(t.attachments);
+      }
       html += '</div></div>';
     });
   } else if (r.actual_result) {
@@ -1081,7 +1092,7 @@ function buildDetail(tc, r) {
   } else {
     html += '<div class="run-empty">아직 실행 기록이 없습니다. npx playwright test 실행 후 새로고침하세요.</div>';
   }
-  html += '</div>';
+  html += '</details>';
 
   // 스텝별: 절차 / 기대결과 / 수정결과 + 통과 여부
   var stepStatus = r.step_status || {};
