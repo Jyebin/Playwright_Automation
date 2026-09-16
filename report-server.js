@@ -672,6 +672,10 @@ details.run-box[open] > .run-sum{margin-bottom:8px;}
 .atm-restore{align-self:flex-start;margin-top:6px;background:#fff;border:1px dashed var(--bd2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--tx2);cursor:pointer;}
 .atm-restore:hover{border-color:var(--ac);color:var(--ac2);}
 
+/* 스킵 사유 */
+.skip-why{margin-top:6px;padding:7px 10px;background:var(--skip-bg);border:1px solid #fcd34d;border-radius:6px;font-size:12px;line-height:1.6;color:#92400e;}
+.run-item .skip-why{width:100%;margin-top:4px;}
+
 /* 기대 ↔ 실제 이미지 비교 뷰 */
 .cmp-open{background:#fff;border:1px solid var(--bd2);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--tx2);cursor:pointer;}
 .cmp-open:hover{border-color:var(--ac);color:var(--ac2);}
@@ -1183,6 +1187,7 @@ function buildDetail(tc, r) {
       html += '<div class="run-title">' + eh(t.title) + previousRunTag(t, r) +
         (linked ? '<span class="run-map">→ Step ' + t.tcSteps.join(', ') + '</span>' : '<span class="run-map unlinked">스텝 미연결</span>') + '</div>';
       if (t.error) html += '<div class="run-err">' + eh(t.error) + '</div>';
+      html += skipWhy(t);
       if (!linked) {
         html += logList(t, true);
         if (t.attachments && t.attachments.length) html += evidenceList(t.attachments);
@@ -1545,6 +1550,20 @@ function logList(t, withSteps) {
     '</div>';
 }
 
+// 스킵된 테스트가 "왜" 실행되지 않았는지 (리포터가 test.skip 의 사유를 저장)
+function skipWhy(t) {
+  if (t.status !== 'skip') return '';
+  var why = t.skipReason || '';
+  if (!why) {
+    // 사유 없이 선언만 된 스킵(test.skip('제목', ...)) — 제목에 사유가 적혀 있는 경우가 많음
+    var title = String(t.title || '');
+    // 템플릿 문자열 안이라 정규식의 역슬래시가 사라짐 → 문자열 처리로 대괄호 앞머리 추출
+    var end = title.charAt(0) === '[' ? title.indexOf(']') : -1;
+    why = end > 1 ? title.substring(1, end) : '스킵 사유가 테스트에 적혀 있지 않습니다.';
+  }
+  return '<div class="skip-why">⏭️ 스킵 사유: ' + eh(why) + '</div>';
+}
+
 // 3분할 오른쪽 "실제" 칸: 이 스텝(tcstep)에 연결된 자동화 테스트 결과 + 캡처
 function actualBlock(r, no, evidence, stepStatus) {
   var tests = (r.tests || []).filter(function(t) { return (t.tcSteps || []).indexOf(no) !== -1; });
@@ -1552,7 +1571,7 @@ function actualBlock(r, no, evidence, stepStatus) {
   if (tests.length) {
     html += '<div class="tri-field"><div class="cmp-lbl">🤖 자동화 결과</div><div class="act-tests">' + tests.map(function(t) {
       return '<div class="act-test">' + badge(t.status) + '<span class="act-title">' + eh(t.title) + '</span>' + previousRunTag(t, r) +
-        logList(t, true) + (t.error ? '<div class="run-err">' + eh(t.error) + '</div>' : '') + '</div>';
+        skipWhy(t) + logList(t, true) + (t.error ? '<div class="run-err">' + eh(t.error) + '</div>' : '') + '</div>';
     }).join('') + '</div></div>';
   }
   if (evidence && evidence.length) html += '<div class="tri-field">' + evidenceRow(evidence) + '</div>';

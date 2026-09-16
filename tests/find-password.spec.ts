@@ -105,7 +105,7 @@ test.describe('T509 비밀번호 찾기', () => {
 
     await test.step('[동작] 가입되지 않은 아이디·이름·이메일 입력 후 [재설정 메일 받기]', async () => {
       await findPw.fillAll(WRONG.id, WRONG.name, WRONG.email);
-      await findPw.sendButton.click();
+      await findPw.clickSend();
     });
 
     await test.step('[검증] 안내 문구', async () => {
@@ -121,7 +121,7 @@ test.describe('T509 비밀번호 찾기', () => {
     await test.step('[동작/검증] 잘못된 형식의 이메일(a@a.aaa) 입력', async () => {
       await findPw.emailInput.fill(BAD_FORMAT_EMAIL);
       await findPw.emailInput.blur();
-      await findPw.sendButton.click().catch(() => {});
+      await findPw.clickSend().catch(() => {});
       const text = await findPw.readAlert(dialogs, 5000);
       console.log(`잘못된 형식 이메일 입력 시 안내: "${text || '(문구 없음)'}"`);
       await captureEvidence(page, '잘못된 형식 이메일 입력');
@@ -139,7 +139,7 @@ test.describe('T509 비밀번호 찾기', () => {
 
     const before = await findPw.remainingCount();
     await findPw.fillAll(ACCOUNT.id, ACCOUNT.name, ACCOUNT.email);
-    await findPw.sendButton.click();
+    await findPw.clickSend();
 
     const text = await findPw.readAlert(dialogs);
     console.log(`✅ 발송 안내: "${text}"`);
@@ -172,7 +172,13 @@ test.describe('T509 비밀번호 찾기', () => {
   });
 
   // 아래 3개는 상태 준비가 필요해 자동화하지 않음 (결과서에 "왜 안 하는지"를 남기기 위한 skip)
-  test.skip('[자동화 제외] 재설정 시간 만료 → [재전송] 버튼으로 변경', { annotation: tcStep(7) }, async () => {});
-  test.skip('[자동화 제외] 만료된 재설정 메일의 [비밀번호 변경하기] → "잘못된 접근입니다." 알럿', { annotation: tcStep(8) }, async () => {});
-  test.skip('[자동화 제외] 인증 잔여 횟수 소진 → 24시간 제한 알럿 (계정이 24시간 잠김)', { annotation: tcStep(9) }, async () => {});
+  test('재설정 시간 만료 → [재전송] 버튼으로 변경', { annotation: tcStep(7) }, async () => {
+    test.skip(true, '재설정 메일을 보낸 뒤 유효시간이 끝날 때까지 기다려야 함 — 대기 시간이 길어 자동화 제외 (수동 확인)');
+  });
+  test('만료된 재설정 메일의 [비밀번호 변경하기] → "잘못된 접근입니다." 알럿', { annotation: tcStep(8) }, async () => {
+    test.skip(true, '메일함에 "만료된" 재설정 메일이 있어야 함 — 메일 발송 후 시간이 지나야 만들 수 있는 상태라 자동화 제외 (수동 확인)');
+  });
+  test('인증 잔여 횟수 소진 → 24시간 제한 알럿', { annotation: tcStep(9) }, async () => {
+    test.skip(true, '잔여 횟수 5회를 모두 소진해야 하며, 소진 시 계정이 24시간 잠겨 다른 테스트가 막힘 — 자동화 제외 (담당 QA 문의 후 수동 확인)');
+  });
 });

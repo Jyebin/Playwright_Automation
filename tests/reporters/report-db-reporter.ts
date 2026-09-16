@@ -39,6 +39,13 @@ function collectLogs(result: TestResult): string[] {
     .slice(0, 30);
 }
 
+// test.skip(조건, '사유') / test.fixme 로 남긴 스킵 사유
+function skipReasonOf(test: TestCase, result: TestResult): string {
+  const all = [...((result as any).annotations ?? []), ...test.annotations] as { type: string; description?: string }[];
+  const hit = all.find(a => (a.type === 'skip' || a.type === 'fixme') && a.description);
+  return hit?.description?.replace(/\s+/g, ' ').trim() ?? '';
+}
+
 function toStatus(status: TestResult['status']): Status {
   if (status === 'passed') return 'pass';
   if (status === 'skipped') return 'skip';
@@ -71,6 +78,7 @@ interface TestEntry {
   error?: string;
   steps: { title: string; status: Status; error?: string }[];
   tcSteps: number[];
+  skipReason?: string;   // test.skip(조건, '사유') 의 사유 — 결과서 "실제" 칸에 표시
   attachments: Evidence[];
   logs: string[];   // 테스트 출력 로그 (실제 동작)
 }
@@ -147,6 +155,7 @@ class ReportDBReporter implements Reporter {
       tcSteps,
       attachments: this.saveImages(tcKey, test, result),
       logs: collectLogs(result),
+      ...(status === 'skip' ? { skipReason: skipReasonOf(test, result) } : {}),
       ...(status === 'fail' ? { error: firstLine(result.error?.message) } : {}),
     };
 

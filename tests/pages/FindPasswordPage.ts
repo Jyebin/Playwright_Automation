@@ -51,6 +51,17 @@ export class FindPasswordPage {
     console.log(`✅ 로그인 → 비밀번호 찾기 이동: ${this.page.url()}`);
   }
 
+  /** 버튼이 활성화된 뒤 클릭하고, 서버 응답(있으면)까지 기다린다 — 병렬 실행 시 모달이 늦게 뜨는 것 방지 */
+  async clickSend() {
+    await expect(this.sendButton, '[앱오류] [재설정 메일 받기] 버튼이 활성화되지 않음').not.toHaveClass(/disabled/, { timeout: 10_000 });
+    const [response] = await Promise.all([
+      this.page.waitForResponse(r => /\/member\/auth\/find\/pwd/.test(r.url()), { timeout: 20_000 }).catch(() => null),
+      this.sendButton.click(),
+    ]);
+    if (response) console.log(`ℹ️ 서버 응답 ${response.status()} (${new URL(response.url()).pathname})`);
+    return response;
+  }
+
   async fillAll(id: string, name: string, email: string) {
     await this.idInput.fill(id);
     await this.nameInput.fill(name);
@@ -87,7 +98,7 @@ export class FindPasswordPage {
   }
 
   /** 알럿 문구 — 모달(#CommonAlert) 또는 브라우저 alert 어느 쪽이든 읽는다 */
-  async readAlert(nativeAlerts: string[], timeout = 8000): Promise<string> {
+  async readAlert(nativeAlerts: string[], timeout = 15_000): Promise<string> {
     // isVisible() 은 기다리지 않으므로(모달이 1초쯤 뒤에 뜸) waitFor 로 대기
     const modalVisible = await this.alertModal.waitFor({ state: 'visible', timeout }).then(() => true).catch(() => false);
     if (modalVisible) {
