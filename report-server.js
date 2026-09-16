@@ -672,6 +672,35 @@ details.run-box[open] > .run-sum{margin-bottom:8px;}
 .atm-restore{align-self:flex-start;margin-top:6px;background:#fff;border:1px dashed var(--bd2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--tx2);cursor:pointer;}
 .atm-restore:hover{border-color:var(--ac);color:var(--ac2);}
 
+/* 기대 ↔ 실제 이미지 비교 뷰 */
+.cmp-open{background:#fff;border:1px solid var(--bd2);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--tx2);cursor:pointer;}
+.cmp-open:hover{border-color:var(--ac);color:var(--ac2);}
+.cmpv{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.75);display:flex;flex-direction:column;}
+.cmpv[hidden]{display:none;}
+.cmpv-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;background:#fff;border-bottom:1px solid var(--bd);font-size:12px;color:var(--tx2);}
+.cmpv-bar label{display:flex;align-items:center;gap:4px;}
+.cmpv-bar select{max-width:280px;font-size:12px;padding:3px 6px;border:1px solid var(--bd2);border-radius:6px;background:#fff;color:var(--tx2);}
+.cmpv-modes{display:flex;gap:4px;}
+.cmpv-modes button,.cmpv-btn{background:#fff;border:1px solid var(--bd2);border-radius:6px;padding:3px 10px;font-size:12px;color:var(--tx2);cursor:pointer;}
+.cmpv-modes button.on{background:var(--ac);border-color:var(--ac);color:#fff;}
+.cmpv-size{color:var(--tx3);}
+.cmpv-close{margin-left:auto;}
+.cmpv-body{flex:1;overflow:auto;padding:14px;}
+.cmpv-side{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+.cmpv-side[hidden]{display:none;}
+.cmpv-pane{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:8px;overflow:auto;}
+.cmpv-cap{font-size:12px;font-weight:800;color:var(--tx2);margin-bottom:6px;}
+.cmpv-pane img{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--bd2);border-radius:4px;}
+.cmpv.raw .cmpv-pane img{width:auto;max-width:none;}
+.cmpv-stack{position:relative;margin:0 auto;background:#fff;border:1px solid var(--bd);border-radius:8px;overflow:hidden;}
+.cmpv-stack img{position:absolute;top:0;left:0;width:100%;height:auto;}
+.cmpv-stack .b{clip-path:inset(0 calc(100% - var(--wipe,50%)) 0 0);}
+.cmpv-stack.diff{background:#000;}
+.cmpv-stack.diff .b{clip-path:none;mix-blend-mode:difference;}
+.cmpv-line{position:absolute;top:0;bottom:0;left:var(--wipe,50%);width:2px;background:var(--ac);pointer-events:none;}
+.cmpv-range{display:block;width:100%;max-width:900px;margin:10px auto 0;}
+.cmpv-note{margin-top:10px;font-size:12px;color:#e2e8f0;text-align:center;line-height:1.6;}
+
 /* Zephyr 표 그대로 보여주기 (richHtml) */
 .rich{overflow-x:auto;font-size:13px;line-height:1.6;color:var(--tx2);}
 .rich table{border-collapse:collapse;width:100%;margin:6px 0;background:#fff;font-size:12.5px;}
@@ -873,6 +902,33 @@ a.issue-key:hover{background:#fecaca;}
   </table>
 </div>
 
+<div class="cmpv" id="cmpv" hidden>
+  <div class="cmpv-bar">
+    <strong id="cmpv-title"></strong>
+    <label>✅ 기대 <select id="cmpv-exp"></select></label>
+    <label>🔍 실제 <select id="cmpv-act"></select></label>
+    <div class="cmpv-modes" id="cmpv-modes">
+      <button data-mode="side" class="on">나란히</button>
+      <button data-mode="wipe">겹쳐보기</button>
+      <button data-mode="diff">차이</button>
+    </div>
+    <label><input type="checkbox" id="cmpv-raw"> 원본 크기</label>
+    <span class="cmpv-size" id="cmpv-size"></span>
+    <button class="cmpv-btn cmpv-close" id="cmpv-close">✕ 닫기 (Esc)</button>
+  </div>
+  <div class="cmpv-body">
+    <div class="cmpv-side" id="cmpv-side">
+      <div class="cmpv-pane"><div class="cmpv-cap">✅ 기대</div><img id="cmpv-a1" alt="기대 결과 이미지"></div>
+      <div class="cmpv-pane"><div class="cmpv-cap">🔍 실제</div><img id="cmpv-b1" alt="자동화 캡처"></div>
+    </div>
+    <div id="cmpv-over" hidden>
+      <div class="cmpv-stack" id="cmpv-stack"><img id="cmpv-a2" alt="기대 결과 이미지"><img class="b" id="cmpv-b2" alt="자동화 캡처"><div class="cmpv-line" id="cmpv-line"></div></div>
+      <input type="range" class="cmpv-range" id="cmpv-range" min="0" max="100" value="50">
+      <div class="cmpv-note" id="cmpv-note"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -906,6 +962,8 @@ document.getElementById('tbody').addEventListener('click', function(e) {
     else scrollToTcRow(barBtn.dataset.key);
     return;
   }
+  var cmpBtn = e.target.closest('.cmp-open');
+  if (cmpBtn) { openCompare(cmpBtn.dataset.key, parseInt(cmpBtn.dataset.idx, 10)); return; }
   var pickBtn = e.target.closest('.img-pick');
   if (pickBtn) { pickBtn.parentNode.querySelector('.img-input').click(); return; }
   var delBtn = e.target.closest('.img-del');
@@ -1159,6 +1217,8 @@ function buildDetail(tc, r) {
 
     html += '<div class="step st-' + sst + (isEditing ? ' editing' : '') + '">';
     html += '<div class="step-head"><span class="step-num">Step ' + no + '</span><span class="step-title">' + eh(title) + '</span>';
+    if (Math.min(expectedCompareImages(key, step).length, actualCompareImages(r, no).length) > 0)
+      html += '<button class="cmp-open" data-key="' + eh(key) + '" data-idx="' + step.index + '">🔍 기대↔실제 비교</button>';
     html += '<span class="hdr-sp"></span>' + badge(sst, sst === 'unmapped' ? '이 스텝에 연결된 자동화 테스트가 없습니다 (tcstep annotation 필요)' : '') + '</div>';
     var rf = (rev && rev.fields) || {};
     if (isEditing) {
@@ -1227,6 +1287,120 @@ function galleryAtmImages(key, step) {
   var inline = inlineSrcs(step, 'expectedResult');
   return visibleAtmImages(key, step).filter(function(src) { return inline.indexOf(src) === -1; });
 }
+
+function encPath(p) { return '/' + String(p).split('/').map(encodeURIComponent).join('/'); }
+
+// 비교 뷰에 쓸 기대 이미지 — ATM 로컬 사본(다운로드한 것) + 직접 업로드한 것
+function expectedCompareImages(key, step) {
+  var out = [];
+  visibleAtmImages(key, step).forEach(function(src) {
+    if (atmImages[src]) out.push({ src: encPath(atmImages[src]), label: 'ATM(Zephyr) 원본' });
+  });
+  ((specImages[key] || {})[step.index] || []).forEach(function(img) {
+    out.push({ src: encPath(img.path), label: '직접 업로드 · ' + img.name });
+  });
+  return out;
+}
+
+// 비교 뷰에 쓸 실제 캡처 — 이 스텝(tcstep)에 연결된 테스트의 캡처
+function actualCompareImages(r, no) {
+  return (((r || {}).step_evidence || {})[no] || []).map(function(a) {
+    return { src: encPath(a.path), label: a.name + (a.testTitle ? ' · ' + a.testTitle : '') };
+  });
+}
+
+var cmpState = { exp: [], act: [], mode: 'side' };
+
+function openCompare(key, idx) {
+  var tc = cases.filter(function(c) { return c.key === key; })[0];
+  var step = tc && (tc.steps || [])[idx];
+  if (!step) return;
+  cmpState.exp = expectedCompareImages(key, step);
+  cmpState.act = actualCompareImages(results[key], idx + 1);
+  if (!cmpState.exp.length || !cmpState.act.length) {
+    toast('비교할 이미지가 없습니다 (기대 ' + cmpState.exp.length + '장 / 실제 ' + cmpState.act.length + '장)', 'err');
+    return;
+  }
+  document.getElementById('cmpv-title').textContent = key.split('TCMETA-').join('') + ' · Step ' + (idx + 1);
+  fillCmpSelect('cmpv-exp', cmpState.exp);
+  fillCmpSelect('cmpv-act', cmpState.act);
+  document.getElementById('cmpv').hidden = false;
+  document.body.style.overflow = 'hidden';
+  applyCompare();
+}
+
+function closeCompare() {
+  document.getElementById('cmpv').hidden = true;
+  document.body.style.overflow = '';
+}
+
+function fillCmpSelect(id, list) {
+  var sel = document.getElementById(id);
+  sel.innerHTML = list.map(function(it, i) { return '<option value="' + i + '">' + eh(it.label) + '</option>'; }).join('');
+  sel.style.display = list.length > 1 ? '' : 'none';
+}
+
+function applyCompare() {
+  var a = cmpState.exp[document.getElementById('cmpv-exp').selectedIndex] || cmpState.exp[0];
+  var b = cmpState.act[document.getElementById('cmpv-act').selectedIndex] || cmpState.act[0];
+  ['cmpv-a1', 'cmpv-a2'].forEach(function(id) { document.getElementById(id).src = a.src; });
+  ['cmpv-b1', 'cmpv-b2'].forEach(function(id) { document.getElementById(id).src = b.src; });
+  var side = cmpState.mode === 'side';
+  document.getElementById('cmpv-side').hidden = !side;
+  document.getElementById('cmpv-over').hidden = side;
+  document.getElementById('cmpv-stack').className = 'cmpv-stack' + (cmpState.mode === 'diff' ? ' diff' : '');
+  document.getElementById('cmpv-range').style.display = cmpState.mode === 'wipe' ? '' : 'none';
+  document.getElementById('cmpv-line').style.display = cmpState.mode === 'wipe' ? '' : 'none';
+  layoutCompare();
+}
+
+// 크기가 다른 두 이미지를 가로 기준으로 맞춰 겹침 (세로는 더 긴 쪽에 맞춤)
+function layoutCompare() {
+  var ia = document.getElementById('cmpv-a2');
+  var ib = document.getElementById('cmpv-b2');
+  var show = function() {
+    if (!ia.naturalWidth || !ib.naturalWidth) return;
+    var ra = ia.naturalHeight / ia.naturalWidth;
+    var rb = ib.naturalHeight / ib.naturalWidth;
+    var stack = document.getElementById('cmpv-stack');
+    var body = document.querySelector('.cmpv-body');
+    // 가로는 화면 폭, 세로는 남는 높이에 맞춰 축소 (겹쳐 보는 동안 스크롤이 생기지 않도록)
+    var maxW = Math.min(1100, body.clientWidth - 28);
+    var maxH = body.clientHeight - 90;   // 슬라이더 + 안내 문구 자리
+    var w = Math.max(280, Math.min(maxW, Math.floor(maxH / Math.max(ra, rb))));
+    stack.style.width = w + 'px';
+    stack.style.height = Math.round(w * Math.max(ra, rb)) + 'px';
+    document.getElementById('cmpv-size').textContent =
+      '기대 ' + ia.naturalWidth + 'x' + ia.naturalHeight + ' · 실제 ' + ib.naturalWidth + 'x' + ib.naturalHeight + ' (가로를 같게 맞춰 표시)';
+    document.getElementById('cmpv-note').textContent = Math.abs(ra - rb) > 0.03
+      ? '두 이미지의 가로세로 비율이 달라(' + ra.toFixed(2) + ' vs ' + rb.toFixed(2) + ') 아래로 갈수록 어긋나 보일 수 있습니다. 위치보다 문구·구성 위주로 보세요.'
+      : '가로세로 비율이 같아 그대로 겹쳐 비교할 수 있습니다.';
+  };
+  ia.onload = show;
+  ib.onload = show;
+  show();
+}
+
+(function() {
+  var v = document.getElementById('cmpv');
+  document.getElementById('cmpv-close').addEventListener('click', closeCompare);
+  v.addEventListener('click', function(e) { if (e.target === v) closeCompare(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && !v.hidden) closeCompare(); });
+  document.getElementById('cmpv-exp').addEventListener('change', applyCompare);
+  document.getElementById('cmpv-act').addEventListener('change', applyCompare);
+  document.getElementById('cmpv-modes').addEventListener('click', function(e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    cmpState.mode = btn.dataset.mode;
+    [].forEach.call(this.querySelectorAll('button'), function(b) { b.classList.toggle('on', b === btn); });
+    applyCompare();
+  });
+  document.getElementById('cmpv-raw').addEventListener('change', function() { v.classList.toggle('raw', this.checked); });
+  document.getElementById('cmpv-range').addEventListener('input', function() {
+    document.getElementById('cmpv-stack').style.setProperty('--wipe', this.value + '%');
+  });
+  window.addEventListener('resize', function() { if (!v.hidden) layoutCompare(); });
+})();
 
 function expectedImageCount(key, step) {
   return visibleAtmImages(key, step).length + ((specImages[key] || {})[step.index] || []).length;
