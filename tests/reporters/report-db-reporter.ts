@@ -114,6 +114,8 @@ class ReportDBReporter implements Reporter {
   private tcTests: Map<string, Map<string, TestEntry>> = new Map();
   // 이번 실행 회차 (결과서에서 이전 실행 결과와 구분)
   private runId = new Date().toISOString();
+  // 이번 실행에서 이미 실패가 난 파일 — serial 모드에서 뒤 테스트가 실행되지 않은 이유를 남기기 위해
+  private failedFiles = new Set<string>();
 
   onTestEnd(test: TestCase, result: TestResult): void {
     // titlePath: ['', 'chromium', 'login.spec.ts', 'T416 간편인증 로그인', '테스트 제목'] 형태
@@ -143,9 +145,15 @@ class ReportDBReporter implements Reporter {
       }));
 
     const status = toStatus(result.status);
+    const file = path.relative(ROOT, test.location.file).split(path.sep).join('/');
+    let skipReason = status === 'skip' ? skipReasonOf(test, result) : '';
+    if (status === 'skip' && !skipReason && this.failedFiles.has(file)) {
+      skipReason = '같은 파일의 앞 테스트가 실패해 실행되지 않음 (serial 모드)';
+    }
+    if (status === 'fail') this.failedFiles.add(file);
     const entry: TestEntry = {
       id: test.id,
-      file: path.relative(ROOT, test.location.file).split(path.sep).join('/'),
+      file,
       run_id: this.runId,
       ran_at: new Date().toISOString(),
       title: test.title,
@@ -155,7 +163,7 @@ class ReportDBReporter implements Reporter {
       tcSteps,
       attachments: this.saveImages(tcKey, test, result),
       logs: collectLogs(result),
-      ...(status === 'skip' ? { skipReason: skipReasonOf(test, result) } : {}),
+      ...(status === 'skip' ? { skipReason } : {}),
       ...(status === 'fail' ? { error: firstLine(result.error?.message) } : {}),
     };
 

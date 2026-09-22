@@ -6,8 +6,8 @@ import { waitForVerificationToken } from './helpers/emailHelper';
 // 회원가입 테스트는 세션 없이 실행
 test.use({ storageState: { cookies: [], origins: [] } });
 
-// IMAP 동시 연결 + 동일 이메일 병렬 실행 충돌 방지 — 이 파일의 모든 테스트 직렬 실행
-test.describe.configure({ mode: 'serial' });
+// serial 은 IMAP·인증 메일을 쓰는 T758 describe 안에서만 사용한다.
+// 파일 전체를 serial 로 두면 앞 테스트 하나가 실패할 때 뒤 테스트가 통째로 실행되지 않는다(스킵 사유도 남지 않음).
 
 const BASE = process.env.BASE_URL ?? '';
 
@@ -168,6 +168,7 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
   });
 
   test('중복확인 → 사용 가능 모달 → 이메일 인증 → 발송 완료 모달 확인', { annotation: tcStep(1) }, async ({ page }) => {
+    test.setTimeout(60_000);   // 발송 대기 15s + 봇 감지 대기 15s + 조작 시간 (기본 30s 로는 부족)
     const register = new RegisterPage(page);
     const testEmail = process.env.EMAIL_IMAP_USER ?? `test_${Date.now()}@example.com`;
     await register.typeEmail(testEmail);
@@ -193,8 +194,17 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
     }
     const blocked = await page.getByText(/보안 인증을 완료해 주세요/)
       .waitFor({ state: 'visible', timeout: 15000 }).then(() => true).catch(() => false);
-    if (blocked) console.log('⚠️ reCAPTCHA 봇 감지 → "보안 인증을 완료해 주세요." (자동화 한계)');
-    expect(sent || blocked).toBe(true);
+    if (blocked) {
+      console.log('⚠️ reCAPTCHA 봇 감지 → "보안 인증을 완료해 주세요." (자동화 한계)');
+      return;
+    }
+    // 둘 다 아니면 화면에 무엇이 떠 있는지 남긴다 (문구 변경/무반응 구분용)
+    const modalText = await page.locator('.modal-dialog:visible').first().innerText().catch(() => '');
+    const visible = (await page.locator('body').innerText()).split('\n').map(s => s.trim())
+      .filter(t => t && /인증|발송|보안|확인|오류|실패/.test(t)).slice(0, 6).join(' | ');
+    expect(sent || blocked, '[앱오류] 이메일 인증 클릭 후 발송 완료도 보안 인증 안내도 뜨지 않음' +
+      (modalText ? ' — 모달: "' + modalText.replace(/\s+/g, ' ').trim() + '"' : '') +
+      (visible ? ' / 화면: ' + visible : '')).toBe(true);
   });
 
   test('이메일 형식 불일치 시 "필수 입력 정보입니다." 문구 노출', { annotation: tcStep(1) }, async ({ page }) => {
@@ -230,6 +240,8 @@ test.describe('T421 - 이메일 가입 페이지 UI 확인 (Step 0)', () => {
 //    Step 3(약관 모달)은 tests/register-terms.spec.ts 에서 메일함의 기존 인증 링크로 검증 (이 파일은 serial 이라 분리).
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('T758 - 이용약관 동의', () => {
+  // IMAP 동시 연결·동일 이메일 충돌 방지 (이 describe 안에서만 직렬 실행)
+  test.describe.configure({ mode: 'serial' });
   test.use({ storageState: { cookies: [], origins: [] } });
 
   const IMAP_READY =

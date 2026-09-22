@@ -1559,7 +1559,7 @@ function skipWhy(t) {
     var title = String(t.title || '');
     // 템플릿 문자열 안이라 정규식의 역슬래시가 사라짐 → 문자열 처리로 대괄호 앞머리 추출
     var end = title.charAt(0) === '[' ? title.indexOf(']') : -1;
-    why = end > 1 ? title.substring(1, end) : '스킵 사유가 테스트에 적혀 있지 않습니다.';
+    why = end > 1 ? title.substring(1, end) : '사유 미기록 — 이 테스트를 다시 실행하면 사유가 표시됩니다.';
   }
   return '<div class="skip-why">⏭️ 스킵 사유: ' + eh(why) + '</div>';
 }
@@ -1575,10 +1575,30 @@ function actualBlock(r, no, evidence, stepStatus) {
     }).join('') + '</div></div>';
   }
   if (evidence && evidence.length) html += '<div class="tri-field">' + evidenceRow(evidence) + '</div>';
-  if (!tests.length) {
-    html += '<div class="act-empty">' + (stepStatus === 'pending'
-      ? '아직 실행 기록이 없습니다.'
-      : '이 스텝에 연결된 자동화 테스트가 없습니다.<br>테스트별 결과와 캡처는 위 "자동화 실행 결과"에서 확인하세요.') + '</div>';
+  if (!tests.length) html += emptyActual(r, stepStatus);
+  return html;
+}
+
+// 이 스텝에 연결된 테스트가 없을 때 — "왜 비어 있는지"를 설명
+//   pending  : TC 전체가 한 번도 실행되지 않음 (테스트 코드 없음)
+//   unmapped : 스텝 번호를 지정한(tcstep) 테스트가 없음. TC 자동화가 통째로 스킵된 경우엔 그 사유를 보여 준다
+function emptyActual(r, stepStatus) {
+  if (stepStatus === 'pending') {
+    return '<div class="act-empty">아직 실행 기록이 없습니다.<br>이 TC를 확인하는 자동화 테스트가 아직 없습니다.</div>';
+  }
+  var all = r.tests || [];
+  var skipped = all.filter(function(t) { return t.status === 'skip'; });
+  var html = '<div class="act-empty">이 스텝을 확인하는 자동화 테스트가 없습니다. (스텝 번호에 연결된 테스트 없음)</div>';
+  if (all.length && skipped.length === all.length) {
+    var reasons = [];
+    skipped.forEach(function(t) {
+      var why = t.skipReason || t.title || '';
+      if (why && reasons.indexOf(why) === -1) reasons.push(why);
+    });
+    html += '<div class="skip-why">⏭️ 이 TC의 자동화 ' + all.length + '개가 모두 스킵됐습니다' +
+      (reasons.length ? ' — ' + eh(reasons.join(' / ')) : '') + '</div>';
+  } else if (all.length) {
+    html += '<div class="act-empty">이 TC의 다른 테스트 결과와 캡처는 위 "자동화 실행 결과"에서 볼 수 있습니다.</div>';
   }
   return html;
 }
