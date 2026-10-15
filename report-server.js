@@ -672,6 +672,14 @@ details.run-box[open] > .run-sum{margin-bottom:8px;}
 .atm-restore{align-self:flex-start;margin-top:6px;background:#fff;border:1px dashed var(--bd2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--tx2);cursor:pointer;}
 .atm-restore:hover{border-color:var(--ac);color:var(--ac2);}
 
+/* 실행 회차 구분 (이번 실행 / 이전 실행) */
+.runseg{display:flex;gap:4px;align-items:center;}
+.runseg button{background:#fff;border:1px solid var(--bd2);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;color:var(--tx2);cursor:pointer;white-space:nowrap;}
+.runseg button:hover{border-color:var(--ac);color:var(--ac2);}
+.runseg button.on{background:var(--ac);border-color:var(--ac);color:#fff;}
+.run-when{font-size:12px;color:var(--tx3);white-space:nowrap;}
+.run-when b{color:var(--tx2);font-weight:700;}
+
 /* 스킵 사유 */
 .skip-why{margin-top:6px;padding:7px 10px;background:var(--skip-bg);border:1px solid #fcd34d;border-radius:6px;font-size:12px;line-height:1.6;color:#92400e;}
 .run-item .skip-why{width:100%;margin-top:4px;}
@@ -879,6 +887,12 @@ a.issue-key:hover{background:#fecaca;}
   <select class="fsel" id="fsel" onchange="applyFilters()">
     <option value="">전체 폴더</option>
   </select>
+  <div class="runseg" id="runseg">
+    <button data-run="all" class="on" title="저장된 모든 결과 (실행하지 않은 TC는 이전 결과 유지)">전체 결과</button>
+    <button data-run="latest" title="가장 최근 실행에 포함된 TC만">이번 실행</button>
+    <button data-run="old" title="이번 실행에 없어 이전 결과를 유지 중인 TC만">이전 실행</button>
+  </div>
+  <span class="run-when" id="run-when"></span>
   <div class="tb-sp"></div>
   <span class="rcnt"><strong id="rcnt">0</strong>개 표시</span>
 </div>
@@ -946,6 +960,7 @@ var atmImages = {};    // ATM 이미지 원래 주소 → 로컬 사본 경로 (
 var hiddenAtm = {};    // 결과서에서 삭제한 ATM 기대 결과 이미지 { TC키: { 스텝index: [원래 주소] } }
 var jiraUrl = '';      // Jira 사이트 주소 (.env JIRA_URL) — 이슈 링크용
 var curFilter = 'all';
+var runFilter = 'all';   // all | latest | old — 실행 회차 기준 필터
 var expandedKey = null;
 var editing = {};   // "TC키#스텝index" → 편집 모드
 var drafts = {};    // "TC키#스텝index#항목" → 편집 중 입력값 (다시 그려도 유지)
@@ -1037,6 +1052,7 @@ function loadData() {
       hiddenAtm  = data.hidden_atm_images || {};
       jiraUrl    = data.jira_url || '';
       updateStats(data.stats || {});
+      updateRunWhen();
       buildFolderOptions();
       applyFilters();
       var meta = data.meta || {};
@@ -1077,18 +1093,52 @@ function buildFolderOptions() {
 }
 
 // ── 필터 ──────────────────────────────────────────────────
+(function() {
+  var seg = document.getElementById('runseg');
+  seg.addEventListener('click', function(e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    runFilter = btn.dataset.run;
+    [].forEach.call(seg.querySelectorAll('button'), function(b) { b.classList.toggle('on', b === btn); });
+    applyFilters();
+  });
+})();
+
 function setFilter(f) {
   curFilter = f;
   document.querySelectorAll('.sc').forEach(function(c) { c.classList.toggle('active', c.dataset.f === f); });
   applyFilters();
 }
 
+// 저장된 결과 중 가장 최근 실행 회차 (리포터가 실행마다 run_id = 실행 시각으로 기록)
+function latestRunId() {
+  var newest = '';
+  Object.keys(results).forEach(function(k) {
+    var id = results[k].run_id;
+    if (id && id > newest) newest = id;
+  });
+  return newest;
+}
+
+// 툴바에 "마지막 실행 시각 · 이번 실행 TC 수" 표시
+function updateRunWhen() {
+  var latest = latestRunId();
+  var el = document.getElementById('run-when');
+  if (!latest) { el.textContent = ''; return; }
+  var n = Object.keys(results).filter(function(k) { return results[k].run_id === latest; }).length;
+  el.innerHTML = '마지막 실행 <b>' + eh(fmtDate(latest)) + '</b> · 이번 실행 TC <b>' + n + '개</b>';
+}
+
 function applyFilters() {
   var q      = (document.getElementById('search').value || '').toLowerCase();
   var folder = document.getElementById('fsel').value;
+  var latest = latestRunId();
 
   var vis = cases.filter(function(tc) {
-    var status = (results[tc.key] || {}).status || 'pending';
+    var r = results[tc.key] || {};
+    var status = r.status || 'pending';
+    if (runFilter === 'latest' && (!latest || r.run_id !== latest)) return false;
+    if (runFilter === 'old' && (!r.run_id || r.run_id === latest)) return false;
     if (curFilter === 'revised') { if (!pendingRevCount(tc.key)) return false; }
     else if (curFilter !== 'all' && status !== curFilter) return false;
     if (folder && tc.folder !== folder) return false;
