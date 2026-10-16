@@ -161,14 +161,17 @@ export class GuidePage {
   }
 
   async verifyClearButtonVisible() {
-    // 검색어 입력 후 닫기(X) 버튼 활성화 확인
+    // 검색어가 입력된 상태에서는 닫기(X) 버튼이 항상 노출되는 UI → 단언으로 검증
     const clearBtn = this.page.locator(
       '[class*="clear"], [class*="delete"], [class*="close"], [class*="reset"]'
-    ).first().or(
-      this.page.locator('button').filter({ hasText: /×|✕/ }).first()
-    );
-    const isVisible = await clearBtn.isVisible({ timeout: 3000 }).catch(() => false);
-    console.log(`✅ 검색 닫기 버튼 ${isVisible ? '노출 확인' : '확인불가 (구현 방식 상이 가능)'}`);
+    ).or(
+      this.page.locator('button').filter({ hasText: /×|✕/ })
+    ).first();
+    await expect(
+      clearBtn,
+      '[UI/셀렉터] 검색어 입력 후 닫기(X) 버튼을 찾을 수 없음 — 셀렉터 변경 또는 버튼 미노출'
+    ).toBeVisible({ timeout: 8000 });
+    console.log('✅ 검색어 입력 후 닫기(X) 버튼 노출 확인');
   }
 
   async verifyAllManualsShown() {
@@ -190,27 +193,34 @@ export class GuidePage {
     const items = this.getManualItems().filter({ hasText: keyword });
     const matchCount = await items.count();
     const totalCount = await this.getManualItems().count();
-    console.log(`✅ 검색 필터링 확인: 전체 ${totalCount}개 중 "${keyword}" 포함 ${matchCount}개`);
-    if (matchCount === 0 && totalCount === 0) {
-      // 결과 없음 안내 문구 확인
-      const empty = this.page.getByText(/결과가 없습니다|검색 결과가 없|찾을 수 없습니다/i).first();
-      const hasEmpty = await empty.isVisible({ timeout: 3000 }).catch(() => false);
-      console.log(`  빈 결과 안내 문구 ${hasEmpty ? '노출' : '미노출'}`);
+    // 검색 결과는 둘 중 하나여야 함: (1) 키워드를 포함한 항목이 1개 이상, (2) 결과 없음 안내 문구 노출
+    if (matchCount === 0) {
+      await expect(
+        this.page.getByText(/결과가 없습니다|검색 결과가 없|찾을 수 없습니다/i).first(),
+        `[앱오류] "${keyword}" 검색 결과에 키워드 포함 항목이 0개인데 결과 없음 안내 문구도 미노출 (목록 ${totalCount}개 표시) — 검색 필터링/빈 결과 처리 버그`
+      ).toBeVisible({ timeout: 5000 });
+      console.log(`✅ "${keyword}" 검색 결과 0건 + 결과 없음 안내 문구 노출 확인 (목록 ${totalCount}개)`);
+      return;
     }
+    console.log(`✅ 검색 필터링 확인: 전체 ${totalCount}개 중 "${keyword}" 포함 ${matchCount}개`);
   }
 
   async verifyNoSearchResults() {
-    // 존재하지 않는 키워드 → 결과 없음 상태 표시 확인
+    // 존재하지 않는 키워드 → 결과 없음 문구 또는 빈 상태 영역이 반드시 노출돼야 함
     await this.page.waitForTimeout(500);
-    const emptyIndicators = [
-      this.page.getByText(/결과가 없습니다|검색 결과가 없|찾을 수 없습니다/i).first(),
-      this.page.locator('[class*="empty"], [class*="no-result"], [class*="noResult"]').first(),
-    ];
-    const results = await Promise.all(
-      emptyIndicators.map(el => el.isVisible({ timeout: 3000 }).catch(() => false))
-    );
-    const hasEmpty = results.some(Boolean);
-    console.log(`✅ 존재하지 않는 키워드 검색 결과 없음 상태 확인 (found: ${hasEmpty})`);
+    const empty = this.page.getByText(/결과가 없습니다|검색 결과가 없|찾을 수 없습니다/i).or(
+      this.page.locator('[class*="empty"], [class*="no-result"], [class*="noResult"]')
+    ).first();
+    await expect(
+      empty,
+      '[앱오류] 존재하지 않는 키워드 검색 시 결과 없음 안내(문구/빈 상태)가 미노출 — 빈 결과 처리 버그'
+    ).toBeVisible({ timeout: 8000 });
+    const count = await this.getManualItems().count();
+    expect(
+      count,
+      `[앱오류] 존재하지 않는 키워드 검색인데 매뉴얼 목록이 ${count}개 그대로 표시됨 — 검색 필터링 미적용`
+    ).toBe(0);
+    console.log('✅ 존재하지 않는 키워드 검색 → 결과 없음 안내 노출 + 매뉴얼 목록 0개 확인');
   }
 
   // ──────────────────────────────────────────────────────────────────────────

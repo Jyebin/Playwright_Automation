@@ -68,7 +68,9 @@ export class OrderPage {
       )
     ).catch(() => null);
     if (!found) {
-      throw new Error(`결제 요청 후 필수항목 알럿 미출력. 기대값: ${CANDIDATES.join(' | ')}`);
+      throw new Error(
+        `[앱오류] 주소 미입력 상태로 결제 요청했는데 필수항목 알럿이 노출되지 않음 — 유효성 검사 버그. 기대값: ${CANDIDATES.join(' | ')} (현재 URL: ${this.page.url()})`
+      );
     }
     console.log(`✅ 결제 요청 필수항목 알럿 확인: "${found}"`);
   }
@@ -161,7 +163,9 @@ export class OrderPage {
       )
     ).catch(() => null);
     if (!found) {
-      throw new Error(`결제 요청 후 유효성 알럿 미출력. 기대값: ${CANDIDATES.join(' | ')}`);
+      throw new Error(
+        `[앱오류] 약관 미동의 상태로 결제 요청했는데 유효성 알럿이 노출되지 않음 — 약관 동의 검증 버그. 기대값: ${CANDIDATES.join(' | ')} (현재 URL: ${this.page.url()})`
+      );
     }
     console.log(`✅ 결제 요청 유효성 알럿 확인: "${found}"`);
   }
@@ -213,9 +217,17 @@ export class OrderPage {
   }
 
   async checkTermsCheckbox() {
-    // 약관 동의 체크박스
+    // 약관 동의 체크박스 — 클릭 후 실제 체크 상태가 됐는지 단언 (커스텀 체크박스라 클릭이 무시될 수 있음)
     const checkbox = this.page.locator('[class*="terms"] input[type="checkbox"], [class*="agreement"] input[type="checkbox"]').first();
+    await expect(
+      checkbox,
+      '[UI/셀렉터] 약관 동의 체크박스를 찾을 수 없음 — 셀렉터 변경 여부 확인'
+    ).toBeAttached({ timeout: 8000 });
     await checkbox.check({ force: true });
-    console.log('🖱️ 약관 동의 체크');
+    await expect(
+      checkbox,
+      '[앱오류] 약관 동의 체크 후에도 체크박스가 체크 상태가 아님 — 동의 체크 동작 버그'
+    ).toBeChecked({ timeout: 5000 });
+    console.log('🖱️ 약관 동의 체크 (checked: true)');
   }
 }

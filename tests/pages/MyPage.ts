@@ -157,15 +157,20 @@ export class MyPage {
   }
 
   async verifyMarketingCheckboxesVisible() {
+    // 프로필 화면의 마케팅 수신 동의 항목은 항상 노출되는 UI → 체크박스(표준/커스텀) 존재를 단언
     const checkboxes = this.page.locator(
       'input[type="checkbox"], [role="checkbox"], [class*="checkbox"], [class*="check-box"]'
     );
     const count = await checkboxes.count();
-    if (count > 0) {
-      console.log(`✅ 마케팅 수신 체크박스 확인 (${count}개)`);
-    } else {
-      console.log('ℹ️  표준 체크박스 미사용 — 커스텀 UI로 마케팅 항목 표시됨');
-    }
+    expect(
+      count,
+      '[UI/셀렉터] 프로필 화면에서 마케팅 수신 체크박스를 찾을 수 없음 — 셀렉터 변경 또는 항목 미노출'
+    ).toBeGreaterThan(0);
+    await expect(
+      checkboxes.first(),
+      '[UI/셀렉터] 마케팅 수신 체크박스가 DOM 에만 있고 화면에 붙어있지 않음 — 셀렉터 변경 여부 확인'
+    ).toBeAttached({ timeout: 5000 });
+    console.log(`✅ 마케팅 수신 체크박스 확인 (${count}개)`);
   }
 
   /**

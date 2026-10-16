@@ -1,4 +1,4 @@
-import { Page, expect, Download } from '@playwright/test';
+import { Page, expect, test, Download } from '@playwright/test';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -228,13 +228,18 @@ export class CsNoticePage {
   }
 
   async verifyCategoryReset() {
-    // 공지사항 탭 재클릭 → 카테고리 선택 해제 + 목록 초기화 확인
+    // 공지사항 탭 재클릭 → 카테고리 선택 해제 + 전체 목록 복귀 확인 (목록이 비면 초기화 버그)
     const noticetab = this.page.getByText('공지사항', { exact: true }).first();
     await noticetab.click({ force: true });
     await this.page.waitForTimeout(600);
     const posts = this.page.locator('tbody tr, [class*="notice-item"]');
+    await posts.first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
     const count = await posts.count();
-    console.log(`✅ 카테고리 초기화 후 목록 확인 (${count}건)`);
+    expect(
+      count,
+      '[앱오류] 공지사항 탭 재클릭(카테고리 초기화) 후 게시물이 표시되지 않음 — 목록 초기화 버그'
+    ).toBeGreaterThan(0);
+    console.log(`✅ 카테고리 초기화 후 전체 목록 복귀 확인 (${count}건)`);
   }
 
   // ── 상세 페이지 ──────────────────────────────────────────────────────────
@@ -268,7 +273,8 @@ export class CsNoticePage {
   async verifyAttachmentDownload(): Promise<Download | null> {
     const downloadLink = this.page.locator('a[href*="download"], a[download], button').filter({ hasText: /다운로드|첨부/i }).first();
     if (!await downloadLink.isVisible({ timeout: 3000 }).catch(() => false)) {
-      console.log('ℹ️  다운로드 가능한 첨부파일 없음');
+      // 첨부파일 유무는 게시물 데이터에 따라 달라짐 → 조용한 통과 대신 사유를 남기고 건너뜀
+      test.skip(true, `첨부파일이 있는 공지사항 필요 — 현재 상세 페이지(${this.page.url()})에 다운로드 가능한 첨부파일이 없어 다운로드 동작을 확인하지 못함`);
       return null;
     }
     const [download] = await Promise.all([

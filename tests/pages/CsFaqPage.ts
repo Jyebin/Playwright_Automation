@@ -201,12 +201,15 @@ export class CsFaqPage {
   }
 
   async verifyFaqItemCollapsed() {
-    // 답변 영역이 사라짐
+    // 답변 영역이 사라져야 함 — 재클릭 후에도 보이면 아코디언 닫힘 동작 버그
     const answer = this.page.locator(
       '[class*="answer"], [class*="Answer"], details[open], [aria-expanded="true"]'
     ).first();
-    const isVisible = await answer.isVisible({ timeout: 2000 }).catch(() => false);
-    console.log(`✅ FAQ 항목 접힘 확인 (answer visible: ${isVisible})`);
+    await expect(
+      answer,
+      '[앱오류] FAQ 항목 재클릭 후에도 답변 영역이 접히지 않음 — 아코디언 닫힘 동작 버그'
+    ).toBeHidden({ timeout: 5000 });
+    console.log('✅ FAQ 항목 접힘 확인 (답변 영역 미노출)');
   }
 
   async clickSecondFaqItem() {

@@ -65,14 +65,14 @@ export class DownloadPage {
   }
 
   async verifyWindowsOsDefaultSelected() {
-    // Windows OS가 기본 선택 상태인지 확인 (배경색 흰색 또는 active 클래스)
+    // Windows OS가 기본 선택 상태인지 확인 — 탭 존재 + (클릭 없이) Windows 사양이 노출되는지로 "기본 선택"을 단언
     const result = await this.page.evaluate(() => {
       const candidates = Array.from(document.querySelectorAll('button, li, div, span'));
       const windowsEl = candidates.find(el => {
         const text = el.textContent?.trim() ?? '';
         return /^Window[s]?(\s*OS)?$/.test(text) || text === 'Windows';
       });
-      if (!windowsEl) return { found: false };
+      if (!windowsEl) return { found: false, bg: '', fw: '', cls: '' };
       const style = window.getComputedStyle(windowsEl as HTMLElement);
       return {
         found: true,
@@ -81,7 +81,17 @@ export class DownloadPage {
         cls: (windowsEl as HTMLElement).className,
       };
     });
-    console.log(`✅ Windows OS 기본 선택 상태 확인 (found: ${result.found}, bg: ${result.bg})`);
+    expect(result.found, '[UI/셀렉터] Windows OS 탭 요소를 찾을 수 없음 — OS 탭 구조/텍스트 변경 여부 확인').toBe(true);
+    // 탭을 클릭하지 않은 상태에서 Windows 최저 사양(인텔 i5 / Windows 10 이상)이 노출돼야 기본 선택이 맞음
+    await expect(
+      this.page.getByText(/i5|인텔/i).first(),
+      '[앱오류] Windows OS가 기본 선택되지 않음 — 진입 직후 Windows 프로세서 사양(인텔 i5)이 노출되지 않음'
+    ).toBeVisible({ timeout: 8000 });
+    await expect(
+      this.page.getByText(/Windows 1\d|Windows10/i).first(),
+      '[앱오류] Windows OS가 기본 선택되지 않음 — 진입 직후 Windows 운영체제 사양(Windows 10 이상)이 노출되지 않음'
+    ).toBeVisible({ timeout: 8000 });
+    console.log(`✅ Windows OS 기본 선택 확인 (bg: ${result.bg}, font-weight: ${result.fw}, class: "${result.cls.slice(0, 60)}")`);
   }
 
   async clickMacOsTab() {
@@ -147,7 +157,11 @@ export class DownloadPage {
       }
       return false;
     });
-    console.log(`✅ 권장 사양 보라색 테두리 확인 (found: ${hasPurple})`);
+    expect(
+      hasPurple,
+      '[앱오류] 권장 사양 카드에 보라색 테두리(rgb(196, 181, 253) / #c4b5fd)가 적용되지 않음 — 강조 스타일 누락 또는 카드 DOM 구조 변경'
+    ).toBe(true);
+    console.log('✅ 권장 사양 카드 보라색 테두리(rgb(196, 181, 253)) 확인');
   }
 
   // ──────────────────────────────────────────────────────────────────────────

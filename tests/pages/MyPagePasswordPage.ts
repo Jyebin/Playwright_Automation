@@ -132,7 +132,15 @@ export class MyPagePasswordPage {
   }
 
   async verifyReturnedToMyPage() {
-    await this.page.waitForURL(/\/mypage/, { timeout: 8000 });
-    console.log(`✅ 마이페이지 복귀 확인`);
+    // waitForURL 만으로는 실패 사유가 불명확 → URL + 프로필 화면 노출을 분류 메시지와 함께 단언
+    await expect(
+      this.page,
+      '[앱오류] 비밀번호 변경/취소 후 마이페이지(/mypage)로 이동되지 않음'
+    ).toHaveURL(/\/mypage/, { timeout: 8000 });
+    await expect(
+      this.page.locator('#MyProfileView'),
+      '[앱오류] 마이페이지로 이동했으나 프로필 화면(#MyProfileView)이 표시되지 않음'
+    ).toBeVisible({ timeout: 10000 });
+    console.log(`✅ 마이페이지 복귀 확인: ${new URL(this.page.url()).pathname}`);
   }
 }

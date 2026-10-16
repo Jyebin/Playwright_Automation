@@ -88,16 +88,16 @@ export class ContentsPage {
   }
 
   async verifyCardBadge() {
-    // EVENT / PC / VR 배지 확인 (클래스명 변경 가능성 있어 soft-pass)
+    // EVENT / PC / VR 배지 확인 — 콘텐츠 카드에 항상 노출되는 UI 이므로 단언으로 검증
     const badge = this.page.locator(
       '[class*="badge"], [class*="Badge"], [class*="tag"], [class*="Tag"], [class*="chip"], [class*="Chip"], [class*="label"], [class*="Label"]'
     ).first();
-    const isVisible = await badge.isVisible({ timeout: 5000 }).catch(() => false);
-    if (isVisible) {
-      console.log('✅ 카드 배지(PC/VR 등) 확인');
-    } else {
-      console.log('ℹ️  카드 배지 미노출 — 셀렉터 변경 또는 배지 없는 콘텐츠 목록');
-    }
+    await expect(
+      badge,
+      '[UI/셀렉터] 콘텐츠 카드에 배지(EVENT/PC/VR 등)가 없음 — 배지 셀렉터 변경 또는 배지 미노출'
+    ).toBeVisible({ timeout: 8000 });
+    const text = (await badge.innerText().catch(() => '')).trim().replace(/\s+/g, ' ');
+    console.log(`✅ 카드 배지(PC/VR 등) 확인: "${text || '(텍스트 없음 — 아이콘형 배지)'}"`);
   }
 
   async verifyAtLeastThreeCards() {
@@ -108,14 +108,16 @@ export class ContentsPage {
   }
 
   async verifySwipeButtonFormat() {
-    // 스와이프 버튼 존재 확인 (구조 변경 가능성 있어 soft-pass)
-    const hasNext = await this.page.getByText('next', { exact: true }).first().isVisible({ timeout: 3000 }).catch(() => false);
-    const hasArrow = await this.page.locator('[class*="next"], [class*="arrow"], [class*="swipe"] button').first().isVisible({ timeout: 2000 }).catch(() => false);
-    if (hasNext || hasArrow) {
-      console.log('✅ 스와이프 버튼 확인');
-    } else {
-      console.log('ℹ️  스와이프 버튼 미노출 — 셀렉터 변경 또는 스와이프 UI 없음');
-    }
+    // 스와이프 버튼은 큐레이션 영역에 항상 노출되는 UI → "next" 텍스트 또는 화살표 버튼 중 하나는 반드시 보여야 함
+    const swipeBtn = this.page.locator(
+      '[class*="next"], [class*="arrow"], [class*="swipe"] button, [aria-label*="next"], [aria-label*="다음"]'
+    ).or(this.page.getByText('next', { exact: true })).first();
+    await expect(
+      swipeBtn,
+      '[UI/셀렉터] 스와이프(다음) 버튼을 찾을 수 없음 — 셀렉터 변경 또는 스와이프 UI 제거'
+    ).toBeVisible({ timeout: 8000 });
+    const { current, total } = await this.getSwipePage();
+    console.log(`✅ 스와이프 버튼 확인 (페이지 카운터 ${current}/${total})`);
   }
 
   async getSwipePage(): Promise<{ current: number; total: number }> {

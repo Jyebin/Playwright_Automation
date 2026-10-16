@@ -58,18 +58,26 @@ export class MyPagePurchasePage {
 
   async verifyPurchaseItemStructure() {
     // 항목: 썸네일, 결제일시(YYYY.MM.DD), 주문번호(12자리), 구매항목명, 결제금액
+    // spec 이 hasPurchaseHistory() 로 구매내역 없는 계정을 먼저 skip 하므로, 여기서 항목이 없으면 표시/셀렉터 오류로 단언
     const purchaseItems = this.page.locator(
       '[class*="purchase"], [class*="order-item"], [class*="orderItem"], tbody tr'
     );
-    const hasItems = await purchaseItems.first().isVisible({ timeout: 5000 }).catch(() => false);
-    if (!hasItems) {
-      console.log('ℹ️  구매내역 항목 없음');
-      return;
-    }
+    await purchaseItems.first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
     const count = await purchaseItems.count();
-    const pageText = await this.page.textContent('body') ?? '';
-    const hasDate = /\d{4}[.\-]\d{2}[.\-]\d{2}/.test(pageText);
-    console.log(`✅ 구매내역 항목 구성 확인 (${count}개, 날짜 형식 ${hasDate ? '포함' : '미확인'})`);
+    expect(
+      count,
+      '[UI/셀렉터] 구매내역이 있는 계정인데 구매내역 항목을 찾을 수 없음 — 셀렉터 변경 또는 목록 미표시'
+    ).toBeGreaterThan(0);
+    const tableText = (await this.page.locator('#PurchaseHistoryTable').innerText().catch(() => ''))
+      || (await this.page.textContent('body') ?? '');
+    const date = tableText.match(/\d{4}[.\-]\d{2}[.\-]\d{2}/)?.[0] ?? '';
+    expect(
+      date,
+      '[앱오류] 구매내역 항목에 결제일시(YYYY.MM.DD) 형식의 날짜가 표시되지 않음'
+    ).toMatch(/\d{4}[.\-]\d{2}[.\-]\d{2}/);
+    const orderNo = tableText.match(/\b\d{12}\b/)?.[0] ?? '';
+    const hasAmount = /원/.test(tableText);
+    console.log(`✅ 구매내역 항목 구성 확인 (${count}개, 결제일시 "${date}", 주문번호 ${orderNo ? `"${orderNo}"(12자리)` : '미확인'}, 금액 표기 ${hasAmount ? '있음' : '없음'})`);
   }
 
   async verifyItemsPerPage() {

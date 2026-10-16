@@ -174,23 +174,31 @@ export class CsInquiryPage {
 
   async checkPrivacyConsent() {
     // 커스텀 체크박스: label 클릭으로 처리 (hidden input 직접 클릭 불가)
+    const checkbox = this.page.locator('input[type="checkbox"]').first();
     const label = this.page.locator(
       'label[for*="agree"], label[for*="consent"], label[for*="privacy"], label[for*="name"]'
     ).first();
     if (await label.isVisible({ timeout: 2000 }).catch(() => false)) {
       await label.click({ force: true });
     } else {
-      const checkbox = this.page.locator('input[type="checkbox"]').first();
       await checkbox.check({ force: true });
     }
     await this.page.waitForTimeout(300);
-    console.log('🖱️ 개인정보 동의 체크');
+    // 라벨만 클릭되고 체크 상태가 반영되지 않는 케이스를 걸러내기 위해 동작 후 상태를 단언
+    await expect(
+      checkbox,
+      '[앱오류] 개인정보 동의 클릭 후에도 체크박스가 체크되지 않음 — 동의 체크 동작 버그'
+    ).toBeChecked({ timeout: 5000 });
+    console.log('🖱️ 개인정보 동의 체크 (checked: true)');
   }
 
   async verifyPrivacyConsentChecked() {
     const checkbox = this.page.locator('input[type="checkbox"]').first();
-    const isChecked = await checkbox.isChecked().catch(() => false);
-    console.log(`✅ 개인정보 동의 체크 확인 (checked: ${isChecked})`);
+    await expect(
+      checkbox,
+      '[앱오류] 개인정보 동의 체크박스가 체크 상태가 아님 — 체크 반영 버그'
+    ).toBeChecked({ timeout: 5000 });
+    console.log('✅ 개인정보 동의 체크 확인 (checked: true)');
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────

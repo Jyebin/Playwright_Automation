@@ -27,12 +27,33 @@ export class MyPageDashboardPage {
     console.log('✅ 실습 대시보드 노출 확인');
   }
 
+  /**
+   * #Practice 영역이 그려질 때까지 기다린 뒤 실습 내역(콘텐츠 li) 개수를 센다.
+   * 실제 구조(.tab-content > ul > li)를 우선 사용하고, 0개면 과거 generic 셀렉터로 한 번 더 확인한다.
+   */
+  private async countPracticeItems(): Promise<number> {
+    const practice = this.page.locator('#Practice');
+    await expect(
+      practice,
+      '[UI/셀렉터] 실습 내역 영역(#Practice)을 찾을 수 없음 — 로그인 세션 또는 셀렉터 확인'
+    ).toBeVisible({ timeout: 15000 });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+    let count = await practice.locator('.tab-content > ul > li').count();
+    if (count === 0) {
+      count = await this.page.locator(
+        '[class*="history"], [class*="History"], [class*="practice-item"], [class*="practiceItem"]'
+      ).count();
+    }
+    return count;
+  }
+
   async verifyPracticeHistoryExists() {
-    const items = this.page.locator(
-      '[class*="history"], [class*="History"], [class*="practice-item"], [class*="practiceItem"]'
-    );
-    const count = await items.count();
-    console.log(`✅ 실습 내역 항목 수: ${count}`);
+    // 실습 내역은 계정 데이터에 따라 없을 수 있음 → 0개면 조용히 통과시키지 않고 사유를 남기고 건너뜀
+    const count = await this.countPracticeItems();
+    if (count === 0) {
+      test.skip(true, '실습 이력이 있는 계정 필요 — 현재 테스트 계정의 실습 대시보드에 진행 중/완료 콘텐츠가 0개라 실습 내역 UI를 확인할 수 없음');
+    }
+    console.log(`✅ 실습 내역 항목 수: ${count}개`);
     return count;
   }
 
@@ -69,45 +90,72 @@ export class MyPageDashboardPage {
 
   async verifyAccordionCollapsedAfterToggle() {
     await this.clickFirstAccordionExpandButton();
+    // 펼친 항목을 재클릭했으므로 커리큘럼 영역은 사라져야 함 (verifyAccordionExpanded 와 같은 셀렉터로 대칭 검증)
     const curriculum = this.page.locator(
       '[class*="curriculum"], [class*="Curriculum"]'
     ).first();
-    const isVisible = await curriculum.isVisible({ timeout: 2000 }).catch(() => false);
-    console.log(`✅ 아코디언 닫기 후 상태: ${isVisible ? '펼침' : '접힘'}`);
+    await expect(
+      curriculum,
+      '[앱오류] 아코디언 재클릭(닫기) 후에도 커리큘럼 영역이 접히지 않음 — 아코디언 닫힘 동작 버그'
+    ).toBeHidden({ timeout: 5000 });
+    console.log('✅ 아코디언 닫기 후 접힘 확인 (커리큘럼 영역 미노출)');
   }
 
   async verifyRecentPracticeDateFormat() {
-    // 최근 실습일이 YYYY-MM-DD 형식으로 노출되는지 확인
-    const dateText = this.page.locator('text=/\\d{4}-\\d{2}-\\d{2}/').first();
-    const isVisible = await dateText.isVisible({ timeout: 5000 }).catch(() => false);
-    if (isVisible) {
-      console.log('✅ 최근 실습일 날짜 형식 확인 (YYYY-MM-DD)');
-    } else {
-      console.log('ℹ️  날짜 텍스트 미노출 — 실습 이력 없는 계정이거나 UI 변경 가능성');
+    // 최근 실습일은 실습 이력이 있을 때만 노출 → 이력이 없으면 건너뛰고, 있으면 YYYY-MM-DD 형식을 단언
+    const count = await this.countPracticeItems();
+    if (count === 0) {
+      test.skip(true, '실습 이력이 있는 계정 필요 — 실습 내역이 0개라 최근 실습일(YYYY-MM-DD) 표기 형식을 확인할 수 없음');
     }
+    const practice = this.page.locator('#Practice');
+    const dateTexts = (await practice.locator('.recent-date').allInnerTexts())
+      .map(t => t.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const sample = dateTexts.length
+      ? dateTexts
+      : (await practice.locator('.tab-content > ul > li').allInnerTexts()).map(t => t.replace(/\s+/g, ' ').trim());
+    const matched = sample.filter(t => /\d{4}-\d{2}-\d{2}/.test(t));
+    expect(
+      matched.length,
+      `[앱오류] 최근 실습일이 YYYY-MM-DD 형식으로 노출되지 않음 (실습 내역 ${count}개) — 실제 텍스트: ${sample.slice(0, 3).map(t => `"${t.slice(0, 60)}"`).join(', ') || '없음'}`
+    ).toBeGreaterThan(0);
+    console.log(`✅ 최근 실습일 YYYY-MM-DD 형식 확인 (${matched.length}/${sample.length}건, 예: "${matched[0]}")`);
   }
 
   async verifyProgressBarVisible() {
+    // 진행률 바는 실습 내역 항목마다 노출 → 이력이 없으면 건너뛰고, 있으면 노출을 단언
+    const count = await this.countPracticeItems();
+    if (count === 0) {
+      test.skip(true, '실습 이력이 있는 계정 필요 — 실습 내역이 0개라 진행률 프로그래스바 노출을 확인할 수 없음');
+    }
     const progressBar = this.page.locator(
       '[role="progressbar"], [class*="progress-bar"], [class*="progressBar"]'
     ).first();
-    const isVisible = await progressBar.isVisible({ timeout: 5000 }).catch(() => false);
-    if (isVisible) {
-      console.log('✅ 진행률 프로그래스바 노출 확인');
-    } else {
-      console.log('ℹ️  진행률 바 미노출 — 실습 이력 없거나 UI 셀렉터 변경 가능성');
-    }
+    await expect(
+      progressBar,
+      `[앱오류] 실습 내역 ${count}개가 있는데 진행률 프로그래스바가 노출되지 않음 — 진행률 UI 누락 또는 셀렉터 변경`
+    ).toBeVisible({ timeout: 8000 });
+    const barCount = await this.page.locator('[role="progressbar"]').count();
+    console.log(`✅ 진행률 프로그래스바 노출 확인 (실습 내역 ${count}개 / 프로그래스바 ${barCount}개)`);
   }
 
   async verifyProgressRateVisible() {
-    // 진행률 텍스트 (예: 50%, 100%) 노출 확인
-    const progressText = this.page.locator('text=/%/').first();
-    const isVisible = await progressText.isVisible({ timeout: 5000 }).catch(() => false);
-    if (isVisible) {
-      console.log('✅ 진행률 텍스트 노출 확인');
-    } else {
-      console.log('ℹ️  진행률 텍스트 미노출 — 실습 이력 없거나 셀렉터 변경 가능성');
+    // 진행률 텍스트(예: 50%, 100%) — 이력이 없으면 건너뛰고, 있으면 % 표기를 단언
+    const count = await this.countPracticeItems();
+    if (count === 0) {
+      test.skip(true, '실습 이력이 있는 계정 필요 — 실습 내역이 0개라 진행률(%) 텍스트 노출을 확인할 수 없음');
     }
+    const practice = this.page.locator('#Practice');
+    const percentTexts = (await practice.locator('.percent').allInnerTexts())
+      .map(t => t.replace(/\s+/g, '')).filter(Boolean);
+    const sample = percentTexts.length
+      ? percentTexts
+      : (await practice.locator('.tab-content > ul > li').allInnerTexts()).map(t => t.replace(/\s+/g, ''));
+    const matched = sample.filter(t => /\d+%/.test(t));
+    expect(
+      matched.length,
+      `[앱오류] 실습 내역 ${count}개가 있는데 진행률(%) 텍스트가 노출되지 않음 — 실제 텍스트: ${sample.slice(0, 3).map(t => `"${t.slice(0, 40)}"`).join(', ') || '없음'}`
+    ).toBeGreaterThan(0);
+    console.log(`✅ 진행률 텍스트 노출 확인 (${matched.slice(0, 5).join(', ')})`);
   }
 
   // ── 진행 중 / 완료 탭 콘텐츠 상태 ─────────────────────────────────────────

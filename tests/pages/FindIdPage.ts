@@ -100,17 +100,17 @@ export class FindIdPage {
   }
 
   async verifyWrongInfoAlert() {
-    // 알럿 모달 또는 인라인 메시지로 출력될 수 있음
+    // 알럿 모달 또는 인라인 메시지로 출력될 수 있으나, 불일치 정보라면 반드시 노출돼야 하므로 단언
     const alertMsg = this.page.getByText('가입 시 등록한 정보를 다시 확인해 주세요', { exact: false }).first();
-    const isVisible = await alertMsg.isVisible({ timeout: 5000 }).catch(() => false);
-    if (isVisible) {
-      console.log('✅ 잘못된 정보 알럿 확인');
-      const confirmBtn = this.page.getByRole('button', { name: '확인' }).first();
-      if (await confirmBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await confirmBtn.click({ force: true });
-      }
-    } else {
-      console.log('ℹ️  알럿 미노출 — 셀렉터 변경 또는 입력 정보가 실제 계정과 일치');
+    await expect(
+      alertMsg,
+      '[앱오류] 가입 정보 불일치로 인증번호 요청 시 "가입 시 등록한 정보를 다시 확인해 주세요" 안내 미노출 — 유효성 검사 버그'
+    ).toBeVisible({ timeout: 8000 });
+    const text = (await alertMsg.innerText().catch(() => '')).trim().replace(/\s+/g, ' ');
+    console.log(`✅ 잘못된 정보 알럿 확인: "${text}"`);
+    const confirmBtn = this.page.getByRole('button', { name: '확인' }).first();
+    if (await confirmBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await confirmBtn.click({ force: true });
     }
   }
 

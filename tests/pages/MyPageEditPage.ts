@@ -184,12 +184,13 @@ export class MyPageEditPage {
   }
 
   async verifyMarketingCheckboxesExist() {
+    // 프로필 수정 폼의 마케팅 수신 항목은 항상 존재해야 하는 UI → 단언으로 검증
     const count = await this.editForm.locator('#Checkbox input[type="checkbox"]').count();
-    if (count > 0) {
-      console.log(`✅ 마케팅 수신 체크박스 확인 (${count}개)`);
-    } else {
-      console.log('ℹ️  마케팅 수신 체크박스 없음');
-    }
+    expect(
+      count,
+      '[UI/셀렉터] 프로필 수정 폼에서 마케팅 수신 체크박스(#Checkbox input[type="checkbox"])를 찾을 수 없음 — 셀렉터 변경 또는 항목 미노출'
+    ).toBeGreaterThan(0);
+    console.log(`✅ 마케팅 수신 체크박스 확인 (${count}개)`);
   }
 
   async toggleMarketingCheckbox(index: number = 0): Promise<boolean> {

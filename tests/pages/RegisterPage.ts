@@ -106,13 +106,15 @@ export class RegisterPage {
   }
 
   async verifyKakaoLoginPage() {
-    // 봇 감지로 외부 도메인 차단될 수 있어 소프트 체크 (버튼 클릭 가능 확인이 핵심)
+    // 봇 감지로 카카오 페이지까지 못 갈 수 있으나, 최소한 우리 사이트를 벗어났거나 카카오 도메인이어야 함
     const url = this.page.url();
-    if (/kakao\.com|accounts\.kakao/i.test(url)) {
-      console.log(`✅ 카카오 로그인 페이지 이동 확인: ${url}`);
-    } else {
-      console.log(`⚠️ 봇 감지로 kakao.com 미도달 (버튼 노출·클릭 가능 확인됨): ${url}`);
-    }
+    const reachedProvider = /kakao\.com|accounts\.kakao|kauth\.kakao/i.test(url);
+    const leftOurSite = url !== 'about:blank' && !/metademy/i.test(url) && !(BASE && url.startsWith(BASE));
+    expect(
+      reachedProvider || leftOurSite,
+      `[앱오류] 카카오 버튼 클릭 후 우리 사이트에 그대로 머물러 있고 카카오 도메인으로도 이동하지 않음 — 소셜 로그인 연동 미동작 (현재 URL: ${url})`
+    ).toBe(true);
+    console.log(`✅ 카카오 로그인 이동 확인 (카카오 도메인 도달: ${reachedProvider}, URL: ${url})`);
   }
 
   async clickGoogleButton() {
@@ -122,12 +124,15 @@ export class RegisterPage {
   }
 
   async verifyGoogleLoginPage() {
+    // 봇 감지로 구글 페이지까지 못 갈 수 있으나, 최소한 우리 사이트를 벗어났거나 구글 도메인이어야 함
     const url = this.page.url();
-    if (/google\.com|accounts\.google/i.test(url)) {
-      console.log(`✅ 구글 로그인 페이지 이동 확인: ${url}`);
-    } else {
-      console.log(`⚠️ 봇 감지로 google.com 미도달 (버튼 노출·클릭 가능 확인됨): ${url}`);
-    }
+    const reachedProvider = /google\.com|accounts\.google/i.test(url);
+    const leftOurSite = url !== 'about:blank' && !/metademy/i.test(url) && !(BASE && url.startsWith(BASE));
+    expect(
+      reachedProvider || leftOurSite,
+      `[앱오류] 구글 버튼 클릭 후 우리 사이트에 그대로 머물러 있고 구글 도메인으로도 이동하지 않음 — 소셜 로그인 연동 미동작 (현재 URL: ${url})`
+    ).toBe(true);
+    console.log(`✅ 구글 로그인 이동 확인 (구글 도메인 도달: ${reachedProvider}, URL: ${url})`);
   }
 
   async clickNaverButton() {
@@ -137,13 +142,16 @@ export class RegisterPage {
   }
 
   async verifyNaverLoginPage(popup?: Page) {
+    // 새 창/같은 탭 모두 가능 — 봇 감지로 네이버 페이지까지 못 가도 최소한 우리 사이트를 벗어나야 함
     const target = popup ?? this.page;
     const url = target.url();
-    if (/naver\.com|nid\.naver/i.test(url)) {
-      console.log(`✅ 네이버 로그인 페이지 이동 확인: ${url}`);
-    } else {
-      console.log(`⚠️ 봇 감지로 naver.com 미도달 (버튼 노출·클릭 가능 확인됨): ${url}`);
-    }
+    const reachedProvider = /naver\.com|nid\.naver/i.test(url);
+    const leftOurSite = url !== 'about:blank' && !/metademy/i.test(url) && !(BASE && url.startsWith(BASE));
+    expect(
+      reachedProvider || leftOurSite,
+      `[앱오류] 네이버 버튼 클릭 후 우리 사이트에 그대로 머물러 있고 네이버 도메인으로도 이동하지 않음 — 소셜 로그인 연동 미동작 (현재 URL: ${url}, 새 창: ${!!popup})`
+    ).toBe(true);
+    console.log(`✅ 네이버 로그인 이동 확인 (네이버 도메인 도달: ${reachedProvider}, 새 창: ${!!popup}, URL: ${url})`);
   }
 
   // ─── 구분선 / 이메일 영역 ─────────────────────────────────────────────────
@@ -436,24 +444,42 @@ export class RegisterPage {
   // ─── 이용약관 동의 ────────────────────────────────────────────────────────────
 
   async checkAllTermsAgree() {
-    // 전체 동의 체크박스 클릭
+    // 전체 동의 체크박스 클릭 → 클릭이 실제 체크 상태로 반영됐는지 단언 (커스텀 체크박스 클릭 무시 방지)
     const allAgreeBtn = this.page
       .getByText('전체 동의', { exact: false })
       .or(this.page.locator('input[type="checkbox"]').first())
       .first();
     await allAgreeBtn.click({ force: true });
     await this.page.waitForTimeout(400);
-    console.log('✅ 전체 동의 클릭');
+    const allAgreeCheckbox = this.page.locator('input[type="checkbox"]').first();
+    await expect(
+      allAgreeCheckbox,
+      '[앱오류] "전체 동의" 클릭 후에도 전체 동의 체크박스가 체크되지 않음 — 전체 동의 동작 버그'
+    ).toBeChecked({ timeout: 5000 });
+    console.log('✅ 전체 동의 클릭 → 전체 동의 체크박스 checked 확인');
   }
 
   async verifyAllSubCheckboxesChecked() {
+    // 전체 동의 후에는 하위 약관 체크박스가 모두 checked 여야 함 — 하나라도 unchecked 면 연동 버그
     const checkboxes = this.page.locator('input[type="checkbox"]');
     const count = await checkboxes.count();
+    expect(
+      count,
+      '[UI/셀렉터] 약관 체크박스를 찾을 수 없음 — 셀렉터 변경 또는 약관 영역 미노출'
+    ).toBeGreaterThan(0);
+    const unchecked: string[] = [];
+    const states: string[] = [];
     for (let i = 0; i < count; i++) {
       const checked = await checkboxes.nth(i).isChecked().catch(() => false);
+      states.push(`${i + 1}:${checked ? 'checked' : 'unchecked'}`);
+      if (!checked) unchecked.push(`${i + 1}번`);
       console.log(`  체크박스 ${i + 1}/${count}: ${checked ? '✅ checked' : '❌ unchecked'}`);
     }
-    console.log(`ℹ️ 전체 동의 후 ${count}개 체크박스 상태 확인`);
+    expect(
+      unchecked,
+      `[앱오류] 전체 동의 후에도 체크되지 않은 약관 체크박스가 있음 (${count}개 중 ${unchecked.length}개) — 전체 동의 연동 버그`
+    ).toEqual([]);
+    console.log(`✅ 전체 동의 후 체크박스 ${count}개 모두 checked 확인 (${states.join(', ')})`);
   }
 
   async clickTermsViewButton(termType: '이용약관' | '개인정보' | '마케팅') {
@@ -532,10 +558,14 @@ export class RegisterPage {
   }
 
   async verifyRegisterComplete() {
-    // 회원가입 완료 페이지 또는 성공 메시지
-    await this.page.waitForURL(/\/register.*complete|\/join.*done|\/welcome|\/login/, {
-      timeout: 15000,
-    });
+    // 회원가입 완료 페이지 또는 성공 메시지 — 미이동 시 현재 URL 과 함께 실패시킴
+    await this.page
+      .waitForURL(/\/register.*complete|\/join.*done|\/welcome|\/login/, { timeout: 15000 })
+      .catch(() => {
+        throw new Error(
+          `[앱오류] 회원가입 제출 후 완료 페이지로 이동하지 않음 — 가입 처리 실패 가능성 (현재 URL: ${this.page.url()})`
+        );
+      });
     console.log(`✅ 회원가입 완료 페이지 이동: ${this.page.url()}`);
   }
 
