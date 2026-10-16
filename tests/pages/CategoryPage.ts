@@ -1,41 +1,41 @@
 import { Page, expect } from '@playwright/test';
 
+// 서비스의 1차 카테고리 (GET /api/v2/lecture/intro/category/first 응답 순서와 동일)
+// 2026-10-16 확인: "정비 훈련" 이 없어지고 "산업안전" 이 추가됨
 export const MAIN_CATEGORIES = [
-  '보건 의료', 'AI · IT 실습', '직무 훈련', '어학', '정비 훈련', '조종 훈련', '장애인 직업훈련',
+  'AI · IT 실습', '보건 의료', '직무 훈련', '조종 훈련', '산업안전', '장애인 직업훈련', '어학',
 ];
 
+// 카테고리별 노출 콘텐츠 (GET /api/v2/lecture/intro/contents 의 category.classification 기준)
+// top: 드롭다운에서 바로 보이는 항목 / bottom: 스크롤해야 보이는 항목
+// 테스트용 더미 콘텐츠(이름에 test·테스트가 들어가는 것)는 수시로 바뀌므로 제외한다.
 export const SUB_ITEMS = {
+  'AI · IT 실습': {
+    top: ['파이썬 마스터', '가볍게 시작하는 AI입문', '속 시원한 프롬프트 엔지니어링'],
+    bottom: ['서버보안실습(진단)', '가볍게 시작하는 SQL 입문'],
+  },
   '보건 의료': {
-    top: ['간호술기 (360VR)', '물리치료 (360VR)', '요양보호사'],
+    top: ['물리치료 (360VR)', '요양보호사', '간호술기 (동작인식특화)'],
     bottom: ['두경부 해부학', 'SIMDEMY(동물 해부 실습)'],
   },
-  'AI · IT 실습': {
-    top: ['파이썬 마스터', '파이썬 심화', '속 시원한 프롬프트 엔지니어링'],
-    bottom: ['임직원_파이썬과 AI로 끝내는 업무 자동화', '임직원_소프트웨어 개발 실무를 위한 IT 영어'],
-  },
   '직무 훈련': {
-    top: [
-      '일반실험 - 토질역학 압밀시험',
-      '일반실험 - 재료역학 인장시험',
-      '일반실험 - 일반물리 운동량과 충돌 실험',
-      '일반실험 - 일반화학 아스피린 합성',
-    ],
-    bottom: [],
-  },
-  '어학': {
-    top: ['TOPIK 쓰기 강의 + AI 선생님'],
-    bottom: [],
-  },
-  '정비 훈련': {
-    top: ['EV 교육'],
+    top: ['전기차 정비', '시설관리', '가상실험실 (4종)', '용접'],
     bottom: [],
   },
   '조종 훈련': {
     top: ['초경량 비행장치 기초 비행 교육', '초경량 비행장치 시설물 점검 교육'],
-    bottom: ['임직원_지게차 훈련 실습', '임직원_동력보트 자격 시험 실습'],
+    bottom: ['지게차 훈련 실습', '동력보트 자격 시험 실습'],
+  },
+  '산업안전': {
+    top: ['산업안전 (안전교육)'],
+    bottom: [],
   },
   '장애인 직업훈련': {
-    top: ['수정'],
+    top: ['휠마스터', '지하철 타기', '편의점 직무훈련', '바리스타'],
+    bottom: [],
+  },
+  '어학': {
+    top: ['TOPIK 쓰기 강의 + AI 선생님'],
     bottom: [],
   },
 };
@@ -108,9 +108,27 @@ export class CategoryPage {
 
   async clickSubItem(item: string) {
     await this.ensureSubPanelVisible(item);
-    const el = this.page.getByText(item, { exact: true }).first();
-    await el.click({ timeout: 10000 });
-    console.log(`🖱️ 서브 항목 클릭: ${item}`);
+    // 드롭다운 항목은 <a> 가 아니라 <p> + JS 이동이라 href 로 찾을 수 없다.
+    // 2차 카테고리 제목과 콘텐츠명이 같은 경우(예: 산업안전 (안전교육))가 있어,
+    // 같은 이름의 후보를 차례로 눌러 실제로 상세로 이동하는 항목을 찾는다.
+    const candidates = this.page.getByText(item, { exact: true });
+    const total = Math.min(await candidates.count(), 4);
+    for (let i = 0; i < Math.max(total, 1); i++) {
+      await candidates.nth(i).click({ timeout: 10000, force: true }).catch(() => {});
+      const moved = await this.page
+        .waitForURL(/\/contents\/detail\?id=\d+/, { timeout: 4000 })
+        .then(() => true)
+        .catch(() => false);
+      if (moved) {
+        console.log(`🖱️ 서브 항목 클릭: ${item} (후보 ${i + 1}/${total})`);
+        return;
+      }
+      // 이동하지 않았으면 드롭다운을 다시 열고 다음 후보 시도
+      await this.hoverCategoryMenu();
+      if (this.activeSubCategory) await this.hoverSubCategory(this.activeSubCategory);
+      await this.ensureSubPanelVisible(item);
+    }
+    console.log(`🖱️ 서브 항목 클릭: ${item} (이동 없음 — 후보 ${total}개 모두 시도)`);
   }
 
   async verifyContentsDetailPage() {

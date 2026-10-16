@@ -60,12 +60,12 @@ test.describe('카테고리 드롭다운', () => {
     }
   });
 
-  test('정비훈련 서브메뉴 확인', async ({ page }) => {
+  test('산업안전 서브메뉴 확인', async ({ page }) => {
     const categoryPage = new CategoryPage(page);
     await categoryPage.hoverCategoryMenu();
-    await categoryPage.hoverSubCategory('정비 훈련');
+    await categoryPage.hoverSubCategory('산업안전');
 
-    for (const item of SUB_ITEMS['정비 훈련'].top) {
+    for (const item of SUB_ITEMS['산업안전'].top) {
       await categoryPage.verifySubItemVisible(item);
     }
   });
@@ -100,11 +100,11 @@ test.describe('카테고리 클릭 시 페이지 이동', () => {
   });
 
   const CLICK_TESTS: { category: string; item: string }[] = [
-    { category: '보건 의료', item: '간호술기 (360VR)' },
+    { category: '보건 의료', item: '요양보호사' },
     { category: 'AI · IT 실습', item: '파이썬 마스터' },
-    { category: '직무 훈련', item: '일반실험 - 토질역학 압밀시험' },
+    { category: '직무 훈련', item: '전기차 정비' },
     { category: '어학',      item: 'TOPIK 쓰기 강의 + AI 선생님' },
-    { category: '정비 훈련', item: 'EV 교육' },
+    { category: '산업안전', item: '산업안전 (안전교육)' },
     { category: '조종 훈련', item: '초경량 비행장치 기초 비행 교육' },
   ];
 
