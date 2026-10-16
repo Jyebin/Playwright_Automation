@@ -672,6 +672,12 @@ details.run-box[open] > .run-sum{margin-bottom:8px;}
 .atm-restore{align-self:flex-start;margin-top:6px;background:#fff;border:1px dashed var(--bd2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--tx2);cursor:pointer;}
 .atm-restore:hover{border-color:var(--ac);color:var(--ac2);}
 
+/* 코드 반영 처리 버튼 */
+.rev-apply{background:var(--pass);border:1px solid var(--pass);color:#fff;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;}
+.rev-apply:hover{background:#15803d;border-color:#15803d;}
+.rev-unapply{background:#fff;border:1px dashed var(--bd2);color:var(--tx3);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;}
+.rev-unapply:hover{border-color:var(--skip);color:var(--skip);}
+
 /* 실행 회차 구분 (이번 실행 / 이전 실행) */
 .runseg{display:flex;gap:4px;align-items:center;}
 .runseg button{background:#fff;border:1px solid var(--bd2);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;color:var(--tx2);cursor:pointer;white-space:nowrap;}
@@ -973,6 +979,11 @@ var ICON  = { pass:'✓', fail:'✗', pending:'○', skip:'–', unmapped:'·' }
 document.getElementById('tbody').addEventListener('click', function(e) {
   var saveBtn = e.target.closest('.rev-save');
   if (saveBtn) { saveRevision(saveBtn.dataset.key, parseInt(saveBtn.dataset.idx, 10), false); return; }
+  var applyBtn = e.target.closest('.rev-apply, .rev-unapply');
+  if (applyBtn) {
+    markRevisionApplied(applyBtn.dataset.key, parseInt(applyBtn.dataset.idx, 10), applyBtn.classList.contains('rev-apply'));
+    return;
+  }
   var resetBtn = e.target.closest('.rev-reset');
   if (resetBtn) { saveRevision(resetBtn.dataset.key, parseInt(resetBtn.dataset.idx, 10), true); return; }
   var barBtn = e.target.closest('.tc-bar-btn');
@@ -1071,6 +1082,19 @@ function updateStats(s) {
   document.getElementById('sn-u').textContent = s.pending || 0;
   document.getElementById('sn-s').textContent = s.skip    || 0;
   document.getElementById('sn-r').textContent = s.revised || 0;
+}
+
+// 수정 내용을 테스트 코드에 반영했는지 표시 (실제 코드 수정은 사람이/Claude 가 하고, 여기서는 상태만 바꾼다)
+function markRevisionApplied(key, idx, applied) {
+  postJSON('/api/revision/applied', { key: key, index: idx, applied: applied })
+    .then(function(d) {
+      if (!revisions[key]) revisions[key] = {};
+      if (d.revision) revisions[key][idx] = d.revision;
+      if (d.stats) updateStats(d.stats);
+      applyFilters();
+      toast(applied ? '코드 반영 완료로 표시했습니다' : '다시 반영 대기로 되돌렸습니다', 'ok');
+    })
+    .catch(function(e) { toast('오류: ' + e.message, 'err'); });
 }
 
 function pendingRevCount(key) {
@@ -1301,6 +1325,8 @@ function buildDetail(tc, r) {
     if (isEditing) html += '<button class="rev-save"' + attrs + '>💾 저장</button><button class="rev-cancel"' + attrs + '>취소</button>';
     else html += '<button class="rev-edit"' + attrs + '>✏️ 수정</button>';
     if (rev) html += '<button class="rev-reset"' + attrs + '>↺ 원래대로</button>';
+    if (rev && !rev.code_applied) html += '<button class="rev-apply"' + attrs + ' title="이 수정을 테스트 코드에 반영했다고 표시합니다">✅ 코드 반영함</button>';
+    if (rev && rev.code_applied) html += '<button class="rev-unapply"' + attrs + ' title="다시 반영 대기 상태로 되돌립니다">↩ 반영 대기로</button>';
     html += revState(rev) + '</div>';
 
     html += '</div></div>';
@@ -2101,6 +2127,26 @@ const server = http.createServer(async (req, res) => {
       saveDB(db);
 
       sendJSON(res, 200, { ok: true, revision: revs[index] || null, stats: getStats(db) });
+    } catch (e) {
+      sendJSON(res, 400, { ok: false, error: e.message });
+    }
+    return;
+  }
+
+  // ── POST /api/revision/applied ── 수정의 코드 반영 상태 변경 { key, index, applied }
+  if (req.method === 'POST' && pathname === '/api/revision/applied') {
+    try {
+      const { key, index, applied } = await readJSON(req);
+      const db = loadDB();
+      const rev = (db.revisions[key] || {})[index];
+      if (!rev) {
+        sendJSON(res, 404, { ok: false, error: '해당 스텝에 저장된 수정이 없습니다.' });
+        return;
+      }
+      rev.code_applied = !!applied;
+      rev.applied_at = applied ? new Date().toISOString() : null;
+      saveDB(db);
+      sendJSON(res, 200, { ok: true, revision: rev, stats: getStats(db) });
     } catch (e) {
       sendJSON(res, 400, { ok: false, error: e.message });
     }
